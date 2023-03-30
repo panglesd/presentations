@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+
+    <title>Slipshow</title>
+
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="node_modules/slipshow/dist/css/slip.css"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="node_modules/slipshow/dist/css/theorem.css"
+    />
+    <script
+      src="node_modules/mathjax/es5/tex-chtml.js"
+      id="MathJax-script"
+      async
+    ></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/default.min.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <!-- and it's easy to individually load additional languages -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/languages/ocaml.min.js"></script>
+    <script>
+      hljs.highlightAll();
+    </script>
+  </head>
+  <body>
+    <!-- This is the presentation -->
+    <slip-slipshow>
+      <!-- Add the slips here -->
+      <slip-slip immediate-enter toc-title="Title page">
+        <slip-body>
+          <div class="title">
+            Links between computer science and mathematical logic
+          </div>
+          <div class="date">April, 8th</div>
+          <div class="context">Adoption team talks</div>
+          <div class="author">Paul-Elliot Anglès d'Auriac</div>
+        </slip-body>
+      </slip-slip>
+      <!-- End of slip "Example of a slip" -->
+
+      <!-- For instance here is a slip -->
+      <slip-slip immediate-enter toc-title="Introduction">
+        <slip-title>What is Mathematical Logic?</slip-title>
+        <slip-body>
+          <style>
+            p {
+              margin-bottom: 45px;
+            }
+            li {
+              margin-top: 35px;
+            }
+            code {
+              background-color: #f3f3f3;
+            }
+            h4 {
+              text-align: center;
+            }
+          </style>
+
+          <h4>
+            <b
+              >It is the study of <code>mathematics</code>, through the lens of
+              mathematics:</b
+            >
+          </h4>
+          <ol>
+            <li pause>
+              Give a formal definition of <code>formal definitions</code>,
+              <code>formulas</code>, <code>theorems</code>, <code>proof</code>,
+              <code>theory</code>, ...
+            </li>
+            <li pause>Prove theorems on <code>proof of theorems</code>,</li>
+            <li pause>Conclude</li>
+          </ol>
+          <h4 pause id="example-of-l">
+            <b>Example!</b>
+          </h4>
+          <ol>
+            <li pause>A <code>theory</code> is [...]</li>
+            <li pause>
+              "A recursively enumerable <code>theory</code> is either incomplete
+              or inconsistent",
+            </li>
+            <li pause>Mathematics is doomed for humans</li>
+          </ol>
+          <!-- <li> -->
+          <!--   For instance, according to wikipedia: -->
+          <!--   <ul> -->
+          <!--     <li> -->
+          <!--       Number theory studies integers, integer-valued functions. -->
+          <!--     </li> -->
+          <!--     <li> -->
+          <!--       Analysis (usually) studies reals and complex numbers, -->
+          <!--       functions. -->
+          <!--     </li> -->
+          <!--     <li>Geometry studies shapes, distance, size, ...</li> -->
+          <!--   </ul> -->
+          <!-- </li> -->
+          <!-- <ul>
+               <li pause>
+               So what exactly are the objects that Mathematical Logic studies?
+               <ul>
+               <li>Formulas</li>
+               <li>Proofs</li>
+               <li>Theory</li>
+               </ul>
+               </li>
+               </ul> -->
+          <!-- <p>Let's have an example!</p> -->
+          <h2 up-at-unpause="example-of-l" pause>
+            An toy model of Mathematics
+          </h2>
+          <div id="form-def" class="definition" title="Formula">
+            A <code>formula</code> is either:
+            <ul>
+              <li>A base <code>predicate</code> \(P\in\mathbb P\)</li>
+              <li>
+                An <code>implication</code> \(A \Rightarrow B\), where \(A,B\)
+                are <code>formulas</code>.
+              </li>
+              <li>
+                A <code>conjuction</code> \(A \land B\), where \(A,B\) are
+                <code>formulas</code>.
+              </li>
+            </ul>
+          </div>
+          <pre
+            id="ml-form-def"
+            pause
+          ><code class="language-ocaml">type formula =
+  | Predicate of predicate
+  | Implication of formula * formula
+  | Conjunction of formula * formula</code></pre>
+          <div
+            pause
+            id="proof-def"
+            down-at-unpause
+            class="definition"
+            title="Proof"
+          >
+            <style>
+              q {
+                color: darkblue;
+                background-color: #f3f3f3;
+              }
+            </style>
+            A <code>proof</code> in context \(\mathbb C\) is either:
+            <ul>
+              <li>
+                The use of the context:
+                <quote><q>\(F\in\mathbb C\). We conclude \(F\).</q></quote> if
+                \(F\in\mathbb C\).
+              </li>
+              <li>
+                A combination of two proofs:
+                <blockquote>
+                  <q
+                    >\(T_1\) is a proof of \(P_1\). \(T_2\) is a proof of
+                    \(P_2\). We conclude \(P_1\land P_2\)</q
+                  >
+                </blockquote>
+              </li>
+              <li>
+                A "specialization" of a stronger result:
+                <blockquote>
+                  <q> \(T\) is a proof of \(P\land Q\). We conclude \(P\)</q>
+                </blockquote>
+                <!-- where \(T\) is a <code>proof</code> of \(P\land Q\) in context
+                     \(\mathbb C\) -->
+              </li>
+              <li>
+                The introduction of an hypothesis in the context:
+                <blockquote>
+                  <q
+                    >Suppose \(P_1\). \(T\) is proof of \(P_2\). We conclude
+                    \(P_1\Rightarrow P_2\)</q
+                  >
+                </blockquote>
+                where \(T\) is a <code>proof</code> of \(P_2\) in context
+                \(\{P_1\}\cup\mathbb C\)
+              </li>
+              <li>
+                The use of a lemma
+                <blockquote>
+                  <q
+                    >\(T_q\) is a proof of \(Q\). \(T_p\) is a proof
+                    of\(Q\Rightarrow P\). We conclude \(P\).</q
+                  >
+                </blockquote>
+              </li>
+            </ul>
+            <!-- <pre id="ml-form-def" pause><code class="language-ocaml">type ('a, 'context) proof =
+                   | Axiom of 'a (* when 'a in context *)
+                   | And_elim of ('a, 'context) proof * ('a, 'context) proof
+                   | And_intro of ('a, 'context) proof
+                   | Arrow_elim of ('a, 'context) proof * ('a, 'context) proof</code></pre> -->
+          </div>
+          <pre
+            id="ml-proof-def"
+            pause
+            down-at-unpause
+          ><code class="language-ocaml">type context = formula list (* [F_0 ; ... F_n] *)
+and proof = context * proof_desc
+and proof_desc =
+  | Axiom of int
+  | And_intro of proof * proof
+  | And_elim_left of proof
+  | And_elim_right of proof
+  | Implication_intro of proof
+  | Implication_elim of proof * proof</code></pre>
+          <h2 id="toy-th-section" pause up-at-unpause="ml-proof-def">
+            A theorem on the toy model
+          </h2>
+
+          <div class="theorem" title="Toy completeness theorem">
+            A <code>formula</code> is <code>provable</code> if and only if it is
+            true "for any <code>interpretation</code> of the
+            <code>predicates</code>".
+          </div>
+
+          <div
+            pause
+            up-at-unpause="toy-th-section"
+            id="sem-true-def"
+            class="definition"
+            title="Model"
+          >
+            <p>A <code>model</code> is an interpretation of all predicates:</p>
+            <pre><code>type model = predicate -> bool</code></pre>
+            <p pause>
+              A <code>formula</code> is <code>true in a model</code> if:
+            </p>
+            <pre><code>let rec validity formula m = match formula with
+  | Predicate p -> m p
+  | Implication (f1, f2) ->
+      if validity f1 m then validity f2 m else true
+  | Conjuction (f1, f2) -> validity f1 m && validity f2 m </code></pre>
+          </div>
+          <!-- <p>
+               We expect that \(P\Rightarrow P\) is true, \((P\land (P\Rightarrow
+               Q))\Rightarrow Q\) is true, but \(P\Rightarrow Q\) is not true.
+               </p>
+               <h3>How to define proofs?</h3>
+               <div class="definition">
+               A model is a function \(\mathbb P\to\mathrm{bool}\). A formula \(P\)
+               is true in a model \(f\) if:
+               <ul>
+               <li>\(P=A\) and \(f(A)=\mathrm{true}\)</li>
+               <li>
+               \(P=Q\Rightarrow R\) and we do not have \(Q\) true in \(f\) and
+               \(R\) false in \(f\).
+               </li>
+               <li>\(P=Q\land R\) and both \(Q\) and \(R\) are true in \(f\)</li>
+               </ul>
+               </div>
+               <div>
+               <style>
+               td {
+               padding: 10px;
+               border: 2px solid black;
+               }
+               .truth-table1 {
+               border-collapse: collapse;
+               }
+               </style>
+               <p>
+               The \((A \land A \Rightarrow B) \Rightarrow B\) is true in every
+               model:
+               </p>
+               <table class="truth-table1">
+               <tbody>
+               <tr>
+               <td>\(A\)</td>
+               <td>\(B\)</td>
+               <td>\(A\Rightarrow B\)</td>
+               <td>\(A \land A \Rightarrow B\)</td>
+               <td>\((A \land A \Rightarrow B) \Rightarrow B\)</td>
+               </tr>
+               <tr>
+               <td>0</td>
+               <td>0</td>
+               <td>1</td>
+               <td>0</td>
+               <td>1</td>
+               </tr>
+               <tr>
+               <td>0</td>
+               <td>1</td>
+               <td>1</td>
+               <td>0</td>
+               <td>1</td>
+               </tr>
+               <tr>
+               <td>1</td>
+               <td>0</td>
+               <td>0</td>
+               <td>0</td>
+               <td>1</td>
+               </tr>
+               <tr>
+               <td>1</td>
+               <td>1</td>
+               <td>1</td>
+               <td>1</td>
+               <td>1</td>
+               </tr>
+               </tbody>
+               </table>
+               </div> -->
+          <h2 pause up-at-unpause="sem-true-def">Refinements:</h2>
+          <ul id="refinements">
+            <li>
+              Refinements on logic connectors: include \(\bot\), \(\lor\),
+              \(\forall\), \(\exists\), ... in the language!
+            </li>
+            <li>
+              Refinement on predicates: add equality, arithmetic language, group
+              theory language, set language, ... to the predicates!
+            </li>
+            <!-- <li>Axioms may include arithmetics, set theory, ...</li>
+                 <li>
+                 <b>Péano arithmetics</b> is the language of arithmetics with
+                 induction
+                 </li>
+                 <li><b>ZF</b> is the language of arithmetics with induction</li> -->
+          </ul>
+          <!-- <div class="theorem" title="Classic theorem">
+               <p>Let \(P\) be a formula:</p>
+               \[P\text{ is provable} \iff P\text{ is true in every model}\]
+               </div>
+               <div class="theorem" title="Goedel's completeness theorem">
+               <p>Let \(\phi\) be a formula and \(T\) be a theory.</p>
+               <div>
+               Then the following are equivalent
+               <ul>
+               <li>\(\phi\) is provable in \(L\)</li>
+               <li>\(\phi\) is true in every model of \(L\)</li>
+               </ul>
+               </div>
+               </div> -->
+        </slip-body>
+      </slip-slip>
+      <!-- End of slip "Example of a slip" -->
+      <slip-slip immediate-enter toc-title="Introduction to CS">
+        <slip-title>What is Computer Science?</slip-title>
+        <slip-body
+          ><b
+            >Computer science is...
+            <span style="color: orange" pause>OCaml!</span></b
+          >
+          <p>OCaml has types:</p>
+          <pre><code class="language-ocaml">type type_ =
+  | Var of var
+  | Arrow of type_ * type_
+  | Tuple2 of type_ * type_
+  | ...</code></pre>
+          <p pause>OCaml has typed values:</p>
+          <pre><code class="language-ocaml">type context = type_ list (* [t_0 ; ... ; t_n ] *)
+and value_ = context * value_desc
+and value_desc =
+  | Var of int
+  | Tuple_construct of value_ * value_
+  | Tuple_destruct_left of value_
+  | And_destruct_right of value_
+  | Arrow_construct of value_          (* [fun x -> ] *)
+  | Arrow_destruct of value_ * value_  (* f x         *)
+  | ...</code></pre>
+
+          <p pause down-at-unpause>Wait a minute... We've seen that already!</p>
+          <style>
+            table {
+              border-collapse: collapse;
+            }
+            td,
+            th {
+              border: 1px solid black;
+              padding: 24px;
+              width: 50%;
+            }
+          </style>
+          <div
+            pause
+            down-at-unpause
+            class="block"
+            title="Curry-Howard Correspondance"
+          >
+            <table>
+              <tr>
+                <th>Logic</th>
+                <th>Computer-science</th>
+              </tr>
+              <tr pause>
+                <td><b>Formulas</b></td>
+                <td><b>Types</b></td>
+              </tr>
+              <tr pause>
+                <td>\(A\Rightarrow A\)</td>
+                <td><code>a -> a</code></td>
+              </tr>
+              <tr pause>
+                <td>\((A\land B)\Rightarrow (A\Rightarrow C)\Rightarrow C\)</td>
+                <td><code>(a * b) -> (a -> c) -> c</code></td>
+              </tr>
+              <tr pause>
+                <td><b>Proofs</b></td>
+                <td><b>Programs</b></td>
+              </tr>
+              <tr pause>
+                <td>Suppose A then A by assumption</td>
+                <td><code>fun x -> x</code></td>
+              </tr>
+              <tr pause>
+                <td>
+                  Suppose \(A\land B\), suppose \(A\Rightarrow C\), we have
+                  \(A\land B\) by hypothesis so we conclude \(A\), we have
+                  \(A\Rightarrow C\) by hypothesis, so we conclude \(C\)
+                </td>
+                <td><code>fun (a, b) f -> f a</code></td>
+              </tr>
+              <tr pause>
+                  <td><b>There is a proof of \(F\)</b></td>
+                  <td><b>There is a value of type <code>t</code> </b></td>
+              </tr>
+            </table>
+          </div>
+          <div
+            pause
+            id="proof-def"
+            down-at-unpause
+            class="definition"
+            title="Proof"
+          >
+            <style>
+              q {
+                color: darkblue;
+                background-color: #f3f3f3;
+              }
+            </style>
+            A value \(v\) has type \(t\) in context \(\mathbb C\) if:
+            <ul>
+              <li><code>t = Core_type c</code> and \((v:c)\in\mathbb C\).</li>
+              <li>
+                if \(t = t_1 * t_2\), \(v=(v_1, v_2)\), and \(v_i : t_i\) in
+                context \(\mathbb C\)
+              </li>
+              <li>
+                <blockquote>
+                  <q
+                    >Let us prove \(P\land Q\): {\(T\)}. In particular, we have
+                    \(P\)</q
+                  >
+                </blockquote>
+                where \(T\) is a <code>proof</code> of \(P\land Q\) in context
+                \(\mathbb C\)
+              </li>
+              <li>
+                <blockquote>
+                  <q>Suppose \(P_1\). Let us prove \(P_2\): {\(T\)}</q>
+                </blockquote>
+                if \(P=P_1\Rightarrow P_2\) and \(T\) is a <code>proof</code> of
+                \(P_2\) in context \(\{P_1\}\cup\mathbb C\)
+              </li>
+              <!-- <li>
+                       <blockquote>
+                       <q
+                       >Let us prove \(Q\): {\(T_q\)}. <br />
+                       Now that we have \(Q\), let us prove \(P\): {\(T\)}</q
+                       >
+                       </blockquote>
+                       where \(Q\) is any formula, \(T_q\) is a proof of \(Q\) in
+                       context \(\mathbb C\) and \(T\) is a proof of \(P\) with context
+                       \(\{Q\}\cup\mathbb C\)
+                       </li> -->
+            </ul>
+            <!-- <pre id="ml-form-def" pause><code class="language-ocaml">type ('a, 'context) proof =
+                   | Axiom of 'a (* when 'a in context *)
+                   | And_elim of ('a, 'context) proof * ('a, 'context) proof
+                   | And_intro of ('a, 'context) proof
+                   | Arrow_elim of ('a, 'context) proof * ('a, 'context) proof</code></pre> -->
+          </div>
+        </slip-body></slip-slip
+      >
+    </slip-slipshow>
+
+    <!-- Include the library -->
+    <script src="node_modules/slipshow/dist/slipshow.cdn.js"></script>
+    <!-- Start the presentation () -->
+    <script>
+      let engine = Slipshow.startSlipshow();
+    </script>
+  </body>
+</html>
