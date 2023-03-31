@@ -221,7 +221,7 @@ and proof_desc =
             A theorem on the toy model
           </h2>
 
-          <div class="theorem" title="Toy completeness theorem">
+          <div class="theorem" title="(false) Toy completeness theorem">
             A <code>formula</code> is <code>provable</code> if and only if it is
             true "for any <code>interpretation</code> of the
             <code>predicates</code>".
@@ -245,78 +245,32 @@ and proof_desc =
       if validity f1 m then validity f2 m else true
   | Conjuction (f1, f2) -> validity f1 m && validity f2 m </code></pre>
           </div>
-          <!-- <p>
-               We expect that \(P\Rightarrow P\) is true, \((P\land (P\Rightarrow
-               Q))\Rightarrow Q\) is true, but \(P\Rightarrow Q\) is not true.
-               </p>
-               <h3>How to define proofs?</h3>
-               <div class="definition">
-               A model is a function \(\mathbb P\to\mathrm{bool}\). A formula \(P\)
-               is true in a model \(f\) if:
-               <ul>
-               <li>\(P=A\) and \(f(A)=\mathrm{true}\)</li>
-               <li>
-               \(P=Q\Rightarrow R\) and we do not have \(Q\) true in \(f\) and
-               \(R\) false in \(f\).
-               </li>
-               <li>\(P=Q\land R\) and both \(Q\) and \(R\) are true in \(f\)</li>
-               </ul>
-               </div>
-               <div>
-               <style>
-               td {
-               padding: 10px;
-               border: 2px solid black;
-               }
-               .truth-table1 {
-               border-collapse: collapse;
-               }
-               </style>
-               <p>
-               The \((A \land A \Rightarrow B) \Rightarrow B\) is true in every
-               model:
-               </p>
-               <table class="truth-table1">
-               <tbody>
-               <tr>
-               <td>\(A\)</td>
-               <td>\(B\)</td>
-               <td>\(A\Rightarrow B\)</td>
-               <td>\(A \land A \Rightarrow B\)</td>
-               <td>\((A \land A \Rightarrow B) \Rightarrow B\)</td>
-               </tr>
-               <tr>
-               <td>0</td>
-               <td>0</td>
-               <td>1</td>
-               <td>0</td>
-               <td>1</td>
-               </tr>
-               <tr>
-               <td>0</td>
-               <td>1</td>
-               <td>1</td>
-               <td>0</td>
-               <td>1</td>
-               </tr>
-               <tr>
-               <td>1</td>
-               <td>0</td>
-               <td>0</td>
-               <td>0</td>
-               <td>1</td>
-               </tr>
-               <tr>
-               <td>1</td>
-               <td>1</td>
-               <td>1</td>
-               <td>1</td>
-               <td>1</td>
-               </tr>
-               </tbody>
-               </table>
-               </div> -->
-          <h2 pause up-at-unpause="sem-true-def">Refinements:</h2>
+          <div
+            id="classi-completeness"
+            pause
+            down-at-unpause
+            class="theorem"
+            title="Classical toy completeness theorem"
+          >
+            A <code>formula</code> is <code>provable</code>
+            <span style="background-color: yellow"
+              >with context \(((P\Rightarrow Q)\Rightarrow P)\Rightarrow
+              P\)</span
+            >
+            if and only if it is true "for any <code>interpretation</code> of
+            the <code>predicates</code>".
+          </div>
+          <div
+            pause
+            down-at-unpause
+            class="theorem"
+            title="Intuitionnistic toy completeness theorem 2"
+          >
+            A <code>formula</code> is <code>provable</code> if and only if it is
+            true "for any <span style="background-color: yellow">Kripke-</span
+            ><code>interpretation</code> of the <code>predicates</code>".
+          </div>
+          <h2 pause up-at-unpause="classi-completeness">Less toy model:</h2>
           <ul id="refinements">
             <li>
               Refinements on logic connectors: include \(\bot\), \(\lor\),
@@ -325,6 +279,10 @@ and proof_desc =
             <li>
               Refinement on predicates: add equality, arithmetic language, group
               theory language, set language, ... to the predicates!
+            </li>
+            <li>
+              Start with a non-empty set of axioms: Peano axioms (for
+              arithmetics), ZF axioms (for set theory).
             </li>
             <!-- <li>Axioms may include arithmetics, set theory, ...</li>
                  <li>
@@ -350,6 +308,7 @@ and proof_desc =
         </slip-body>
       </slip-slip>
       <!-- End of slip "Example of a slip" -->
+
       <slip-slip immediate-enter toc-title="Introduction to CS">
         <slip-title>What is Computer Science?</slip-title>
         <slip-body
@@ -375,7 +334,9 @@ and value_desc =
   | Arrow_destruct of value_ * value_  (* f x         *)
   | ...</code></pre>
 
-          <p pause down-at-unpause>Wait a minute... We've seen that already!</p>
+          <p id="wait" pause down-at-unpause>
+            Wait a minute... We've seen that already!
+          </p>
           <style>
             table {
               border-collapse: collapse;
@@ -389,8 +350,9 @@ and value_desc =
           </style>
           <div
             pause
-            down-at-unpause
+            up-at-unpause="wait"
             class="block"
+            id="c-h-c"
             title="Curry-Howard Correspondance"
           >
             <table>
@@ -422,73 +384,217 @@ and value_desc =
                 <td>
                   Suppose \(A\land B\), suppose \(A\Rightarrow C\), we have
                   \(A\land B\) by hypothesis so we conclude \(A\), we have
-                  \(A\Rightarrow C\) by hypothesis, so we conclude \(C\)
+                  \(A\Rightarrow C\) by hypothesis, so we conclude \(C\), so we
+                  conclude \((A\Rightarrow C)\Rightarrow C\), so we conclude
+                  \((A\land B)\Rightarrow(A\Rightarrow C)\Rightarrow C\)
                 </td>
                 <td><code>fun (a, b) f -> f a</code></td>
               </tr>
               <tr pause>
-                  <td><b>There is a proof of \(F\)</b></td>
-                  <td><b>There is a value of type <code>t</code> </b></td>
+                <td>Using a lemma</td>
+                <td>Applying a function</td>
+              </tr>
+              <tr pause down-at-unpause="c-h-c">
+                <td><b>There is a proof of \(F\)</b></td>
+                <td>
+                  <b>There is a value of type <code>t</code> </b>
+                </td>
+              </tr>
+              <tr pause>
+                <td>\(A\) is not provable</td>
+                <td>No value has type <code>'a</code></td>
+              </tr>
+              <tr pause>
+                <td>
+                  \(((P\Rightarrow Q)\Rightarrow P)\Rightarrow P\) is not
+                  provable
+                </td>
+                <td>
+                  No value has type<br />
+                  <code>(('p -> 'q) -> 'p) -> 'p</code>
+                </td>
+              </tr>
+              <tr pause>
+                <td>\(\bot\)</td>
+                <td><code>type impossible = | ;;</code></td>
+              </tr>
+              <tr pause>
+                <td>\(A\lor B\)</td>
+                <td><code>type or = A of a | B of b ;;</code></td>
+              </tr>
+              <tr pause>
+                <td>...</td>
+                <td>...</td>
               </tr>
             </table>
           </div>
+          <h2 pause down-at-unpause="last-ul">What CS brings to Mathematics</h2>
+          <ul>
+            <li>Automatic prover, proof assistant</li>
+            <li>Expertise in structure of big proofs</li>
+          </ul>
+          <h2>What Mathematics brings to CS</h2>
+          <ul id="last-ul">
+            <li>Subset of OCaml will never loop</li>
+            <li>Proofs</li>
+          </ul>
+        </slip-body>
+      </slip-slip>
+
+      <slip-slip immediate-enter toc-title="ddd">
+        <slip-title>Computability</slip-title>
+        <slip-body>
+          <p>First, we modeled the mathematics, inside the mathematics.</p>
+          <p pause>
+            Now, let's be a mathematician, modeling a mathematician, in
+            mathematics.
+          </p>
+          <div pause class="definition" title="A mathematician">
+            A <code>mathematician</code> is:
+            <ul>
+              <li>A mind, with finitely many states.</li>
+              <li pause>
+                An infinite notebook, <span>whose page are all finite.</span>
+              </li>
+              <li pause>
+                The mathematician can read, erase and write on a page, as well
+                as turn a page.
+              </li>
+            </ul>
+          </div>
+          <style>
+            #big-question {
+              animation-name: backgroundColorPalette;
+              animation-duration: 5s;
+              animation-iteration-count: infinite;
+              animation-direction: alternate;
+              animation-timing-function: linear;
+              /* linear is enabled default, it’s not necessary to add it make it work but it can make your code more expressive */
+            }
+            @keyframes backgroundColorPalette {
+              0% {
+                background: #ee6055;
+              }
+              25% {
+                background: #60d394;
+              }
+              50% {
+                background: #aaf683;
+              }
+              75% {
+                background: #ffd97d;
+              }
+              100% {
+                background: #ff9b85;
+              }
+            }
+          </style>
           <div
             pause
-            id="proof-def"
-            down-at-unpause
-            class="definition"
-            title="Proof"
+            class="block"
+            title="Entscheidungsproblem (Hilbert, Ackermann)"
+            id="big-question"
           >
-            <style>
-              q {
-                color: darkblue;
-                background-color: #f3f3f3;
-              }
-            </style>
-            A value \(v\) has type \(t\) in context \(\mathbb C\) if:
-            <ul>
-              <li><code>t = Core_type c</code> and \((v:c)\in\mathbb C\).</li>
-              <li>
-                if \(t = t_1 * t_2\), \(v=(v_1, v_2)\), and \(v_i : t_i\) in
-                context \(\mathbb C\)
-              </li>
-              <li>
-                <blockquote>
-                  <q
-                    >Let us prove \(P\land Q\): {\(T\)}. In particular, we have
-                    \(P\)</q
-                  >
-                </blockquote>
-                where \(T\) is a <code>proof</code> of \(P\land Q\) in context
-                \(\mathbb C\)
-              </li>
-              <li>
-                <blockquote>
-                  <q>Suppose \(P_1\). Let us prove \(P_2\): {\(T\)}</q>
-                </blockquote>
-                if \(P=P_1\Rightarrow P_2\) and \(T\) is a <code>proof</code> of
-                \(P_2\) in context \(\{P_1\}\cup\mathbb C\)
-              </li>
-              <!-- <li>
-                       <blockquote>
-                       <q
-                       >Let us prove \(Q\): {\(T_q\)}. <br />
-                       Now that we have \(Q\), let us prove \(P\): {\(T\)}</q
-                       >
-                       </blockquote>
-                       where \(Q\) is any formula, \(T_q\) is a proof of \(Q\) in
-                       context \(\mathbb C\) and \(T\) is a proof of \(P\) with context
-                       \(\{Q\}\cup\mathbb C\)
-                       </li> -->
-            </ul>
-            <!-- <pre id="ml-form-def" pause><code class="language-ocaml">type ('a, 'context) proof =
-                   | Axiom of 'a (* when 'a in context *)
-                   | And_elim of ('a, 'context) proof * ('a, 'context) proof
-                   | And_intro of ('a, 'context) proof
-                   | Arrow_elim of ('a, 'context) proof * ('a, 'context) proof</code></pre> -->
+            Can a <code>mathematician</code> be so strong that they can
+            recognize what's true and what is not?
           </div>
-        </slip-body></slip-slip
-      >
+          <p>
+            We will prove this <code>superperson</code> does not exists, going
+            through computer science!
+          </p>
+          <div pause up-at-unpause="big-question" class="theorem">
+            <ul>
+              <li>A <code>mathematician</code> is a Turing Machine!</li>
+              <li>A Turing Machine is as powerful as an OCaml program!</li>
+            </ul>
+            Therefore, a <code>mathematician</code> is an OCaml program.
+          </div>
+          <div
+            pause
+            class="block"
+            title="Modern formulation of the Entscheidungsproblem"
+            id="big-question-2"
+          >
+            Can an OCaml program be so cool that they can recognize what's true
+            and what is not?
+          </div>
+          <div
+            pause
+            class="block"
+            title="The Halting problem"
+            id="big-question-3"
+          >
+            Can an OCaml program be so cool that they can know if a program will
+            terminate?
+          </div>
+          <div
+            pause
+            up-at-unpause="big-question-3"
+            class="theorem"
+            id="halting-problem"
+          >
+            No OCaml program can decide whether an OCaml program (given as
+            input) will terminate when executed.
+          </div>
+          <div pause class="proof">
+            <span style="margin-bottom: 25px">Suppose you have:</span>
+            <pre><code class="language-ocaml">val terminates : program:string -> input:string -> unit
+(** tells whether the program with given input would terminate *)</code></pre>
+
+            <!-- <p  style="margin-bottom:45px;" pause>Let's build a program with a sense of contradiction:</p>
+              -->
+            <pre pause><code class="language-ocaml">let grumpy program =
+  if terminates ~program input:program then
+    while true do done
+  else
+    () ;;
+
+grumpy "let grumpy program = [...]"</code></pre>
+            <p
+              pause
+              up-at-unpause="halting-problem"
+              style="margin-bottom: 25px"
+            >
+              If <code>grumpy "&lt;grumpy&gt;"</code> terminates...
+              <span pause>it enters an infinite loop!</span>
+            </p>
+            <span
+              ><span pause>And if it does not terminate,... </span
+              ><span pause> it terminates and returns unit!</span>
+            </span>
+          </div>
+          <div
+            id="godel-coro"
+            pause
+            class="block"
+            title="Corollary (weak Godel's first incompleteness theorem)"
+          >
+            No axiomatic system accessible to a
+            <code>mathematician</code> proves exactly what's true.
+          </div>
+          <div pause up-at-unpause="godel-coro" class="proof">
+            Suppose everything is provable in a system. Implement
+            <code>terminates</code> as follows:
+            <pre pause><code class="language-ocaml">let look_for_proof formula =
+  Seq.find (is_proof_of formula) all_proofs_seq
+
+let terminates program =
+  let terminates = formula "the program $program terminates" in
+  let proof =
+    Eio.first
+      (() -> look_for_proof terminates)
+      (() -> look_for_proof (Formula.Not (terminates)))
+  in
+  is_proof_of terminates</code></pre>
+            <span>Contradiction.</span>
+          </div>
+        </slip-body>
+      </slip-slip>
+
+      <slip-slip immediate-enter toc-title="ddd">
+        <slip-title>Computability</slip-title>
+        <slip-body> </slip-body>
+      </slip-slip>
     </slip-slipshow>
 
     <!-- Include the library -->
