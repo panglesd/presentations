@@ -37,12 +37,47 @@
       <!-- Add the slips here -->
       <slip-slip immediate-enter toc-title="Title page">
         <slip-body>
+          <style>
+            .title {
+              text-align: center;
+              font-size: 1.75em;
+              font-weight: bold;
+              margin-bottom: 100px;
+            }
+            .date {
+              text-align: center;
+              font-size: 1em;
+              margin-bottom: 40px;
+            }
+            .context,
+            .author {
+              text-align: center;
+              font-size: 1.1em;
+              font-weight: bold;
+              margin-bottom: 60px;
+            }
+            .author {
+              margin-bottom: 75px;
+            }
+            .plan {
+              font-weight: bold;
+            }
+          </style>
           <div class="title">
             Links between computer science and mathematical logic
           </div>
-          <div class="date">April, 8th</div>
-          <div class="context">Adoption team talks</div>
+          <div class="date">April, 20th</div>
+          <div class="context">Tech talk</div>
           <div class="author">Paul-Elliot Anglès d'Auriac</div>
+
+          <div class="plan">Plan:</div>
+          <ol>
+            <li>
+              Curry-Howard correspondance (and Gödel's completeness theorem)
+            </li>
+            <li>Turing machines (and Gödel's incompleteness theorem)</li>
+            <li>Computations without computations</li>
+          </ol>
         </slip-body>
       </slip-slip>
       <!-- End of slip "Example of a slip" -->
@@ -430,6 +465,8 @@ and value_desc =
           </div>
           <h2 pause down-at-unpause="last-ul">What CS brings to Mathematics</h2>
           <ul>
+            <li>New things to study</li>
+            <li>New tools (e.g. classical realizability)</li>
             <li>Automatic prover, proof assistant</li>
             <li>Expertise in structure of big proofs</li>
           </ul>
@@ -538,7 +575,7 @@ and value_desc =
           </div>
           <div pause class="proof">
             <span style="margin-bottom: 25px">Suppose you have:</span>
-            <pre><code class="language-ocaml">val terminates : program:string -> input:string -> unit
+            <pre><code class="language-ocaml">val terminates : program:string -> input:string -> bool
 (** tells whether the program with given input would terminate *)</code></pre>
 
             <!-- <p  style="margin-bottom:45px;" pause>Let's build a program with a sense of contradiction:</p>
@@ -567,7 +604,7 @@ grumpy "let grumpy program = [...]"</code></pre>
             id="godel-coro"
             pause
             class="block"
-            title="Corollary (weak Godel's first incompleteness theorem)"
+            title="Corollary (weak Gödel's first incompleteness theorem)"
           >
             No axiomatic system accessible to a
             <code>mathematician</code> proves exactly what's true.
@@ -580,20 +617,176 @@ grumpy "let grumpy program = [...]"</code></pre>
 
 let terminates program =
   let terminates = formula "the program $program terminates" in
-  let proof =
-    Eio.first
-      (() -> look_for_proof terminates)
-      (() -> look_for_proof (Formula.Not (terminates)))
-  in
-  is_proof_of terminates</code></pre>
+  Eio.first
+    (() -> look_for_proof terminates ; true)
+    (() -> look_for_proof (Formula.Not (terminates)) ; false)</code></pre>
             <span>Contradiction.</span>
           </div>
         </slip-body>
       </slip-slip>
 
       <slip-slip immediate-enter toc-title="ddd">
-        <slip-title>Computability</slip-title>
-        <slip-body> </slip-body>
+        <slip-title>A lesser known parallel between Math and CS</slip-title>
+        <slip-body>
+          <p>Usual behaviour of computability terrorist:</p>
+          <ol>
+            <li>
+              Define a computational model (\(\lambda\)-calcul, Turing Machine,
+              Register Machines, General recursive functions, Cellular
+              Automaton, OCaml, ...)
+            </li>
+            <li pause>Show that it is equivalent to all the others</li>
+          </ol>
+          <p pause>
+            Actually, no need to do all of this: computability was hidden in all
+            mathematic all along!
+          </p>
+          <h2 id="subset-integer-section" pause>Subsets of the integers</h2>
+          <ul>
+            <li>
+              There are a lot of sets of integers: \[\mathcal P(\mathbb N)\text{
+              is uncountable}\]
+            </li>
+            <li pause>
+              Our language can only produce countably many sentences \[\{x :
+              x\text{ is an English sentence}\}\text{ is countable}\]
+            </li>
+            <li pause>
+              Therefore, we can't speak (specifically) about most sets.
+            </li>
+            <li id="what-sets" pause up-at-unpause="subset-integer-section">
+              What sets can we speak about?
+            </li>
+          </ul>
+          <div
+            id="definable-sets-def"
+            title="Definable sets"
+            class="definition"
+          >
+            A set \(A\subseteq \mathbb N\) is definable if there is a formula
+            \(\phi\) such that: \[A = \{ i \in\mathbb N\ :\ \phi(i) \} \]
+          </div>
+          <!-- <div
+               pause
+               up-at-unpause="what-sets"
+               title="Normal form of formulas"
+               class="remark"
+               >
+               A formula \(\phi\) can always be put in the form \[\phi \equiv
+               \exists x_0\in\mathbb N, \forall x_1\in\mathbb N, \dots, \forall
+               x_{n-1}\in\mathbb N, \exists x_n\in\mathbb N : \phi_0 \] where
+               \(\phi_0\) do not contain unbounded quantification.
+               </div> -->
+          <div
+            pause
+            up-at-unpause="what-sets"
+            title="Simply definable sets"
+            class="definition"
+          >
+            A set \(A\subseteq \mathbb N\) is simply definable if there is a
+            formula \(\phi_0\) without unbounded quantification such that: \[A =
+            \{ i \in\mathbb N\ :\ {\exists x\in\mathbb N},\ \phi_0(x,i) \} \]
+          </div>
+
+          <div
+            class="theorem"
+            pause
+            title="Defining computability in terms of formula"
+          >
+            A set is simply definable if and only if the following OCaml value
+            exists:
+            <pre><code class="language-ocaml">val e : int Seq.t
+(** [e] enumerates the elements of {math A} (in some order) *)</code></pre>
+            <span style="border: 3px solid red" pause
+              >A set \(A\) is computable if and only if \(A\) and \(\mathbb
+              N\setminus A\) are both simply definable.</span
+            >
+          </div>
+          <blockquote pause down-at-unpause="app-concl">
+            "The things we can talk about, they are computable (or almost)."
+          </blockquote>
+          <p pause><b>Application</b>:</p>
+          <ol id="app-concl">
+            <li>State some theorem about sets</li>
+            <li>Restrict yourself to computable sets</li>
+            <li>Prove it in this settings, using properties of computations</li>
+            <li>
+              Go back to general sets using a technique called relativization.
+            </li>
+          </ol>
+          <div pause title="Enumerable in OCaml sets" class="definition">
+            A set \(A\subseteq \mathbb N\) is enumerable if such a value exists:
+            <!-- \[   
+                     f :
+                     \begin{cases}
+                     x \mapsto 1 &\quad\text{if } x\in A\\
+                     x \mapsto 0 &\quad\text{otherwise}\\
+                     \end{cases}\ 
+                     \] can be implemented in OCaml: -->
+            <pre><code class="language-ocaml">val e : int Seq.t
+(** [e] enumerates the elements of {math A} (in some order) *)</code></pre>
+          </div>
+          <div class="theorem"></div>
+          <div title="Partially computable sets" class="definition">
+            A partially computable set \(A\subseteq \mathbb N\) is a set such
+            that the following OCaml value exists:
+            <!-- \[   
+                     f :
+                     \begin{cases}
+                     x \mapsto 1 &\quad\text{if } x\in A\\
+                     x \mapsto 0 &\quad\text{otherwise}\\
+                     \end{cases}\ 
+                     \] can be implemented in OCaml: -->
+            <pre><code class="language-ocaml">val f : int -> unit
+(** [f i] terminates if and only if {math i \in A} *)</code></pre>
+          </div>
+
+          <h2>Computability was here all along!</h2>
+
+          <div title="Partially computable sets" class="definition">
+            A set \(A\subseteq \mathbb N\) is definable by the formula \(\phi\)
+            if \[A = \{ i \in\mathbb N : \phi(i) \} \]
+          </div>
+
+          <div title="Computable sets" class="definition">
+            A partially (r.e.) computable set \(A\subseteq \mathbb N\) is a set
+            such that the function: \[ f : \begin{cases} x \mapsto 1
+            &\quad\text{if } x\in A\\ x \mapsto 0 &\quad\text{otherwise}\\
+            \end{cases}\ \] can be implemented in OCaml:
+            <pre><code class="language-ocaml">val f : int -> bool
+(** [f i] is {math i\in A} *)</code></pre>
+          </div>
+          <p>Examples:</p>
+          <ul>
+            <li>
+              \(f : x \mapsto x+1\)
+              <span style="color: green">is computable</span> via
+              <code class="language-ocaml">let f x = x + 1</code>
+            </li>
+            <!-- <li>\(f : x \mapsto 1 \text{if x is a terminating program} \\ x \mapsto 0 \text{otherwise}\) is not computable</li> -->
+            <li>
+              \( f : \begin{cases} x \mapsto 1 &\quad\text{if } x \text{ is a
+              terminating program}\\ x \mapsto 0 &\quad\text{otherwise}\\
+              \end{cases}\ \)
+              <span style="color: red">is not a computable</span> function
+            </li>
+            <li pause>
+              \( f : \begin{cases} x \mapsto 1 &\quad\text{if } x \text{ is a
+              terminating program}\\ \text{undef} &\quad\text{otherwise}\\
+              \end{cases}\ \)
+              <span style="color: green"
+                >is a <span style="color: red">partial</span> computable</span
+              >
+              function via <code>let f x = run x; 1</code>
+            </li>
+          </ul>
+          <p pause>In fact, almost all functions are uncomputable</p>
+          <div pause down-at-unpause title="Computable sets" class="definition">
+            A computable set \(A\subseteq \mathbb N\) is a set such that \[ f :
+            \begin{cases} x \mapsto 1 &\quad\text{if } x\in A\\ x \mapsto 0
+            &\quad\text{otherwise}\\ \end{cases}\ \] is computable.
+          </div>
+        </slip-body>
       </slip-slip>
     </slip-slipshow>
 
