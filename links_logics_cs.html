@@ -626,7 +626,7 @@ let terminates program =
       </slip-slip>
 
       <slip-slip immediate-enter toc-title="ddd">
-        <slip-title>A lesser known parallel between Math and CS</slip-title>
+        <slip-title>Computations without computations</slip-title>
         <slip-body>
           <p>Usual behaviour of computability terrorist:</p>
           <ol>
@@ -714,80 +714,9 @@ let terminates program =
               Go back to general sets using a technique called relativization.
             </li>
           </ol>
-          <div pause title="Enumerable in OCaml sets" class="definition">
-            A set \(A\subseteq \mathbb N\) is enumerable if such a value exists:
-            <!-- \[   
-                     f :
-                     \begin{cases}
-                     x \mapsto 1 &\quad\text{if } x\in A\\
-                     x \mapsto 0 &\quad\text{otherwise}\\
-                     \end{cases}\ 
-                     \] can be implemented in OCaml: -->
-            <pre><code class="language-ocaml">val e : int Seq.t
-(** [e] enumerates the elements of {math A} (in some order) *)</code></pre>
-          </div>
-          <div class="theorem"></div>
-          <div title="Partially computable sets" class="definition">
-            A partially computable set \(A\subseteq \mathbb N\) is a set such
-            that the following OCaml value exists:
-            <!-- \[   
-                     f :
-                     \begin{cases}
-                     x \mapsto 1 &\quad\text{if } x\in A\\
-                     x \mapsto 0 &\quad\text{otherwise}\\
-                     \end{cases}\ 
-                     \] can be implemented in OCaml: -->
-            <pre><code class="language-ocaml">val f : int -> unit
-(** [f i] terminates if and only if {math i \in A} *)</code></pre>
-          </div>
-
-          <h2>Computability was here all along!</h2>
-
-          <div title="Partially computable sets" class="definition">
-            A set \(A\subseteq \mathbb N\) is definable by the formula \(\phi\)
-            if \[A = \{ i \in\mathbb N : \phi(i) \} \]
-          </div>
-
-          <div title="Computable sets" class="definition">
-            A partially (r.e.) computable set \(A\subseteq \mathbb N\) is a set
-            such that the function: \[ f : \begin{cases} x \mapsto 1
-            &\quad\text{if } x\in A\\ x \mapsto 0 &\quad\text{otherwise}\\
-            \end{cases}\ \] can be implemented in OCaml:
-            <pre><code class="language-ocaml">val f : int -> bool
-(** [f i] is {math i\in A} *)</code></pre>
-          </div>
-          <p>Examples:</p>
-          <ul>
-            <li>
-              \(f : x \mapsto x+1\)
-              <span style="color: green">is computable</span> via
-              <code class="language-ocaml">let f x = x + 1</code>
-            </li>
-            <!-- <li>\(f : x \mapsto 1 \text{if x is a terminating program} \\ x \mapsto 0 \text{otherwise}\) is not computable</li> -->
-            <li>
-              \( f : \begin{cases} x \mapsto 1 &\quad\text{if } x \text{ is a
-              terminating program}\\ x \mapsto 0 &\quad\text{otherwise}\\
-              \end{cases}\ \)
-              <span style="color: red">is not a computable</span> function
-            </li>
-            <li pause>
-              \( f : \begin{cases} x \mapsto 1 &\quad\text{if } x \text{ is a
-              terminating program}\\ \text{undef} &\quad\text{otherwise}\\
-              \end{cases}\ \)
-              <span style="color: green"
-                >is a <span style="color: red">partial</span> computable</span
-              >
-              function via <code>let f x = run x; 1</code>
-            </li>
-          </ul>
-          <p pause>In fact, almost all functions are uncomputable</p>
-          <div pause down-at-unpause title="Computable sets" class="definition">
-            A computable set \(A\subseteq \mathbb N\) is a set such that \[ f :
-            \begin{cases} x \mapsto 1 &\quad\text{if } x\in A\\ x \mapsto 0
-            &\quad\text{otherwise}\\ \end{cases}\ \] is computable.
-          </div>
         </slip-body>
       </slip-slip>
+        <div style="position: absolute; left: 432px; top: -1320px; font-size: 19em;" id="thanks-att">Thanks for your attention! Any questions?</div>
     </slip-slipshow>
 
     <!-- Include the library -->
