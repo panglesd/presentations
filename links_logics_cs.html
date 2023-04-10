@@ -152,7 +152,7 @@
                </ul> -->
           <!-- <p>Let's have an example!</p> -->
           <h2 up-at-unpause="example-of-l" pause>
-            An toy model of Mathematics
+            A toy model of Mathematics
           </h2>
           <div id="form-def" class="definition" title="Formula">
             A <code>formula</code> is either:
@@ -228,7 +228,7 @@
                 <blockquote>
                   <q
                     >\(T_q\) is a proof of \(Q\). \(T_p\) is a proof
-                    of\(Q\Rightarrow P\). We conclude \(P\).</q
+                    of \(Q\Rightarrow P\). We conclude \(P\).</q
                   >
                 </blockquote>
               </li>
@@ -243,7 +243,7 @@
             id="ml-proof-def"
             pause
             down-at-unpause
-          ><code class="language-ocaml">type context = formula list (* [F_0 ; ... F_n] *)
+          ><code class="language-ocaml">type context = formula list (* [F_0 ; ... ; F_n] *)
 and proof = context * proof_desc
 and proof_desc =
   | Axiom of int
@@ -255,9 +255,15 @@ and proof_desc =
           <h2 id="toy-th-section" pause up-at-unpause="ml-proof-def">
             A theorem on the toy model
           </h2>
+          <style>
+           .theorem.false-th[title]:before {
+               content: "False theorem (" attr(title) ") ";
+           }
+           
 
-          <div class="theorem" title="(false) Toy completeness theorem">
-            A <code>formula</code> is <code>provable</code> if and only if it is
+          </style>
+          <div class="theorem false-th" title="Toy completeness theorem">
+              <span style="font-weight:bold; color:red">(FALSE)</span> A <code>formula</code> is <code>provable</code> if and only if it is
             true "for any <code>interpretation</code> of the
             <code>predicates</code>".
           </div>
@@ -281,11 +287,11 @@ and proof_desc =
   | Conjuction (f1, f2) -> validity f1 m && validity f2 m </code></pre>
           </div>
           <div
-            id="classi-completeness"
-            pause
-            down-at-unpause
-            class="theorem"
-            title="Classical toy completeness theorem"
+              id="classi-completeness"
+              pause
+              down-at-unpause
+              class="theorem"
+              title="Toy classical completeness theorem"
           >
             A <code>formula</code> is <code>provable</code>
             <span style="background-color: yellow"
@@ -299,7 +305,7 @@ and proof_desc =
             pause
             down-at-unpause
             class="theorem"
-            title="Intuitionnistic toy completeness theorem 2"
+            title="Toy intuitionnistic completeness theorem"
           >
             A <code>formula</code> is <code>provable</code> if and only if it is
             true "for any <span style="background-color: yellow">Kripke-</span
@@ -457,6 +463,10 @@ and value_desc =
                 <td>\(A\lor B\)</td>
                 <td><code>type or = A of a | B of b ;;</code></td>
               </tr>
+              <!-- <tr pause>
+                   <td>\(((P\Rightarrow Q)\Rightarrow P)\Rightarrow P\)</td>
+                   <td><code>val callcc : ((p -> q) -> p) -> p</code></td>
+                   </tr> -->
               <tr pause>
                 <td>...</td>
                 <td>...</td>
@@ -483,7 +493,7 @@ and value_desc =
         <slip-body>
           <p>First, we modeled the mathematics, inside the mathematics.</p>
           <p pause>
-            Now, let's be a mathematician, modeling a mathematician, in
+            Now, let's be a mathematician, modeling a <code>mathematician</code>, in
             mathematics.
           </p>
           <div pause class="definition" title="A mathematician">
@@ -536,7 +546,7 @@ and value_desc =
             recognize what's true and what is not?
           </div>
           <p>
-            We will prove this <code>superperson</code> does not exists, going
+            We will prove this <code>superperson</code> does not exist, going
             through computer science!
           </p>
           <div pause up-at-unpause="big-question" class="theorem">
@@ -552,7 +562,7 @@ and value_desc =
             title="Modern formulation of the Entscheidungsproblem"
             id="big-question-2"
           >
-            Can an OCaml program be so cool that they can recognize what's true
+            Can an OCaml program be so cool that it can recognize what's true
             and what is not?
           </div>
           <div
@@ -561,7 +571,7 @@ and value_desc =
             title="The Halting problem"
             id="big-question-3"
           >
-            Can an OCaml program be so cool that they can know if a program will
+            Can an OCaml program be so cool that it can know if a program will
             terminate?
           </div>
           <div
@@ -631,7 +641,7 @@ let terminates program =
           <p>Usual behaviour of computability terrorist:</p>
           <ol>
             <li>
-              Define a computational model (\(\lambda\)-calcul, Turing Machine,
+              Define a computational model (\(\lambda\)-calculus, Turing Machine,
               Register Machines, General recursive functions, Cellular
               Automaton, OCaml, ...)
             </li>
@@ -644,7 +654,7 @@ let terminates program =
           <h2 id="subset-integer-section" pause>Subsets of the integers</h2>
           <ul>
             <li>
-              There are a lot of sets of integers: \[\mathcal P(\mathbb N)\text{
+              There are a lot of subsets of the integers: \[\mathcal P(\mathbb N)\text{
               is uncountable}\]
             </li>
             <li pause>
@@ -684,7 +694,7 @@ let terminates program =
             class="definition"
           >
             A set \(A\subseteq \mathbb N\) is simply definable if there is a
-            formula \(\phi_0\) without unbounded quantification such that: \[A =
+            formula \(\phi_0\) <span style="color:red">without unbounded quantification</span> such that: \[A =
             \{ i \in\mathbb N\ :\ {\exists x\in\mathbb N},\ \phi_0(x,i) \} \]
           </div>
 
@@ -716,7 +726,7 @@ let terminates program =
           </ol>
         </slip-body>
       </slip-slip>
-        <div style="position: absolute; left: 432px; top: -1320px; font-size: 19em;" id="thanks-att">Thanks for your attention! Any questions?</div>
+        <div style="position: absolute; left: 432px; top: -1320px; font-size: 19em;" id="thanks-att">Thanks for your attention! Any questions?<div style="text-align:right;font-size:0.5em;"><br/>Presentation powered by slipshow</div></div>
     </slip-slipshow>
 
     <!-- Include the library -->
