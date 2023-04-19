@@ -627,7 +627,7 @@ grumpy "let grumpy program = [...]"</code></pre>
   Seq.find (is_proof_of formula) all_proofs_seq
 
 let terminates program =
-  let terminates = formula ("the following program terminates: " ^ program) in
+  let terminates = formula (program ^ " terminates") in
   Eio.first
     (() -> look_for_proof terminates ; true)
     (() -> look_for_proof (Not (terminates)) ; false)</code></pre>
@@ -635,12 +635,12 @@ let terminates program =
           </div>
           <h2 pause>What CS brings to Mathematics</h2>
           <ul>
-              <li>Definition of what is computable</li>
+              <li>Definition of what is computable, apply to (meta)mathematics</li>
               <li>Lighter formalism in mathematics</li>
           </ul>
           <h2 pause down-at-unpause="counter-ex">What Mathematics brings to CS</h2>
           <ul id="last-ul2">
-              <li>Provide <a href="https://caml.inria.fr/pub/old_caml_site/caml-list/1513.html">negative</a> <a href="https://github.com/lpw25/girards-paradox/blob/master/girard.ml">results</a>: halt-checker, and <em pause>OCaml module type checker</em></li>
+              <li>Provide <a href="https://caml.inria.fr/pub/old_caml_site/caml-list/1513.html">negative</a> <a href="https://github.com/lpw25/girards-paradox/blob/master/girard.ml">results</a>: halt-checker, and... <em pause>OCaml module type checker</em></li>
           </ul>
                   <pre id="counter-ex"><code class="language-ocaml">module type I = sig
   module type A
