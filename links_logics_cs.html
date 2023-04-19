@@ -70,14 +70,16 @@
           <div class="context">Tech talk</div>
           <div class="author">Paul-Elliot Anglès d'Auriac</div>
 
-          <div class="plan">Plan:</div>
+          <div pause class="plan">Hegelian plan</div>
           <ol>
-            <li>
-              Curry-Howard correspondance (and Gödel's completeness theorem)
+              <li>
+                  Thesis<span class="unrevealed" style="font-weight:" id="part1">: Gödel's completeness theorem<span style="font-weight:bold"  id="part12" class="unrevealed"> (Curry-Howard correspondance)</span></span>
             </li>
-            <li>Turing machines (and Gödel's incompleteness theorem)</li>
-            <li>Computations without computations</li>
+            <li>Antithesis<span class="unrevealed" style="font-weight:"  id="part2">: Gödel's incompleteness theorem<span style="font-weight:bold" class="unrevealed" id="part22"> (Turing machines)</span></span></li>
+            <li>Synthesis<span class="unrevealed" style="font-weight:" id="part3">: Gödel's synthesis theorem? <span class="unrevealed" id="part32" style="font-weight:bold" >Computations without computers</span></span></li>
           </ol>
+          <span step reveal-at-unpause="part1 part2 part3"></span>
+          <span step reveal-at-unpause="part12 part22 part32"></span>
         </slip-body>
       </slip-slip>
       <!-- End of slip "Example of a slip" -->
@@ -475,15 +477,14 @@ and value_desc =
           </div>
           <h2 pause down-at-unpause="last-ul">What CS brings to Mathematics</h2>
           <ul>
+            <li>Automatic prover, proof assistant</li>
             <li>New things to study</li>
             <li>New tools (e.g. classical realizability)</li>
-            <li>Automatic prover, proof assistant</li>
             <li>Expertise in structure of big proofs</li>
           </ul>
           <h2>What Mathematics brings to CS</h2>
           <ul id="last-ul">
-            <li>Subset of OCaml will never loop</li>
-            <li>Proofs</li>
+            <li>Theoretical foundations for programming language</li>
           </ul>
         </slip-body>
       </slip-slip>
@@ -626,19 +627,45 @@ grumpy "let grumpy program = [...]"</code></pre>
   Seq.find (is_proof_of formula) all_proofs_seq
 
 let terminates program =
-  let terminates = formula "the program $program terminates" in
+  let terminates = formula ("the following program terminates: " ^ program) in
   Eio.first
     (() -> look_for_proof terminates ; true)
-    (() -> look_for_proof (Formula.Not (terminates)) ; false)</code></pre>
+    (() -> look_for_proof (Not (terminates)) ; false)</code></pre>
             <span>Contradiction.</span>
           </div>
+          <h2 pause>What CS brings to Mathematics</h2>
+          <ul>
+              <li>Definition of what is computable</li>
+              <li>Lighter formalism in mathematics</li>
+          </ul>
+          <h2 pause down-at-unpause="counter-ex">What Mathematics brings to CS</h2>
+          <ul id="last-ul2">
+              <li>Provide <a href="https://caml.inria.fr/pub/old_caml_site/caml-list/1513.html">negative</a> <a href="https://github.com/lpw25/girards-paradox/blob/master/girard.ml">results</a>: halt-checker, and <em pause>OCaml module type checker</em></li>
+          </ul>
+                  <pre id="counter-ex"><code class="language-ocaml">module type I = sig
+  module type A
+  module F : functor
+    (X : sig
+       module type A = A
+       module F : functor (X : A) -> sig end
+     end)
+    -> sig end
+end
+
+module type J = sig
+  module type A = I
+  module F : functor (X : I) -> sig end
+end
+
+module Loop (X : J) : I = X</code></pre>
+
         </slip-body>
       </slip-slip>
 
       <slip-slip immediate-enter toc-title="ddd">
-        <slip-title>Computations without computations</slip-title>
+        <slip-title>Computations without computers</slip-title>
         <slip-body>
-          <p>Usual behaviour of computability terrorist:</p>
+          <p>Usual behaviour of computability theorists:</p>
           <ol>
             <li>
               Define a computational model (\(\lambda\)-calculus, Turing Machine,
@@ -703,30 +730,36 @@ let terminates program =
             pause
             title="Defining computability in terms of formula"
           >
-            A set is simply definable if and only if the following OCaml value
-            exists:
-            <pre><code class="language-ocaml">val e : int Seq.t
-(** [e] enumerates the elements of {math A} (in some order) *)</code></pre>
-            <span style="border: 3px solid red" pause
-              >A set \(A\) is computable if and only if \(A\) and \(\mathbb
-              N\setminus A\) are both simply definable.</span
-            >
+              <!-- A set is simply definable if and only if the following OCaml value
+                   exists:
+                   <pre><code class="language-ocaml">val e : int Seq.t
+                   (** [e] enumerates the elements of {math A} (in some order) *)</code></pre> -->
+            <span 
+            >\(A\) and \(\mathbb N\setminus A\) are simply definable iff:</span
+                                                                                        >            <pre id="copm"><code class="language-ocaml">val f : int -> bool
+(** {m n \in A} iff [f n] is [true] *)</code></pre> <span>can be implemented in OCaml.</span>
           </div>
-          <blockquote pause down-at-unpause="app-concl">
-            "The things we can talk about, they are computable (or almost)."
-          </blockquote>
-          <p pause><b>Application</b>:</p>
-          <ol id="app-concl">
-            <li>State some theorem about sets</li>
-            <li>Restrict yourself to computable sets</li>
-            <li>Prove it in this settings, using properties of computations</li>
-            <li>
-              Go back to general sets using a technique called relativization.
-            </li>
-          </ol>
+          <h2 pause down-at-unpause="last-ul3">What CS brings to Mathematics</h2>
+          <ul>
+              <li>Useful restriction of sets to "meaningful sets"</li>
+              <li>which allows to prove things for all sets</li>
+          </ul>
+          <h2>What Mathematics brings to CS</h2>
+          <ul id="last-ul3">
+              <li>Fun?</li>
+          </ul>
+          <!-- <p pause><b>Application</b>:</p>
+               <ol id="app-concl">
+               <li>State some theorem about sets</li>
+               <li>Restrict yourself to computable sets</li>
+               <li>Prove it in this settings, using properties of computations</li>
+               <li>
+               Go back to general sets using a technique called relativization.
+               </li>
+               </ol> -->
         </slip-body>
       </slip-slip>
-        <div style="position: absolute; left: 432px; top: -1320px; font-size: 19em;" id="thanks-att">Thanks for your attention! Any questions?<div style="text-align:right;font-size:0.5em;"><br/>Presentation powered by slipshow</div></div>
+        <div style="position: absolute; left: 432px; top: -1320px; font-size: 19em;" id="thanks-att">Thanks for your attention! Any questions?<div style="text-align:right;font-size:0.3em;"><br/>(Presentation powered by <a href="https://github.com/panglesd/slipshow">slipshow</a>)</div></div>
     </slip-slipshow>
 
     <!-- Include the library -->
