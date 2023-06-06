@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8">
+
+    <title>Slipshow</title>
+
+    <link rel="stylesheet" type="text/css" href="node_modules/slipshow/dist/css/slip.css">
+    <link rel="stylesheet" type="text/css" href="node_modules/slipshow/dist/css/theorem.css">
+  </head>
+  <body>
+
+    <!-- This is the presentation -->
+    <slip-slipshow>
+
+      <!-- Add the slips here -->
+
+      <!-- For instance here is a slip -->
+      <slip-slip immediate-enter toc-title="Example of a slip">
+	<slip-title>A gitway to hackmd</slip-title>
+	<slip-body>
+
+<p><a href="hackmd.io">hackmd.io</a> is great! I can share notes with people with very few clicks!</p>
+
+          <p pause>Some problems I have:</p>
+            <ul>
+                <li>I start a note locally</li>
+                <li>I want to share it with someone, so I copy-paste it in Hackmd</li>
+                <li>The two notes grow out of sync 😕</li>
+            </ul>
+            <ul pause>
+                <li>I start a note with someone on hackmd</li>
+                <li>I'm in the train, I don't want hackmd</li>
+                <li>I don't know which modifications has been made since last time 😟</li>
+            </ul>
+            <ul pause>
+                <li class="rage">I want to cut a region of text, it closes hackmd 🤬</li>
+            </ul>
+            <div  class="block">Both local notes and hackmd have their advantages, but I am bad at using them at the same time</div>
+            <h2  style="text-align:center" center pause>Solution: A git-way to hackmd</h2>
+            <p>In a nutshell: Use git locally, but when I push it pushes to hackmd, and when I pull, it pulls from hackmd.</p>
+
+            <p pause>Some technical background on <code>git</code> as a server:</p>
+            <ul>
+                <li>When doing a "local communication", </li>
+                <li></li>
+                <li></li>
+            </ul>
+
+            <style>
+             .my_container {
+                 position: relative;
+                 width: 100%;
+                 height:750px;
+             }
+             .box {
+                 border: 2px solid black;
+             }
+             .small-box {
+                 width: 250px;
+                 height:250px;
+                 position: absolute;
+                 border-radius: 43px;
+             }
+             .git-client {
+                 left: 30px;
+                 bottom: 30px;
+             }
+             .git-server {
+                 border-radius: 43px;
+                 right: 30px;
+                 bottom: 30px;
+                 top: 30px;
+                 width: 400px;
+                 position: absolute;
+             }
+             .hackmd-server {
+                 top: 30px;
+                 left: 30px;
+             }
+             .bare-repo {
+                 left:0;
+                 right:0;
+                 margin-right: auto;
+                 margin-left: auto;
+                 bottom:50px;
+             }
+             .hmd-repo {
+                 left:0;
+                 right:0;
+                 margin-right: auto;
+                 margin-left: auto;
+                 top:50px;
+             }
+            </style>
+            <h3>Fetch/pull</h3>
+            <div class="box my_container" step center-at-unpause>
+                <div class="box small-box git-client">Git client</div>
+                <div class="box git-server">custom Git server
+                    <div class="box small-box bare-repo">Bare repo</div>
+                    <div class="box small-box hmd-repo">Hmd repo</div>
+                    <div></div>
+                </div>
+                <div class="box small-box hackmd-server">hackmd server</div>
+            </div>
+            <h3>Push</h3>
+            <div class="box my_container" step center-at-unpause>
+                <div class="box small-box git-client">Git client</div>
+                <div class="box git-server">custom Git server
+                    <div class="box small-box bare-repo">Bare repo</div>
+                    <div class="box small-box hmd-repo">Hmd repo</div>
+                    <div></div>
+                </div>
+                <div class="box small-box hackmd-server">hackmd server</div>
+            </div>
+            <h3>Push with conflicts</h3>
+            <div class="box my_container" step center-at-unpause>
+                <div class="box small-box git-client">Git client</div>
+                <div class="box git-server">custom Git server
+                    <div class="box small-box bare-repo">Bare repo</div>
+                    <div class="box small-box hmd-repo">Hmd repo</div>
+                    <div></div>
+                </div>
+                <div class="box small-box hackmd-server">hackmd server</div>
+            </div>
+            <h1 pause>Demo!</h1>
+	</slip-body>
+      </slip-slip>
+      <!-- End of slip "Example of a slip" -->
+
+    </slip-slipshow>
+
+    <!-- Include the library -->
+    <script src="node_modules/slipshow/dist/slipshow.cdn.js"></script>
+    <!-- Start the presentation () -->
+    <script>
+      let engine = Slipshow.startSlipshow();
+    </script>
+  </body>
+</html>
+
