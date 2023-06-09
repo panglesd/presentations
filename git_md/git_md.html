@@ -40,13 +40,6 @@
             <h2  style="text-align:center" center pause>Solution: A git-way to hackmd</h2>
             <p>In a nutshell: Use git locally, but when I push it pushes to hackmd, and when I pull, it pulls from hackmd.</p>
 
-            <p pause>Some technical background on <code>git</code> as a server:</p>
-            <ul>
-                <li>When doing a "local communication", </li>
-                <li></li>
-                <li></li>
-            </ul>
-
             <style>
              .my_container {
                  position: relative;
@@ -93,8 +86,19 @@
                  top:50px;
              }
             </style>
-            <h3>Fetch/pull</h3>
-            <div class="box my_container" step center-at-unpause>
+
+            <h3  pause center-at-unpause="container0">Clone</h3>
+            <div class="box my_container" id="container0">
+                <!-- <div class="box small-box git-client">Git client</div> -->
+                <div class="box git-server">custom Git server
+                    <!-- <div class="box small-box bare-repo">Bare repo</div>
+                         <div class="box small-box hmd-repo">Hmd repo</div> -->
+                </div>
+                <div class="box small-box hackmd-server">hackmd server</div>
+            </div>
+
+            <h3  pause center-at-unpause="container1">Fetch/pull</h3>
+            <div class="box my_container" id="container1">
                 <div class="box small-box git-client">Git client</div>
                 <div class="box git-server">custom Git server
                     <div class="box small-box bare-repo">Bare repo</div>
@@ -103,8 +107,9 @@
                 </div>
                 <div class="box small-box hackmd-server">hackmd server</div>
             </div>
-            <h3>Push</h3>
-            <div class="box my_container" step center-at-unpause>
+
+            <h3  pause center-at-unpause="container2">Push</h3>
+            <div class="box my_container" id="container2">
                 <div class="box small-box git-client">Git client</div>
                 <div class="box git-server">custom Git server
                     <div class="box small-box bare-repo">Bare repo</div>
@@ -113,8 +118,8 @@
                 </div>
                 <div class="box small-box hackmd-server">hackmd server</div>
             </div>
-            <h3>Push with conflicts</h3>
-            <div class="box my_container" step center-at-unpause>
+            <h3 pause center-at-unpause="container3">Push with conflicts</h3>
+            <div class="box my_container" id="container3">
                 <div class="box small-box git-client">Git client</div>
                 <div class="box git-server">custom Git server
                     <div class="box small-box bare-repo">Bare repo</div>
@@ -124,6 +129,13 @@
                 <div class="box small-box hackmd-server">hackmd server</div>
             </div>
             <h1 pause>Demo!</h1>
+            <h1 pause up-at-unpause>Limitations and further work</h1>
+            <ul>
+                <li>Hackmd API does not work to update notes</li>
+                <li>Support for comments, team notes, ...</li>
+                <li>Renaming, deleting files from various places, ...</li>
+            </ul>
+            <b>You can try it now! <br/><br/><div center><code>docker run -d --rm -v ~/git_md:/home/git -p 2222:22 panglesd/git_md</code></div></b>
 	</slip-body>
       </slip-slip>
       <!-- End of slip "Example of a slip" -->
