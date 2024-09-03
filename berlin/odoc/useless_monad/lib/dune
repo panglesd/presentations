@@ -1,0 +1,3 @@
+(library
+ (public_name useless_monad)
+ (name useless_monad))
