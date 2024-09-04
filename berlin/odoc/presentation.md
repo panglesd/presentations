@@ -61,7 +61,7 @@ Price: 0€
 {up pause}
 ## Gallery of DIY documentation
 
-TODO: Add screenshots, do the review
+{style="height:100px"}
 
 | `Paf`                                                                                                           | `Patience_dif`                                                                                                                      | `Brr`                                                                                                           |
 |:---------------------------------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------------------------:|
@@ -70,11 +70,6 @@ TODO: Add screenshots, do the review
 | <textarea rows="3" id="pafreview" placeholder="Review"></textarea>                                              | <textarea rows="3" placeholder="Review"  id="patreview"></textarea>                                                                 | <textarea rows="3"  id="brrreview" placeholder="Review"></textarea>                                             |
 |                                                                                                                 |                                                                                                                                     |                                                                                                                 |
 
-"This documentation has no landing page. No example of how to use it. I don't even know what it is about. I want a refund."
-
-"This documentation has no landing page, and no example of usage. It is a bit confusing."
-
-"Excellent documentation! The landing page is clear and I am not lost."
 <style>
 table img {
   width: 100%
@@ -90,10 +85,6 @@ padding: 10px;
 }
 
 </style>
-
-- [Paf](https://ocaml.org/p/paf/latest/doc/index.html) []{.stars}
-- [Patience_diff](https://ocaml.org/p/patience_diff/latest/doc/index.html) []{.stars}
-- [Brr](https://ocaml.org/p/brr/latest/doc/index.html) []{.stars}
 
 <script>
 document.querySelectorAll(".stars").forEach((container) => {
@@ -126,6 +117,7 @@ add_event(document.querySelector("#brrreview"), "Excellent documentation! The la
 
 </script>
 
+{pause up}
 ### Step 1: Open your project
 
 Open a terminal, and create a new undocumented project
@@ -134,23 +126,19 @@ Open a terminal, and create a new undocumented project
 $ dune init proj --kind lib
 ```
 
+{pause}
 ### Step 2: Build you documentation ★☆☆☆☆
 
 ```
 $ dune build @doc
 ```
 
+{pause}
 ### Step 3: Add documentation comment to signature items ★★★☆☆
 
 - Attached documentation comments
 
-  - To signature items
-
-  - To variants and fields
-
-  - To modules
-
-  - As standalone comments
+  - To signature items, variants and fields, modules, as standalone comments
 
 - Using odoc's syntax
 
