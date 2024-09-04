@@ -118,7 +118,7 @@ add_event(document.querySelector("#brrreview"), "Excellent documentation! The la
 </script>
 
 {pause up}
-### Step 1: Open your project
+### 👷 Step 1: Open your project ☆☆☆☆☆
 
 Open a terminal, and create a new undocumented project
 
@@ -127,35 +127,30 @@ $ dune init proj --kind lib
 ```
 
 {pause}
-### Step 2: Build you documentation ★☆☆☆☆
+### 🚧 Step 2: Build you documentation ★☆☆☆☆
 
 ```
 $ dune build @doc
 ```
 
 {pause}
-### Step 3: Add documentation comment to signature items ★★★☆☆
+### 🖊️ Step 3: Add documentation comment to signature items ★★★☆☆
 
 - Attached documentation comments
 
   - To signature items, variants and fields, modules, as standalone comments
 
-- Using odoc's syntax
+- Odoc's syntax: [Using odoc's cheatsheet](https://ocaml.github.io/odoc/cheatsheet.html): Titles, lists, code, **references**!
 
-  - [Using odoc's cheatsheet](https://ocaml.github.io/odoc/cheatsheet.html)
-
-  - Especially, references!
-
-### Step 4: Add index and standalone pages ★★★★★
+{pause}
+### 📜 Step 4: Add index and standalone pages ★★★★★
 
 ```
 (documentation)  ; documentation stanza
 ```
 
-{pause down}
-> ### Step 5: Publish your package's doc
->
-> - {pause} Simply publish your package to opam repository
+{pause}
+### ✅ Step 5: Profit
 
 # For the future
 
