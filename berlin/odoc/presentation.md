@@ -24,14 +24,14 @@ body {
   100% { transform: translate(1px, -2px) rotate(-1deg); }
 }
 
-#cont img {
+.mysize img {
   width:95%;
 }
 #odoc_itself img {
   width:85%;
 }
 
-#cont, #odoc_itself {
+.mysize, #odoc_itself {
     text-align: center;
 }
 </style>
@@ -42,18 +42,14 @@ body {
 {pause up}
 ## Requirements
 
-{#cont}
+{#cont .mysize}
 ![](cutting_mat.jpg)
 
-{pause exec-at-unpause}
-```slip-script
-document.querySelector("#cont img").src="cutting_mat05.png"
-```
+{#cont2 .mysize pause unstatic-at-unpause=cont}
+![](cutting_mat05.png)
 
-{pause exec-at-unpause}
-```slip-script
-document.querySelector("#cont img").src="cutting_mat1.png"
-```
+{pause .mysize unstatic-at-unpause=cont2}
+![](cutting_mat1.png)
 
 {style="text-align:center"}
 Price: 0€
@@ -186,6 +182,8 @@ add_event(document.querySelector("#brrreview"), "Excellent documentation! The la
 >  🪜 Support for hierarchical documentation
 >
 >  🌍️ Global sidebar
+>
+>  🔀 Cross-package references
 >
 >  🚀 More efficient incremental compilation
 >
