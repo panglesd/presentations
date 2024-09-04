@@ -117,62 +117,102 @@ add_event(document.querySelector("#brrreview"), "Excellent documentation! The la
 
 </script>
 
-{pause up}
-### 👷 Step 1: Open your project ☆☆☆☆☆
+{#all}
+> {pause up}
+> ### 👷 Step 1: Open your project ☆☆☆☆☆
+>
+> Open a terminal, and create a new undocumented project
+>
+> ```
+> $ git clone https://github.com/panglesd/undocumented_project.git
+> ```
+>
+> {pause #step2}
+> ### 🚧 Step 2: Build you documentation ★☆☆☆☆
+>
+> ```
+> $ dune build @doc
+> ```
+>
+> Modules are expanded, as in
+>
+> ```ocaml
+> include Comparable.S with type t := t
+> ```
+>
+> {pause up=step2 #step3}
+> ### 🖊️ Step 3: Add documentation comment to signature items ★★★☆☆
+>
+> ```ocaml
+> (** {1 Part about what follows} *)
+>
+> (** Refer to {!x} for an example of a value of type [t]. *)
+> type t
+>
+> (** Refer to {!t} to understand what [x] can possibly be. *)
+> val x : t
+> ```
+>
+> [Odoc's cheatsheet](https://ocaml.github.io/odoc/cheatsheet.html) can be handy!
+>
+> {pause up=step3 #step4}
+> > ### 📜 Step 4: Add index and standalone pages ★★★★★
+> >
+> > ```
+> > doc/index.mld ---> index page
+> > doc/tutorial.mld ---> another page
+> > doc/dune:
+> >    (documentation)  ; documentation stanza
+> > ```
+>
+> {pause}
+> > ### ✅ Step 5: Profit
+> >
+> > - Local doc browsing using `odig`
+> >
+> > - Automatic publication of docs on [ocaml.org](ocaml.org)
 
-Open a terminal, and create a new undocumented project
+{pause focus-at-unpause=all}
 
-```
-$ dune init proj --kind lib
-```
+{pause center-at-unpause}
+> # Teaser: `odoc` 3.0 is coming!
+>
+>  🔍 Support for search using sherlodoc (type-directed search)
+>
+>  #️⃣ Rendered source code
+>
+>  🎬 Support for assets and medias
+>
+>  🪜 Support for hierarchical documentation
+>
+>  🌍️ Global sidebar
+>
+>  🚀 More efficient incremental compilation
+>
+>  and much more!
 
 {pause}
-### 🚧 Step 2: Build you documentation ★☆☆☆☆
+# 🫶 Thanks for your attention! 🫶
 
-```
-$ dune build @doc
-```
+<!-- ## Abstract -->
 
-{pause}
-### 🖊️ Step 3: Add documentation comment to signature items ★★★☆☆
+<!-- This presentation, targeted at newcomers to the (documentation) ecosystem, will -->
+<!-- show you how to write documentation for your project. -->
 
-- Attached documentation comments
+<!-- - OCaml.org documentation (good: [ex](https://ocaml.org/p/brr/latest/doc/index.html) -->
+<!--   and bad examples [ex2](https://ocaml.org/p/patience_diff/latest/doc/index.html) -->
+<!--   [ex3](https://ocaml.org/p/paf/latest/doc/index.html)) -->
+<!-- - Commands to build documentation and live demo -->
+<!--   - For your switch: `odig doc` -->
+<!--   - For your `dune` project: `dune build @doc` -->
+<!-- - Docstrings -->
+<!--   - Docstrings are attached to items, or standalone -->
+<!-- - `odoc` syntax -->
 
-  - To signature items, variants and fields, modules, as standalone comments
-
-- Odoc's syntax: [Using odoc's cheatsheet](https://ocaml.github.io/odoc/cheatsheet.html): Titles, lists, code, **references**!
-
-{pause}
-### 📜 Step 4: Add index and standalone pages ★★★★★
-
-```
-(documentation)  ; documentation stanza
-```
-
-{pause}
-### ✅ Step 5: Profit
-
-# For the future
-
-## Abstract
-
-This presentation, targeted at newcomers to the (documentation) ecosystem, will
-show you how to write documentation for your project.
-
-- OCaml.org documentation (good: [ex](https://ocaml.org/p/brr/latest/doc/index.html)
-  and bad examples [ex2](https://ocaml.org/p/patience_diff/latest/doc/index.html)
-  [ex3](https://ocaml.org/p/paf/latest/doc/index.html))
-- Commands to build documentation and live demo
-  - For your switch: `odig doc`
-  - For your `dune` project: `dune build @doc`
-- Docstrings
-  - Docstrings are attached to items, or standalone
-- `odoc` syntax
-
-- Pages and other features of `odoc`
-  - How to include pages in `dune`-based projects
-  - Search feature
-  - Render source code feature
+<!-- - Pages and other features of `odoc` -->
+<!--   - How to include pages in `dune`-based projects -->
+<!--   - Search feature -->
+<!--   - Render source code feature -->
 
 
-QUEL PITCH?
+<!-- QUEL PITCH? -->
