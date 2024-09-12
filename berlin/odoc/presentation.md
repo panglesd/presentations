@@ -39,21 +39,6 @@ body {
 {#odoc_itself}
 ![](odoc_itself.png)
 
-{pause up}
-## Requirements
-
-{#cont .mysize}
-![](cutting_mat.jpg)
-
-{#cont2 .mysize pause unstatic-at-unpause=cont}
-![](cutting_mat05.png)
-
-{pause .mysize unstatic-at-unpause=cont2}
-![](cutting_mat1.png)
-
-{style="text-align:center"}
-Price: 0€
-
 {up pause}
 ## Gallery of DIY documentation
 
@@ -113,14 +98,29 @@ add_event(document.querySelector("#brrreview"), "Excellent documentation! The la
 
 </script>
 
+{pause up}
+## Requirements
+
+{#cont .mysize}
+![](cutting_mat.jpg)
+
+{#cont2 .mysize pause unstatic-at-unpause=cont}
+![](cutting_mat05.png)
+
+{pause .mysize unstatic-at-unpause=cont2}
+![](cutting_mat1.png)
+
+{style="text-align:center"}
+Price: 0€
+
 {#all}
 > {pause up}
 > ### 👷 Step 1: Open your project ☆☆☆☆☆
 >
-> Open a terminal, and create a new undocumented project
+> Open the project you want to document:
 >
 > ```
-> $ git clone https://github.com/panglesd/undocumented_project.git
+> $ git clone https://github.com/panglesd/odoc_demo.git
 > ```
 >
 > {pause #step2}
@@ -128,9 +128,10 @@ add_event(document.querySelector("#brrreview"), "Excellent documentation! The la
 >
 > ```
 > $ dune build @doc
+> # result is in _build/default/_doc/_html/index.html
 > ```
 >
-> Modules are expanded, as in
+> Modules are expanded, as in:
 >
 > ```ocaml
 > include Comparable.S with type t := t
@@ -149,15 +150,15 @@ add_event(document.querySelector("#brrreview"), "Excellent documentation! The la
 > val x : t
 > ```
 >
-> [Odoc's cheatsheet](https://ocaml.github.io/odoc/cheatsheet.html) can be handy!
+> <a href="https://ocaml.github.io/odoc/cheatsheet.html" target="_blank">Odoc's cheatsheet</a> can be handy!
 >
 > {pause up=step3 #step4}
 > > ### 📜 Step 4: Add index and standalone pages ★★★★★
 > >
 > > ```
-> > doc/index.mld ---> index page
-> > doc/tutorial.mld ---> another page
-> > doc/dune:
+> > doc/index.mld      ---> landing page
+> > doc/tutorial.mld   ---> another page
+> > doc/dune:          ---> dune file with stanza:
 > >    (documentation)  ; documentation stanza
 > > ```
 >
