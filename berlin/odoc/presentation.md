@@ -120,7 +120,7 @@ Price: 0€
 > Open the project you want to document:
 >
 > ```
-> $ git clone https://github.com/panglesd/odoc_demo.git
+> $ git clone git@github.com:panglesd/odoc_demo.git
 > ```
 >
 > {pause #step2}
@@ -129,12 +129,6 @@ Price: 0€
 > ```
 > $ dune build @doc
 > # result is in _build/default/_doc/_html/index.html
-> ```
->
-> Modules are expanded, as in:
->
-> ```ocaml
-> include Comparable.S with type t := t
 > ```
 >
 > {pause up=step2 #step3}
