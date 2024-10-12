@@ -23,30 +23,67 @@ régit le monde de la gastronomie.  {pause}
 
 {.vskip}
 
-[1976]{.date} Bill Cake milite pour le **droit d'auteur** sur les recettes. Besoin de
-permission pour copier, interdiction de modifier.
+[1976]{.date} Bill Gates milite pour et obtient le **droit d'auteur** sur les
+recettes. Besoin de permission pour copier, interdiction de modifier.
 
 La majorité des recettes deviennent des produits commerciaux, achetés en
 supermarché, sans recette. {pause} 🤑 🤑 🤑 {pause}
 
-[1980]{.date} Richard Saltman (chef cuistot) souhaite modifier un gateau (trop
+[1980]{.date} Richard Stallman (chef cuistot) souhaite modifier un gateau (trop
 sucré). Mais la recette ne peut être partagée !
 
 {pause #scale down style="text-align:center"}
 ![](scale.png)
 
-{pause down=GPL}
-La philosophie GNU : quatre principes.
+{#solution  style="position: absolute; visibility:hidden"}
+> {#principles .columns}
+> > {.column}
+> > > 1. [Protection sur contre procès]{style="color:blue"}
+> >
+> > {.column}
+> > > 1. [Liberté **d'utiliser**]{style="color:red"}
+> > > 1. [Liberté **d'étudier**]{style="color:red"}
+> > > 1. [Liberté de **modifier**]{style="color:red"}
+> > > 1. [Liberté de **redistribuer**]{style="color:red"}
+>
+> {#plus .unrevealed}
+> **Plus:** [Ma liberté d'arrête là où commence celle des autres! **Copyleft**]{style="color:green"}
+>
+> {#GPL}
+> **C'est la naissance de la licence GPL ! (General Public Licence)**
 
-{#principles}
-1. Liberté **d'utiliser**
-1. Liberté **d'étudier**
-1. Liberté de **modifier**
-1. Liberté de **redistribuer** {pause}
-1. Ma liberté d'arrête là où commence celle des autres! **Copyleft** 🦠
 
-{#GPL}
-**C'est la naissance de la licence GPL ! (General Public Licence)**
+
+{#questions}
+> - Est-il possible de **manger** le produit ? L'utiliser **comme engrais** ? {pause down}
+> - Est-il possible de **consulter** la recette ? {pause down}
+> - Est-il possible de **réaliser** la recette ? {pause down}
+> - La **modifier** ? {pause down}
+> - **Donner/Vendre** des produits faits avec ? {pause down}
+> - **Donner/Vendre** des produits faits avec une **version modifiée**, en **donnant la recette** ? {pause down}
+> - **Donner/Vendre** des produits faits avec une **version modifiée**, **sans donner la recette**, mais en **créditant** l'auteur ? {pause down}
+> - **Donner/Vendre** des produits faits avec une **version modifiée**, **sans donner la recette**, **sans créditer** l'auteur ? {pause down}
+> - **Faire un procès** à l'auteur car on a eu une indigestion ? {pause down}
+
+{pause up=scale unstatic-at-unpause=questions}
+
+{pause up=scale static-at-unpause=solution}
+
+{pause reveal-at-unpause=plus}
+
+{pause static-at-unpause=questions down=questions}
+
+{pause up=principles unstatic-at-unpause=questions}
+
+<style>
+.columns {
+  display: flex;
+}
+.column {
+  width:50%;
+  text-align:center;
+}
+</style>
 
 - Exemples : Les recettes suivantes peuvent-elles être GPL ?
 
@@ -64,7 +101,11 @@ La philosophie GNU : quatre principes.
 - Tartiner 1mm de patate bouillie et sucrée
 ```
 
-{pause #is_legal unstatic-at-unpause="r1 r2"}
+{#r3}
+[2007]{.date pause down} Publication de la GPLv3, protégeant de la tivoïsation.
+
+
+{pause #is_legal unstatic-at-unpause="r1 r2 r3"}
 - Les situations suivantes sont-elles légales ?
 
 {#r3}
@@ -120,8 +161,9 @@ La philosophie GNU : quatre principes.
 {pause up=thunes #mit}
 ## Licence MIT:
 
-- Liberté d'utiliser, étudier, modifier, distribuer
-- Obligation de conserver l'attribution dans la recette
+- [Protection sur contre procès]{style="color:blue"}
+- [Liberté d'utiliser, étudier, modifier, distribuer]{style="color:red"}
+- [Obligation de conserver l'attribution dans la recette]{ style="color:green"}
 
 {pause up=mnnh}
 
@@ -152,40 +194,84 @@ C'est déjà difficile de collaborer à deux... Alors à 8 milliards ?
 
 {pause}
 
-- Avant: on s'envoyait des mails...
+[1980]{.date} On s'envoyait des mails... {pause}
 
-- Maintenant : on utiliser un logiciel libre GPL: `git`.
+[2005]{.date} On utilise un logiciel libre GPL: `git`. {pause}
 
-{pause}
+[2008]{.date} On utilise un site communautaire dédié : Github {pause} ... **closed source** ... {pause}
 
-- Montrer un répo avec une recette simple
-- Modifier la recette et pusher (Dropbox avec des modifications atomiques)
-- Proposer ses modifications à quelqu'un d'autre.
+[2018]{.date} et racheté par Microsoft {pause}
 
-## Qu'est-ce que c'est que ça
+## Demo !
 
-## Comment gagner de l'argent avec un truc gratuit
+{pause up}
 
-## Comment collaborer à 8 milliards
+{.vskip}
 
-## Idées
 
-- Montrer une tablette de chocolat avec la recette et demander si elle est open
-  source (à ceux qui connaissent)
-- Avoir le fantôme du capitalisme rampant sur l'écran
-- Avoir le virus de l'open source
-- Le mélange des deux
-- Faker.js (un dev corromp sa librairie)
-- 
+{.vskip}
 
-  Comment réconcilier auteur et usager ?
+# Une histoire encore en cours !
 
-  - Est-il possible de manger le produit ?
-  - Est-il possible de consulter la recette ?
-  - Est-il possible de réaliser la recette ?
-  - La modifier ?
-  - Donner/Vendre des produits faits avec ?
-  - Donner/Vendre des produits faits avec une version modifiée, en donnant la recette ?
-  - Donner/Vendre des produits faits avec une version modifiée, sans donner la recette, mais en créditant l'auteur ?
-  - Donner/Vendre des produits faits avec une version modifiée, sans donner la recette, sans créditer l'auteur ?
-  - Faire un procès à l'auteur car on a eu une indigestion
+
+[2024]{.date} 🤑 OpenAI/Copilot/... utilise l'intégralité des recettes libres
+pour entrainer des modèles d'IA...
+
+1. Liberté **d'utiliser**
+1. Liberté **d'étudier**
+1. Liberté de **modifier**
+1. Liberté de **redistribuer** {pause}
+
+[2024]{.date} L'OSI travaille à une nouvelle licence protégeant les auteurs
+
+
+{.vskip}
+
+
+{.vskip}
+
+
+{.vskip}
+
+# Et maintenant, on discute !
+
+<!-- {pause} -->
+
+<!-- - Montrer un répo avec une recette simple -->
+<!-- - Modifier la recette et pusher (Dropbox avec des modifications atomiques) -->
+<!-- - Proposer ses modifications à quelqu'un d'autre. -->
+
+<!-- ## Qu'est-ce que c'est que ça -->
+
+<!-- ## Comment gagner de l'argent avec un truc gratuit -->
+
+<!-- ## Comment collaborer à 8 milliards -->
+
+<!-- ## Idées -->
+
+<!-- - Montrer une tablette de chocolat avec la recette et demander si elle est open -->
+<!--   source (à ceux qui connaissent) -->
+<!-- - Avoir le fantôme du capitalisme rampant sur l'écran -->
+<!-- - Avoir le virus de l'open source -->
+<!-- - Le mélange des deux -->
+<!-- - Faker.js (un dev corromp sa librairie) -->
+<!-- - Cas camptocamp -->
+<!-- - AI et open source  -->
+
+<!--   Comment réconcilier auteur et usager ? -->
+
+<!--   - Est-il possible de manger le produit ? L'utiliser comme engrais ? -->
+<!--   - Est-il possible de consulter la recette ? -->
+<!--   - Est-il possible de réaliser la recette ? -->
+<!--   - La modifier ? -->
+<!--   - Donner/Vendre des produits faits avec ? -->
+<!--   - Donner/Vendre des produits faits avec une version modifiée, en donnant la recette ? -->
+<!--   - Donner/Vendre des produits faits avec une version modifiée, sans donner la recette, mais en créditant l'auteur ? -->
+<!--   - Donner/Vendre des produits faits avec une version modifiée, sans donner la recette, sans créditer l'auteur ? -->
+<!--   - Faire un procès à l'auteur car on a eu une indigestion -->
+
+<!--   | kind   | [--parent-id]         | corresponding [-P] or [-L] | Comments                                            | -->
+<!--   |--------|-----------------------|----------------------------|-----------------------------------------------------| -->
+<!--   | Module | [<pkg>/lib/<lib>]     | [<lib>:<pkg>/lib/<lib>]    |                                                     | -->
+<!--   | Page   | [<pkg>/doc/<relpath>] | [<lib>:<pkg>/doc/]         | For pages in [<opam root>/doc/<relpath>/<file.mld>] | -->
+<!--   | Asset  | [<pkg>/doc/<relpath>] | [<lib>:<pkg>/doc/]         | For pages in [<opam root>/doc/<relpath>/<file.ext>] | -->
