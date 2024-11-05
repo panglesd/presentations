@@ -124,8 +124,8 @@ sucré). Mais la recette ne peut être partagée !
 {pause down=th_oss}
 # Les recette libres, un virus ?
 
-1. Liberté **d'utiliser**, **d'étudier**, **modifier**, **redistribuer**
-1. **Copyleft**: interdiction de restreindre ces libertés dans un produit dérivé
+1. Liberté [**d'utiliser**, **d'étudier**, **modifier**, **redistribuer**]{style="color:red"}
+1. [**Copyleft**: interdiction de restreindre ces libertés dans un produit dérivé]{style="color:green"}
 
 {pause .theorem #th_oss}
 > Une recette GPL implique que tous ses ingrédients soient "ouverts".
@@ -141,7 +141,7 @@ sucré). Mais la recette ne peut être partagée !
 {.vskip}
 
 {pause center-at-unpause}
-# 🤑 🤑 Et la thunes dans tout ça ? 🤑 🤑
+# 🤑 🤑 Et la thune dans tout ça ? 🤑 🤑
 
 
 {.vskip}
@@ -154,7 +154,7 @@ sucré). Mais la recette ne peut être partagée !
 
 {pause}
 
-[1998]{.date #mnnh} Éric Raymond'or invente le terme "Open Source". {pause} L'open
+[1998]{.date #mnnh} Éric Raymond invente le terme "Open Source". {pause} L'open
   source est un **modèle de developement** de recettes communautaires, au
   **modèle économique alléchant**.
 
@@ -163,7 +163,7 @@ sucré). Mais la recette ne peut être partagée !
 
 - [Protection sur contre procès]{style="color:blue"}
 - [Liberté d'utiliser, étudier, modifier, distribuer]{style="color:red"}
-- [Obligation de conserver l'attribution dans la recette]{ style="color:green"}
+- [**Obligation de conserver l'attribution dans la recette**]{ style="color:green"}  (pas de copyleft)
 
 {pause up=mnnh}
 
@@ -173,15 +173,16 @@ sucré). Mais la recette ne peut être partagée !
 - 💸💸 Mutualisation pour les ingrédients de base.
 - 💸💸💸 [Profite des amateurs qui contribuent gratuitement]{#gratos} [Profite des amateurs qui contribuent gratuitement]{#gratos2 style="position: absolute ; font-weight: bold;" .unrevealed}.
 
-Certains projets open source ont de gros financements de grosses entreprises.
 {pause up=mit}
-Mais en général le financement est minimal pour que ça perdure.
+### Sources de subsistance pour un projet libre/open source :
 
-### Sources de subsistance pour un projet libre :
+- Dons, [**dons d'entreprises,**]{#entreprises .unrevealed} {pause}
+- Vente du produit fini,  {pause}
+- Support et formation,  {pause}
 
-- Vente du produit fini,
-- Support et formation,
-- Fonctionnalités payantes,
+{pause reveal-at-unpause=entreprises}
+
+**Mais en général le [financement est minimal](https://xkcd.com/2347/) pour que ça perdure.**
 
 {pause static-at-unpause=gratos2 reveal-at-unpause=gratos2 unstatic-at-unpause=gratos}
 
@@ -224,16 +225,20 @@ pour entrainer des modèles d'IA...
 
 [2024]{.date} L'OSI travaille à une nouvelle licence protégeant les auteurs
 
+{pause}
+
+{.vskip}
+
+Alors, l'open source, [**une récupération du libre par le capitalisme**]{style="color:blue"}
+
+ou [**Une victoire du libre sur les logiciels privés**]{style="color:red"}?
 
 {.vskip}
 
 
 {.vskip}
 
-
-{.vskip}
-
-# Et maintenant, on discute !
+# Maintenant, on discute !
 
 <!-- {pause} -->
 
