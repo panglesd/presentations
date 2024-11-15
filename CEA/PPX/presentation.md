@@ -1,9 +1,18 @@
 # Preprocessing in OCaml
 
-{#pipeline}
+{#pipeline pause}
 ## The compiler pipeline
 
 <style>
+#hand-ppxlib img {
+  width:75%;
+}
+
+#hand-ppxlib {
+  margin-top: -15px;
+  text-align:center;
+}
+
 .language-handwritten-note {
   font-variant-ligatures: none;
   // otherwise eg "fi" is ligatured into a single character
@@ -91,15 +100,11 @@
 > {#output .box}
 > > Output file
 
-{pause focus-at-unpause=compiler}
-
-{pause unfocus-at-unpause}
-
-{.flex style="justify-content: space-evenly"}
+{.flex pause style="justify-content: space-evenly"}
 > {.box #spp}
 > Source Preprocessor
 >
-> {.box #ppx}
+> {.box #ppx .unrevealed}
 > PreProcessor eXtension
 
 {pause down=pp-ex-1}
@@ -186,6 +191,12 @@
 
 {pause up=pipeline}
 
+{pause focus-at-unpause=compiler}
+
+{pause unfocus-at-unpause}
+
+{pause reveal-at-unpause=ppx}
+
 {pause unstatic-at-unpause=part-pp}
 
 {#part-ast}
@@ -200,7 +211,7 @@
 >
 > {.flex .gap}
 > > ```ocaml
-> > (x + 0) * (2 * 3)
+> > (x + 0) * (2 + 3)
 > > ```
 > > {style="font-size: 2em;"}
 > > > →
@@ -261,11 +272,11 @@
 {#part-handwrite}
 > ## How to rewrite the parsetree?
 >
-> - Paperwork
+> 1. Paperwork
 >
-> - `val transform : Parsetree.t -> Parsetree.t`
+> 1. `val transform : Parsetree.t -> Parsetree.t`
 >
-> - Paperwork
+> 1. Paperwork
 >
 > {pause down .block title="Exercise time!"}
 > > **Don't write PPX by hand.** But let's do a quick exercise anyway 🤨
@@ -277,48 +288,37 @@
 {pause #what-could-go-wrong}
 ## What could go wrong?
 
-{#list-problems .flex}
+{#list-problems .gap  .flex}
 > {.grow .block}
 > > {pause} [Everything. {pause down=list-problems} Here is a small list:]{.bold}
 > > - Composability
-> >
 > > - Opaqueness
-> >
 > > - Efficiency
-> >
 > > - Compatibility
-> >
 > > - Maintenance
-> >
 > > - Boilerplate
-> >
 > > - Build complexity
 >
 > {.grow pause .block}
-> > [Fortunately we have a solution: `ppxlib`!]{.bold}
+> > [We have a solution: `ppxlib`!]{.bold}
 > >
 > > - Handles the boilerplate
-> >
 > > - Handles the compatibility
-> >
 > > - Orchestrates rewriters
-> >
 > > - Cooperates with `dune`
-> >
-> > - **Restrict rewriting** for:
-> >   - Better performance
-> >   - Better composability
-> >   - Less opaqueness
+> > - Better performance
+> > - Better composability
+> > - Less opaqueness
 
-{pause up=list-problems}
-TODO dessin
+{pause down #hand-ppxlib}
+![](combined_ppx.jpg)
 
 {pause down .block title="Exercise time!"}
 > **Don't write global transformation by hand.** But let's do a quick exercise anyway 🤨
 >
 > Start with `4_global_transformations/README.md` (10min)
 >
-> Also, record your ideas for an interesting PPX (we have seen none yet).
+> Also, record your ideas for an interesting PPX.
 
 {pause down #restricting}
 > ## Restricting the rewriting
@@ -338,6 +338,7 @@ TODO dessin
 {.definition}
 Attributes are extra named `Parsetree` nodes that can be **attached** to a `Parsetree` node.
 
+{pause}
 #### Expressions/types/...
 
 {.flex .gap}
@@ -364,7 +365,7 @@ Attributes are extra named `Parsetree` nodes that can be **attached** to a `Pars
 
 {.flex .gap #stand}
 > ```ocaml
-> [@@@name let x = 3]
+> [@@@ocaml.warnings "-42"]
 > ```
 > {style="font-size: 2em;"}
 > > →
@@ -388,7 +389,7 @@ Attributes are extra named `Parsetree` nodes that can be **attached** to a `Pars
 {pause up=ext-nodes}
 #### Structure/signature items
 
-{.flex .gap}
+{.flex .gap #ext-str-itm}
 > ```ocaml
 > module M = struct
 >   [%%rewrite_me let f x = x]
@@ -399,7 +400,7 @@ Attributes are extra named `Parsetree` nodes that can be **attached** to a `Pars
 > {style="font-size: 2em;"}
 > > →
 
-{pause up}
+{pause up=ext-str-itm}
 ## Back to restricting
 
 We are going to restrict the transformation in:
@@ -436,7 +437,7 @@ We are going to restrict the transformation in:
 | **Input**  | Attributed node (right name) | Extension node  (right name) |
 | **Output** | Nodes to append              | Node to replace             |
 
-{pause down=deriv-exampl}
+{pause up=table-guarantees}
 ### Examples
 
 ```ocaml
@@ -447,6 +448,7 @@ type foo = Bar of int | Baz [@@deriving show]
 let after = 1
 ```
 
+{pause down=deriv-exampl}
 rewritten into
 
 {#deriv-exampl}
