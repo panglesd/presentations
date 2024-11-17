@@ -39,9 +39,7 @@ Mais le truc **VRAIMENT** cool, avec slipshow, c'est :
 {.block #cool title="Le truc vraiment cool" pause}
 > Supsense, suspense...
 >
-> ## **On peut faire dérouler un [slide]{#slide} [~~slide~~ slip]{#slip style="position:absolute; visibility:hidden; color:red;"} !** {pause up=example}
-
-{pause unstatic-at-unpause=slide static-at-unpause=slip}
+> ## **On peut faire dérouler un slide! {pause up=example}
 
 {pause #vrai-sommaire up=cool}
 ## Sommaire
@@ -84,32 +82,23 @@ Cette présentation se fera en **quatre parties** :
 >
 > {pause unfocus-at-unpause}
 >
-> Voici [quelques](https://choum.net/panglesd/slides/cea.html#0,2) exemples.
+> Voici [un exemple](https://choum.net/panglesd/slides/cea.html).
 
 {pause up=vrai-sommaire}
 
-{pause unstatic-at-unpause=part1 #part2}
-## Comment écrire une présentation slipshow
-
-{pause}
-
-1. On écrit dans un **fichier texte** {pause} du **markdown** {pause} avec des **annotations**. {pause}
-
-2. Il n'y a pas de 2.
-
-{.block up=part2 pause title="Example"}
-> {.flex}
-> > ```markdown
-> > ### Ceci est un titre
-> >
-> > Et _ceci_ est un **paragraphe**.
-> >
-> > {pause}
-> >
-> > - Une liste à `points` {pause}
-> > - Avec plusieurs points
-> > ```
-> > {pause}
+{#part3}
+> {pause unstatic-at-unpause=part1 #part2}
+> ## Comment écrire une présentation slipshow
+>
+> {pause}
+>
+> 1. On écrit dans un **fichier texte** {pause} du **markdown** {pause} avec des **annotations**. {pause}
+>
+> 2. Il n'y a pas de 2.
+>
+> {.block up=part2 pause title="Example"}
+> > {.flex}
+> > > ```markdown
 > > > ### Ceci est un titre
 > > >
 > > > Et _ceci_ est un **paragraphe**.
@@ -118,25 +107,358 @@ Cette présentation se fera en **quatre parties** :
 > > >
 > > > - Une liste à `points` {pause}
 > > > - Avec plusieurs points
-
-{.block pause down title="Example"}
-> {.flex style="gap: 20px"}
-> > {style="width:60%"}
-> > ```markdown
-> > {.definition title="La définition"}
-> > $D$ tel que $D=\{x : x\in x\}$.
-> >
-> > {pause}
-> >
-> > Marche aussi avec `theorem`,
-> > `example`, `block`, `proof`, ...
-> > ```
-> >
-> > {pause}
+> > > ```
+> > > {pause}
+> > > > ### Ceci est un titre
+> > > >
+> > > > Et _ceci_ est un **paragraphe**.
+> > > >
+> > > > {pause}
+> > > >
+> > > > - Une liste à `points` {pause}
+> > > > - Avec plusieurs points
+>
+> {.block pause down title="Example"}
+> > {.flex style="gap: 20px"}
+> > > {style="width:60%"}
+> > > ```markdown
 > > > {.definition title="La définition"}
 > > > $D$ tel que $D=\{x : x\in x\}$.
 > > >
 > > > {pause}
 > > >
-> > > Marche aussi avec `theorem`, `example`, `definition`, `proof`, ...
+> > > Marche aussi avec `theorem`,
+> > > `example`, `block`, `proof`, ...
+> > > ```
+> > >
+> > > {pause}
+> > > > {.definition title="La définition"}
+> > > > $D$ tel que $D=\{x : x\in x\}$.
+> > > >
+> > > > {pause}
+> > > >
+> > > > Marche aussi avec `theorem`, `example`, `definition`, `proof`, ...
+>
+> {.block pause down title="Example"}
+> > {.flex style="gap: 20px"}
+> > > {style="width:56%"}
+> > > ````markdown
+> > > {.example title="Multi paragraph"}
+> > > > Voici un bloc de code:
+> > > >
+> > > > ```ocaml
+> > > > let rec fibo =
+> > > >  function
+> > > >  | 0 -> 0 | 1 -> 1
+> > > >  | n ->
+> > > >      fibo (n-1)
+> > > >    + fibo (n-2);;
+> > > > ```
+> > > ````
+> > >
+> > > {pause}
+> > > >  {.example title="Multi paragraph"}
+> > > > > Voici un bloc de code:
+> > > > >
+> > > > > ```ocaml
+> > > > > let rec fibo =
+> > > > >  function
+> > > > >  | 0 -> 0 | 1 -> 1
+> > > > >  | n ->
+> > > > >      fibo (n-1)
+> > > > >    + fibo (n-2);;
+> > > > > ```
+>
+> {pause up}
+> {style="text-align:center"}
+> ## Récapitulatif
+>
+> <style>
+> .column-3 {
+>   display:grid;
+>   grid-template-columns: 0.5fr 1fr 1fr;
+>   grid-column-gap: 80px;
+>   align-items: center;
+> }
+> </style>
+>
+> {.column-3}
+> > > Italique
+> >
+> > ```text
+> > _contenu_
+> > ```
+> >
+> > _contenu_
+> >
+> > Gras
+> >
+> > ```text
+> > **contenu**
+> > ```
+> >
+> > **contenu**
+> >
+> > Chasse fixe
+> >
+> > ```text
+> > `contenu`
+> > ```
+> >
+> > `contenu`
+> >
+> > Math
+> >
+> > ```text
+> > $\sqrt x$
+> > ```
+> >
+> > $\sqrt x$
+> >
+> > {pause down=fin-liste}
+> > Paragraphe
+> >
+> > ```
+> > Premier paragraphe.
+> >
+> > Après saut de ligne.
+> > ```
+> >
+> > {.ddd}
+> > > Premier paragraphe.
+> > >
+> > > Après saut de ligne.
+> >
+> > Titre
+> >
+> > ```text
+> > ## Titre
+> > ```
+> >
+> > ## Titre
+> >
+> > Listes
+> >
+> > ```text
+> > - Point 1
+> > - Point 2
+> > - Point 3
+> > ```
+> >
+> > {#fin-liste}
+> > - Point 1
+> > - Point 2
+> > - Point 3
+> >
+> > {pause down=fin-attr}
+> > [Attributs]{#attr-foc}
+> >
+> > ```text
+> > {pause}
+> >
+> > {.block}
+> > Hehe
+> > ```
+> >
+> > {#fin-attr}
+> > > {pause}
+> > >
+> > > {.block}
+> > > Hehe
+>
+> {.remark pause center #tjrs-pas}
+> On ne sais **toujours pas** comment faire **glisser l'écran**!!!
+>
+>
+> {pause focus-at-unpause=attr-foc}
+>
+> {pause unfocus-at-unpause}
+>
+> {pause up=tjrs-pas}
+> # Attributs
+>
+> Tout ce qui est entre crochet:
+>
+> {#attr-lg-ex}
+> ```text
+> {.theorem}
+> Du texte
+>
+> {pause}
+>
+> Encore du [texte]{#reference}. {pause}
+> Avec du [contenu special]{style="color:red"}.
+> ```
+>
+> {pause #lgliste}
+> - Certains sont **standalone**.
+>
+> - D'autres **s'appliquent à un bloc**.
+>
+> - D'autres **s'appliquent à du texte**. {pause down=lgliste}
+>
+> - `#nom-identifiant` pour définir un **identifiant** (unique)
+>
+> - `.nom-classe` pour définir une **classe** (multiple)
+>
+> - `name-attribut` et `nom-attribut="..."` pour définir **d'autres métadonnées**.
+>
+> {pause up=attr-lg-ex #id-titre-ex}
+> # Attributs de présentation `{#attrs}`
+>
+> - `{pause}` **cache** le contenu qui suit, **jusqu'à** ce qu'on presse
+>   [**`→`**]{style="background-color:beige;font-size: 1.3em"}. {pause}
+>
+> - `{pause up=nom-id}`, **au moment** de révéler, met `#nom-id` en **haut de
+>   l'écran**.
+>
+>   **Exemple** `{pause up=attrs}` {pause up=id-titre-ex} {pause}
+>
+> - `center`, équivalent au **centre de l'écran**. [`{.unrevealed
+>   #youhou}`]{.unrevealed #youhou}
+>
+>   **Exemple** `{pause center}` {pause center} {pause}
+>
+> - `down`, équivalent au **bas de l'écran**.
+>
+>   **Exemple** `{pause down}` {pause down} {pause up=id-titre-ex} {pause}
+>
+> - `focus-at-unpause`, `static-at-unpause`, `unstatic-at-unpause`, `reveal-at-unpause`, ...
+>
+>   **Exemple** `{pause reveal-at-unpause=youhou}` {pause reveal-at-unpause=youhou}
+>
+> {pause up}
+> # Slipshow
+>
+> - Slipshow est un logiciel libre pour faire des présentations améliorées. {pause}
+>
+> - Avec slipshow, pas besoin de gérer l'alignement du texte ! {pause}
+>
+> - Une présentation slipshow prend la forme d'un fichier texte.
+>
+> {pause}
+>
+> {.example #example-file}
+>   ```markdown
+>   # Ceci est un titre
+>
+>   Et ceci est un paragraphe.
+>
+>   - Et ceci est une liste à points
+>   - Avec plusieurs points
+>
+>   On peut aussi mettre du texte **en gras**, ou en *italique*.
+>   ```
+>
+> {pause}
+>
+> Mais le truc **VRAIMENT** cool, avec slipshow, c'est :
+>
+> ...
+>
+> {.block title="Le truc vraiment cool" pause}
+> > Supsense, suspense...
+> >
+> > ## **On peut faire dérouler un slide! {pause up=example-file}
+>
+> <style>
+> .max-size > code { font-size:0.85em; }
+> </style>
+>
+> {pause down .max-size}
+> ````markdown
+> # Slipshow
+>
+> - Slipshow est un logiciel libre pour faire des présentations
+>   améliorées. {pause}
+>
+> - Avec slipshow, pas besoin de gérer l'alignement du texte ! {pause}
+>
+> - Une présentation slipshow prend la forme d'un fichier texte.
+>
+> {pause}
+>
+> {.example #example-file}
+> ```markdown
+> # Ceci est un titre
+>
+> Et ceci est un paragraphe.
+>
+> - Et ceci est une liste à points
+> - Avec plusieurs points
+>
+> On peut aussi mettre du texte **en gras**, ou en *italique*.
+> ```
+>
+> {pause}
+>
+> Mais le truc **VRAIMENT** cool, avec slipshow, c'est :
+>
+> ...
+>
+> {.block title="Le truc vraiment cool" pause}
+> > Supsense, suspense...
+> >
+> > ## **On peut faire dérouler un slide! {pause up=example-file}
+> ````
+>
+> {pause down}
+> # [Tutoriel](https://slipshow.readthedocs.io/en/latest/tutorial.html) et [référence](https://slipshow.readthedocs.io/en/latest/syntax.html)!
 
+<style>
+#youhou {
+    font-size:1.5em
+}
+code {
+  background-color:#f3f3f3;
+}
+</style>
+
+{pause up=vrai-sommaire}
+
+{pause unstatic-at-unpause=part3 #part4}
+> # Installer slipshow
+>
+> De nombreuses possibilités :
+>
+> - ["Sliphub"](https://sliphub.choum.net) **pour tester**.
+>
+>   - ✅ Rien à installer
+>
+>   - ✅ Collaboratif
+>
+>   - ❌❌✅ En ligne {pause up=part4}
+>
+> - [VSCode](https://open-vsx.org/extension/Slipshow/slipshow) [extension](https://marketplace.visualstudio.com/items?itemName=Slipshow.slipshow) si **sous windows**.
+>
+>   - ✅✅❌ Facile à installer si VS Code.
+>
+>   - ❌ Support moins avancé. {pause}
+>
+> - [Slipshow binary](https://github.com/panglesd/slipshow/releases)
+>
+>   - ✅ Marche uniquement sous Linux et Mac.
+>
+>   - ✅ Meilleur support et performance.
+>
+> {pause up=vrai-sommaire}
+
+{pause unstatic-at-unpause=part4}
+
+{#merci}
+# Merci de votre attention !
+
+<style>
+#merci {
+  margin-top: 100px;
+  animation: growShrink 2s infinite;
+}
+@keyframes growShrink {
+    0%, 100% {
+      transform: scale(1); /* Original size */
+    }
+    50% {
+      transform: scale(1.5); /* Enlarged size */
+    }
+  }
+</style>
