@@ -13,23 +13,31 @@
          {à}{{\`{a}}}1
 }
 
+\title{Slipshow}
+\author{Paul-Elliot Anglès d'Auriac}
+\date{\today}
+
 \begin{document}
+\begin{frame}
+  \titlepage
+\end{frame}
 
 \begin{frame}[fragile]
   \frametitle{Slipshow}
 
   \begin{itemize}
-    \item Slipshow est un logiciel libre pour faire des présentations améliorées. \pause
-    \item Avec slipshow, pas besoin de gérer l'alignement du texte ! \pause
-    \item Une présentation slipshow prend la forme d'un fichier texte.
+  \item Slipshow est un logiciel libre pour faire des présentations améliorées. \pause
+  \item Avec slipshow, pas besoin de gérer l'alignement du texte ! \pause
+  \item Une présentation slipshow prend la forme d'un fichier texte.
   \end{itemize}
 
   \pause
 
   \vspace{0.25cm}
 
-  \textbackslash includegraphics[width=0.6\textbackslash textwidth,height=0.4\textbackslash textwidth]\{slipshow.png\}
-
+  \textbackslash begin\{itemize\}\\
+  \textbackslash item Slipshow possède une syntaxe très simple !\\
+  \textbackslash end\{itemize\}
   \vspace{0.25cm}
 
   \pause
@@ -38,13 +46,11 @@
     \begin{lstlisting}
 # Ceci est un titre
 
-Et ceci est un paragraphe.
+On peut mettre du texte **en gras**.
+L'italique a _aussi_ une syntaxe.
 
 - Et ceci est une liste à points
 - Avec plusieurs points
-
-On peut aussi mettre du texte en gras, comme dans l'exemple : **comme ceci**.
-L'italique a _aussi_ une syntaxe.
     \end{lstlisting}
   \end{exampleblock}
 
@@ -53,20 +59,18 @@ L'italique a _aussi_ une syntaxe.
   Mais le truc VRAIMENT cool, avec slipshow, c'est :
 
   \begin{exampleblock}{Le truc vraiment cool en Slipshow}
-    \begin{lstlisting}
-{.block}
-Ceci est un block
+    %% \begin{lstlisting}
+      {.block}
+      Ceci est un block
 
 
-{.block}
-> Ceci est un block
->
-> Sur plusieurs lignes !
-\end{lstlisting}
+      {.block}
+      > Ceci est un block
+      >
+      > Sur plusieurs lignes !
+    %% \end{lstlisting}
   \end{exampleblock}
 
-  
-  
 \end{frame}
 
 \end{document}

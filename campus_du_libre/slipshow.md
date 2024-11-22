@@ -1,15 +1,5 @@
 # Slipshow
 
-<style>
-.flex {
-  display: flex;
-    justify-content: space-evenly;
-}
-.grow {
-  flex-grow: 1;
-}
-</style>
-
 - Slipshow est un logiciel libre pour faire des présentations améliorées. {pause}
 
 - Avec slipshow, pas besoin de gérer l'alignement du texte ! {pause}
@@ -20,7 +10,7 @@
 
 {.example #example}
   ```markdown
-  # Ceci est un titre
+  # Ceci n'est pas un titre
 
   Et ceci est un paragraphe.
 
@@ -47,44 +37,79 @@ Mais le truc **VRAIMENT** cool, avec slipshow, c'est :
 Cette présentation se fera en **quatre parties** :
 
 {#sommaire}
-- Humiliation des concurrents ✅
+- **Comparaison** avec les concurrents ✅
 
-- Comment **présenter** avec slipshow
+- **Qu'est-ce** qu'une présentation slipshow ?
 
-- Comment **écrire** une présentation slipshow
+- Comment **écrire** une présentation avec slipshow ?
 
-- Comment **installer** slipshow
+- Comment **accéder** à slipshow ?
 
 {pause up=sommaire style="text-align:center" #comment-presenter}
 
 {#part1}
-> ## Comment présenter avec slipshow
+> ## **Qu'est-ce** qu'une présentation slipshow ?
 >
-> {.flex}
-> > `←` / `→`, `↑` / `↓`, `SPACE`
+> Voici [un exemple](https://choum.net/panglesd/slides/cea.html), et [un autre](https://choum.net/panglesd/slides/WDCM-2021-slips/wdcm-ada.html#2,21).
+>
+> {pause #preslip .block}
+> > Une présentation slipshow :
 > >
-> > Avancer/Reculer
->
-> {.flex}
-> > `w` / `W`, `h` / `H`, `x` / `X`
+> > - tient plus du **tableau noir** que des diapositives.
 > >
-> > ?
->
-> {pause}
->
-> - Laisser le contenu **suffisement longtemps** à l'écran. {pause up=comment-presenter}
->
-> - Compléter **les trous** avec la fonction **d'annotation**.
->
-> - Faire apparaître la structure de la présentation. {pause up=vrai-sommaire} {pause unstatic-at-unpause=part1} {pause static-at-unpause=part1 up=comment-presenter}
->
-> - **En embrassant les nouvelles possibilités [pédagogique]{step focus-at-unpause}** 
+> > - est **auto-suffisante** (fichier `.html`). {pause}
+> >
+> > Elle se contrôle avec les touches :
+> >
+> > {.flex}
+> > > [`←`]{.touche} [`→`]{.touche} [`↑`]{.touche} [`↓`]{.touche} [`SPACE`]{.touche .space}
+> > >
+> > > **Avancer/Reculer**
+> >
+> > {.flex}
+> > > [`w`]{.touche} [`W`]{.touche} [`h`]{.touche} [`H`]{.touche} [`x`]{.touche} [`X`]{.touche}
+> > >
+> > > **Mode dessin**
+> >
+> > {pause up=preslip}
+> >
+> >
+> > Une présentation Slipshow permet de :
+> >
+> > - Laisser le contenu **suffisamment longtemps** à l'écran.
+> >
+> > - Compléter interactivement sa présentation avec le **mode dessin**.
+> >
+> > - Faire apparaître **la structure** de la présentation. {pause up=vrai-sommaire} {pause unstatic-at-unpause=part1} {pause static-at-unpause=part1 up=preslip}
+> >
+> > - Ouvrir de les **nouvelles possibilités [pédagogiques]{step focus-at-unpause}**
 >
 > {pause unfocus-at-unpause}
->
-> Voici [un exemple](https://choum.net/panglesd/slides/cea.html).
 
 {pause up=vrai-sommaire}
+
+<style>
+.flex {
+  display: flex;
+    justify-content: space-evenly;
+}
+.grow {
+  flex-grow: 1;
+}
+
+.touche code {
+  margin-left: 10px;
+  display: inline-block;
+  border: 3px solid black;
+  padding: 9px;
+  border-radius: 12px;
+  width: 20px;
+  height: 29px;
+}
+.touche.space code {
+  width: 90px;
+}
+</style>
 
 {#part3}
 > {pause unstatic-at-unpause=part1 #part2}
@@ -267,7 +292,7 @@ Cette présentation se fera en **quatre parties** :
 > > > Hehe
 >
 > {.remark pause center #tjrs-pas}
-> On ne sais **toujours pas** comment faire **glisser l'écran**!!!
+> On ne sait **toujours pas** comment faire **glisser l'écran**!!!
 >
 >
 > {pause focus-at-unpause=attr-foc}
@@ -277,7 +302,7 @@ Cette présentation se fera en **quatre parties** :
 > {pause up=tjrs-pas}
 > # Attributs
 >
-> Tout ce qui est entre crochet:
+> Tout ce qui est entre accolades:
 >
 > {#attr-lg-ex}
 > ```text
@@ -417,7 +442,7 @@ code {
 {pause up=vrai-sommaire}
 
 {pause unstatic-at-unpause=part3 #part4}
-> # Installer slipshow
+> # Accéder à Slipshow
 >
 > De nombreuses possibilités :
 >
