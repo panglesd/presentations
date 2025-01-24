@@ -52,12 +52,8 @@ Cette présentation se fera en **quatre parties** :
 >
 > Voici [un exemple](https://choum.net/panglesd/slides/cea.html), et [un autre](https://choum.net/panglesd/slides/WDCM-2021-slips/wdcm-ada.html#2,21).
 >
-> {pause #preslip .block}
-> > Une présentation slipshow :
-> >
-> > - tient plus du **tableau noir** que des diapositives.
-> >
-> > - est **auto-suffisante** (fichier `.html`). {pause}
+> {pause down #preslip .block}
+> > Une présentation slipshow tient plus du **tableau noir** que des diapositives. {pause}
 > >
 > > Elle se contrôle avec les touches :
 > >
@@ -71,18 +67,16 @@ Cette présentation se fera en **quatre parties** :
 > > >
 > > > **Mode dessin**
 > >
-> > {pause up=preslip}
+> > {pause}
 > >
 > >
-> > Une présentation Slipshow permet de :
-> >
-> > - Laisser le contenu **suffisamment longtemps** à l'écran.
+> > Une présentation slipshow permet de :
 > >
 > > - Compléter interactivement sa présentation avec le **mode dessin**.
 > >
-> > - Faire apparaître **la structure** de la présentation. {pause up=vrai-sommaire} {pause unstatic-at-unpause=part1} {pause static-at-unpause=part1 up=preslip}
+> > - Faire apparaître **la structure** de la présentation. {pause up=vrai-sommaire} {pause unstatic-at-unpause=part1} {pause static-at-unpause=part1 down=preslip}
 > >
-> > - Ouvrir de les **nouvelles possibilités [pédagogiques]{step focus-at-unpause}**
+> > - Ouvrir de **nouvelles possibilités [pédagogiques]{step focus-at-unpause}**
 >
 > {pause unfocus-at-unpause}
 
@@ -119,7 +113,27 @@ Cette présentation se fera en **quatre parties** :
 >
 > 1. On écrit dans un **fichier texte** {pause} du **markdown** {pause} avec des **annotations**. {pause}
 >
-> 2. Il n'y a pas de 2.
+> 2. Slipshow le transforme en un fichier `.html` ... **autosuffisant**
+>
+> {.flex}
+> > {style="border: 2px solid black; border-radius: 10px; display: flex; align-items: center; background-color:#f3f3f3; text-align: center; padding:50px"}
+> > [`ma-presentation.md`]{style="margin-left:20px;"}
+> >
+> > {.prrrouut style="text-align:center"}
+> > > {style="margin-bottom:-10px"}
+> > > compilation
+> > >
+> > > {style="margin:-50px"}
+> > > [→]{style="font-size:6em"}
+> > >
+> > > {style="margin-top:-10px"}
+> > > Slipshow
+> >
+> > {style="border: 2px solid black; border-radius: 10px; display: flex; align-items: center; background-color:#f3f3f3; text-align: center; padding:50px"}
+> > [`ma-presentation.html`]{style="margin-left:20px;"}
+> >
+> >
+>
 >
 > {.block up=part2 pause title="Example"}
 > > {.flex}
@@ -292,7 +306,7 @@ Cette présentation se fera en **quatre parties** :
 > > > Hehe
 >
 > {.remark pause center #tjrs-pas}
-> On ne sait **toujours pas** comment faire **glisser l'écran**!!!
+> On ne sait **toujours pas** comment **glisser**!!!
 >
 >
 > {pause focus-at-unpause=attr-foc}
@@ -339,7 +353,7 @@ Cette présentation se fera en **quatre parties** :
 >
 >   **Exemple** `{pause up=attrs}` {pause up=id-titre-ex} {pause}
 >
-> - `center`, équivalent au **centre de l'écran**. [`{.unrevealed
+> - `center`, équivalent au **milieu de l'écran**. [`{.unrevealed
 >   #youhou}`]{.unrevealed #youhou}
 >
 >   **Exemple** `{pause center}` {pause center} {pause}
@@ -454,17 +468,17 @@ code {
 >
 >   - ❌❌✅ En ligne {pause up=part4}
 >
-> - [VSCode](https://open-vsx.org/extension/Slipshow/slipshow) [extension](https://marketplace.visualstudio.com/items?itemName=Slipshow.slipshow) si **sous windows**.
+> - [VSCode](https://open-vsx.org/extension/Slipshow/slipshow) [extension](https://marketplace.visualstudio.com/items?itemName=Slipshow.slipshow) (par exemple si **sous windows**.)
 >
 >   - ✅✅❌ Facile à installer si VS Code.
 >
 >   - ❌ Support moins avancé. {pause}
 >
-> - [Slipshow binary](https://github.com/panglesd/slipshow/releases)
+> - [Binaire Slipshow](https://github.com/panglesd/slipshow/releases)
 >
 >   - ✅ Marche uniquement sous Linux et Mac.
 >
->   - ✅ Meilleur support et performance.
+>   - ✅ Meilleurs support et performance.
 >
 > {pause up=vrai-sommaire}
 
@@ -472,6 +486,15 @@ code {
 
 {#merci}
 # Merci de votre attention !
+
+{style="margin-top:200px"}
+- Site du projet : <https://github.com/panglesd/slipshow/>
+
+- Documentation : <https://slipshow.readthedocs.io/>
+
+- Source de ces slides : <https://choum.net/panglesd/slides/campus_du_libre.md>
+
+- Sliphub : <https://sliphub.choum.net/>
 
 <style>
 #merci {
