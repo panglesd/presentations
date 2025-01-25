@@ -46,10 +46,10 @@ this.previous = () => {
 
 I left it in its natural form, with all the scars of bad printf debugging and tatooed useless comments. Do not miss the pearl: a call to `this.doRefresh`, an effectful function, inlined as an argument to `console.log`! Yay! That is soooo past-self! (You have to know that past-self was also teaching Javascript... poor students)
 
-Apart for the sake of making fun of my past enthusiastic self, let's not read that. I'll explain what it is about. Slipshow, the project it's taken from, is a software for making presentations, as is PowerPoint or Latex+Beamer (but Slipshow is not based on slides).
-It can be seen as a glorified script scheduler: For instance, suppose it's a normal day, and you are making a presentation on... Infinite Computations in Algorithmic randomness and Reverse Mathematics. (If that does not speak to you, the recipe for an apple pie would work, but I like this historical example: past-self really did that)
+Apart for the sake of making fun of my past enthusiastic self, let's not read that this code. I'll explain what it is about. Slipshow, the project it's taken from, is a software for making presentations, as is PowerPoint or Latex+Beamer (but Slipshow is not based on slides).
+It can be seen as a glorified script scheduler: For instance, suppose it's a normal day, and you are making a presentation on... Infinite Computations in Algorithmic randomness and Reverse Mathematics. If that does not speak to you, pick an other name, but this example has the advantage of being historicallly accurate.
 
-You have an idea: you are going to use the title's terms to create the table of content:
+You have an idea: At the beginning, you are going to use the title's terms to create the table of content:
 
 TODO: gif.
 
@@ -98,9 +98,9 @@ title.setAction([
 ]);
 ```
 
-The glorified scheduler seems very simple: It records the last executed script, and whenever the presenter hits the right arrow key, the next script is executed.
+The glorified scheduler seems very simple: It records what was the last executed script, and whenever the presenter hits the right arrow key, the next script is executed.
 
-But then, what happens when you are crazy enough to hit the left arrow key? Easy, you just run the previous script, instead of the next one. WRONG, young little past self! Executing the previous script does not work, you need to execute it's inverse. For instance, if you hit right, then left, the following actions need to be executed:
+But then, what happens when you are crazy enough to hit the left arrow key? Easy, you just run the previous script, instead of the next one? WRONG, young little past self! Executing the previous script does not work, you need to revert its execution. For instance, if you hit right, then left, the following actions need to be executed:
 
 0. `right` is pushed.
 0-1. Scroll the window down to make space.
@@ -137,25 +137,25 @@ Works well enough!?
 TODO: gif
 
 This is a very bad solution. But past-self does not see that: he "fixes" all the problem by introducing more complexity:
-- Windows movement should make it look like we go from n to n-1, not from 0 to n.
-- It's too long to start from scratch, there are multiple snapshot points.
+- Windows movement should make it look like we go from n to n-1, not from n to 0 to n-1, so we introduce special behavior.
+- It's too long to start from scratch, so there are multiple snapshot points.
 - It's better to store a cloned DOM than the "inner HTML".
-- Some parts should not be refreshed, eg the canvas on which you can draw.
-- Multiple slips can be included in each other, and refreshed _independently_.
+- Some parts should not be refreshed, eg the canvas on which you can draw, so we extract them from the cloning.
+- Multiple slips can be included in each other but keep their state, so we refresh them _independently_.
 
 This is what has made Slipshow's engine turn into an unmaintainable software: One of the most basic feature (going back in the presentation) is made on a horrible basis, that complexifies all other features. Are you happy, past-self?
 
 ### The solution
 
-I haven't introduced my present self. He is an old grumpy guy! He takes so long thinking about how to do things, that he barely does anything. He is a bit of a coward: he never dares to introduce a breaking change. His coding is perfect, but takes ages to complete! He loves the purity of functional programming, at a point where his hello-world programs do not have side effects, such as printing a string. He is experienced, he is *senior*, he goes to a lot of boring meetings, spreading his wisdom. He *plans* the basic functionality he is going to code during 3 months, then do it in one hour.
+I haven't introduced my present self. He is an old grumpy guy! He takes so long thinking about how to do things, that he barely does anything. He is a bit of a coward: he never dares to introduce a breaking change. His coding is perfect, but takes ages to complete! He loves the purity of functional programming, at a point where his hello-world programs do not have side effects, such as printing a string. He is experienced, he is even *senior*, he goes to a lot of boring meetings, spreading his wisdom. He *plans* the basic functionality he is going to code during 3 months, then do it in one hour.
 
-He was ready. Ready to answer the interviewer's question. Overtrained.
+He was ready. Ready to answer the interviewer's question. Overtrained for that.
 
 > How would you rewrite that in OCaml?
 
-I would define a monad for undoable side effects. That's all. ("That's the right answer! You are hired")
+I would define a monad for undoable side effects, define atomic undos and use `bind` to combine them. ("Whoa" would have answered the interviewer)
 
-Let's break down this a bit. The idea is that the script execution would also return their inverted script.
+Let's break down this a bit. The idea is that the script execution would also return their inverted script. If it were written in OCaml, taking as example (part of) step 2 above, we would have:
 
 ```javascript
   // 2. [...] move "Infinite computations" down,
@@ -171,7 +171,12 @@ Let's break down this a bit. The idea is that the script execution would also re
 That *looks* quite horrible: A single line (setting a style attribute) is turned into 5 (storing the old value, setting the style, returning the reverted function).
 It also *looks* it's not going to scale: When defining multiple complex scripts, it will be too much work and difficulty to revert them by hand.
 
-But it only *looks* this way because we are not using OCaml, and its great support for monadic code. My present self tells you, listen to his wisdom!
+But it only *looks* this way because we are not using OCaml, and its great support for monadic code. My present self tells you, listen to his wisdom! To witness this, we will need three things:
+- Define the type and basic values,
+- Define how to combine basic values,
+- Introduce the syntax required to achieve transcendance.
+
+Som what follows is just some basic definition we will need later: a type for undoable computed values, a helper, and an example of an undoable computation just like the example above: setting a style to a new value.
 
 ```ocaml
 (** An undoable value is just a value and a function to revert the side-effects triggered when computing it *)
@@ -188,7 +193,7 @@ let set_style elem style new_value =
   return ~undo ()
 ```
 
-But the true miracle is in the combination of undoable values. Instead of defining a single `undo` function for all the big and complex scripts, present self decided to sit for one year, think very hard, write design sheets, investigate existing solutions, apply for a grant, profile prototypes, go to conferences, in order to finally write the following 8 lines of code:
+The first true miracle is in the combination of undoable values. Instead of defining a single `undo` function for all the big and complex scripts, present self decided to sit for one year, think very hard, write design sheets, investigate existing solutions, apply for a grant, profile prototypes, go to conferences, in order to finally write the following 8 lines of code:
 
 ```ocaml
 (** "x" is an undoable value, and "f" is a computation producing undoable values,
@@ -227,15 +232,15 @@ Oh no! In the example above, I messed up the order of undos!
 But more than that, and that answers the second question, OCaml has a special syntax support to write "monadic binds" in a very natural way. If you define a function with a name starting with `let` followed by special characters, it can be applied in a specific way:
 
 ```ocaml
-(* The following function application: *)
-(let>) (fun x -> body) v
-
-(* is syntactically equivalent to this: *)
+(* What looks like a let-binding: *)
 let> x = v in
 body
+
+(* is in fact an alias for the following function application: *)
+(let>) (fun x -> body) v
 ```
 
-Interesting! So if we rename our `bind` function:
+Interesting! So if we rename our `bind` function to `let>`:
 
 ```ocaml
 let (let>) f x = bind f x
@@ -293,7 +298,7 @@ let step () =
   set_style i Visibility "visible"
 ```
 
-So, this piece of code, which looks exactly like a regular forward script apart from two symbols, actually returns a "reverted script", which restores the old values for each of the three style properties.
+This piece of code, which looks exactly like a regular forward script apart from two symbols, actually returns a "reverted script", which restores the old values for each of the three style properties.
 
 Let's conclude this part with a comparison of the approach from past-self and present self:
 
@@ -350,6 +355,14 @@ let update_pause_ancestors () =
 Exactly like you would write it without the reverted script!!!!!
 
 ## Conclusion
+
+Dear interviewer,
+
+I hope you are reading this! Was it what you had in mind when you asked the question?
+
+Anyway, I really enjoyed rewriting my project in OCaml. It was a very enjoyable process, and I would do it again, one hundred times!
+
+I hope you liked this use of a monad!
 
 ---
 
