@@ -1,22 +1,24 @@
 # "Rewrite it in OCaml"
 
-A bit more than three years ago, my past self was having my first job interview as a software developer. He had to choose and send a snippet of code he authored, as a basis for discussion.
+A bit more than three years ago, my past self was attending his first job interview as a software developer. He had to choose and send a snippet of code he had written, as a basis for discussion.
 
-But first, let me introduce you my past self. He was very... young and enthusiastically inexperimented. His programming was fast and furious. He was also so innocent: he had no users on any of his project.
+But first, let me introduce my past self. He was very... young, enthusiastic, and blissfully inexperienced. His programming style was fast and furious. He was also so innocent: he had no users on any of his projects.
 
-The company for which he was applying is Tarides, whose focus is on the OCaml programming language, and so past-self sent... the messiest Javascript function for a project we (past-self and I) are excited about, Slipshow. It represented him quite well: it was an unmaintainable solution that he had quickly hacked to face a difficult problem, and it worked brittly well.
+The company he was applying to was Tarides, which specializes in the OCaml programming language. My past self, however, sent... the messiest JavaScript function from a project we (past-self and I) were excited about, Slipshow. It was a perfect representation of him: an unmaintainable solution hastily hacked together to solve a difficult problem, and it worked... brittly well.
 
-My past-self enthusiasm must have hacked the interviewer's brain, since he did get the job. Or, it is better to be excited about a project you did than to show clean code. Anyway, probably as a desperate attempt to return to safer grounds, the interviewer asked the only good question you can ask on such Javascript code:
+My past self’s enthusiasm must have hacked the interviewer’s brain because I got the job. Or maybe it’s better to be genuinely excited about your work than to show off clean code. Either way, the interviewer probably wanted to steer the conversation to safer grounds, so they asked the only good question you can ask about such JavaScript code:
 
 > How would you rewrite that in OCaml?
 
-I completely forgot what I answered. However, after three years of OCaml training, 2 Mirage retreat, 2 months of unpaid leaves focusing on that, and an NLNet grant, I can now answer you, interviewer. This is the story of a very elegant rewriting in OCaml.
+I completely forgot what I answered back then. However, after three years of OCaml training, two Mirage retreats, two months of unpaid leave dedicated to this question, and an NLNet grant, I can now give a proper answer. This is the story of a very elegant rewriting in OCaml.
 
-(I really wish I could have answered what follows in real time during the interview!)
+(I really wish I could have answered with what follows in real time during the interview!)
 
-## The Javascript code
+---
 
-Let me show you the above mentioned "messiest Javascript function":
+## The JavaScript Code
+
+Here’s the infamous "messiest JavaScript function":
 
 ```javascript
 this.previous = () => {
@@ -44,23 +46,22 @@ this.previous = () => {
 };
 ```
 
-I left it in its natural form, with all the scars of bad printf debugging and tatooed useless comments. Do not miss the pearl: a call to `this.doRefresh`, an effectful function, inlined as an argument to `console.log`! Yay! That is soooo past-self! (You have to know that past-self was also teaching Javascript... poor students)
+I’ve left it in its natural state, with the scars printf debugging and tatooed comments. Don’t miss the highlight: a call to `this.doRefresh`, an effectful function, inlined as an argument to `console.log`! That is sooo past-self! (Side note: past-self was also teaching JavaScript… poor students.)
 
-Apart for the sake of making fun of my past enthusiastic self, let's not read that this code. I'll explain what it is about. Slipshow, the project it's taken from, is a software for making presentations, as is PowerPoint or Latex+Beamer (but Slipshow is not based on slides).
-It can be seen as a glorified script scheduler: For instance, suppose it's a normal day, and you are making a presentation on... Infinite Computations in Algorithmic randomness and Reverse Mathematics. If that does not speak to you, pick an other name, but this example has the advantage of being historicallly accurate.
+Let’s not dive into this code too deeply—it’s just here to set the scene. I’ll explain what it’s about. Slipshow, the project this snippet is from, is presentation software similar to PowerPoint or LaTeX + Beamer, but it’s not based on slides. Part of it is essentially a glorified script scheduler. For instance, imagine you’re giving a presentation on "Infinite Computations in Algorithmic Randomness and Reverse Mathematics." (If that doesn’t speak to you, pick another topic, but this example has the advantage of being historically accurate!)
 
-You have an idea: At the beginning, you are going to use the title's terms to create the table of content:
+At the beginning of your presentation, you decide to use the title’s terms to create the table of contents:
 
-TODO: gif.
+**TODO: Add GIF here.**
 
-So, the scripts your glorified scheduler execute when you press the right arrow key are the following:
+The scripts your glorified scheduler executes when you press the right arrow key are:
 
-1. Scroll the window down to make space
-2. Show `I.` and move "Infinite computations" there,
-3. Show `II.` and move "Algorithmic randomness" there,
-4. Show `III.` and move "Reverse Mathematics".
+1. Scroll the window down to make space.
+2. Show `I.` and move "Infinite computations" there.
+3. Show `II.` and move "Algorithmic randomness" there.
+4. Show `III.` and move "Reverse Mathematics."
 
-Here is the exact code responsible for the animation above, frenzily written by my irresponsible past self. Only the comments were added by my present self:
+Here’s the code responsible for the animation above, frenziedly written by my irresponsible past self. (Only the comments were added by my present self.)
 
 ```javascript
 title.setAction([
@@ -68,7 +69,7 @@ title.setAction([
   (slide, engine, presentation) => {
     engine.moveWindowRelative(0,1/3,0,0,1);
   },
-  // 2. Show `I` and move "Infinite computations" there,
+  // 2. Show `I` and move "Infinite computations" there
   (slide, engine, presentation) => {
     let top = slide.query(".main").offsetTop+slide.query(".main").offsetHeight;
     slide.query(".calcul").style.top = (top+60)+"px";
@@ -77,7 +78,7 @@ title.setAction([
     slide.query(".I").style.left= (slide.query(".aleat").offsetLeft-100)+"px";
     slide.query(".I").style.visibility = "visible";
   },
-  // 3. Show `II` and move "Algorithmic randomness" there,
+  // 3. Show `II` and move "Algorithmic randomness" there
   (slide, engine, presentation) => {
     let top = slide.query(".main").offsetTop+slide.query(".main").offsetHeight;
     slide.query(".aleat").style.top = (top+60+150)+"px";
@@ -86,7 +87,7 @@ title.setAction([
     slide.query(".II").style.left= (slide.query(".aleat").offsetLeft-100)+"px";
     slide.query(".II").style.visibility = "visible";
   },
-  // 4. Show `III` and move "Reverse Mathematics".
+  // 4. Show `III` and move "Reverse Mathematics."
   (slide, engine, presentation) => {
     let top = slide.query(".main").offsetTop+slide.query(".main").offsetHeight;
     slide.query(".reverse").style.top = (top+60+300)+"px";
@@ -98,26 +99,28 @@ title.setAction([
 ]);
 ```
 
-The glorified scheduler seems very simple: It records what was the last executed script, and whenever the presenter hits the right arrow key, the next script is executed.
+---
 
-But then, what happens when you are crazy enough to hit the left arrow key? Easy, you just run the previous script, instead of the next one? WRONG, young little past self! Executing the previous script does not work, you need to revert its execution. For instance, if you hit right, then left, the following actions need to be executed:
+## The Problem with "Previous"
 
-0. `right` is pushed.
-0-1. Scroll the window down to make space.
-1. `left` is pushed.
-1-0. Scroll the window **up** the same amount.
+The scheduler is simple: it keeps track of the last executed script, and every time the presenter presses the right arrow key, it executes the next script.
 
-TODO: gif
+But what happens when you are crazy enough press the left arrow key? Do you just run the previous script? No, not at all! To go back, you need to *undo* the previous script’s side effects.
 
-Good.
+For instance, if you press right, then left, the following actions need to be executed:
 
-However, what is the inverse of the second script?
+1. Scroll the window down to make space.
+2. Scroll the window **up** by the same amount.
 
-2. Show `I.` and move "Infinite computations" there.
+**TODO: Add GIF here.**
 
-Indeed, this script is "erasing" some information. When scrolling for a predefined amount of pixels, the inverted script does not depend on the execution of the script. But in this case, putting back "Infinite computations" where it was depends on... well, where it was.
+But what is the inverse of the second action:
 
-Past self though for at least 5 minutes about how to solve that, before starting coding. After all, he had in mind a solution to this: To go from step n to step n-1, all you have to do is know how to go to step 0: Then, you can go to step n-1 by executing the scripts.
+> Show `I.` and move "Infinite computations" there.
+
+This script erases information. Undoing it requires knowing the state before it ran: putting back "Infinite computations" where it was depends on... well, where it was.
+
+My past self spent five minutes thinking about this before coding the first solution that came to mind:
 
 ```javascript
 this.refresh = () => {
@@ -125,27 +128,31 @@ this.refresh = () => {
   this.element.innerHTML = initialInnerHTML;
 };
 this.previous = () => {
-  let saveCpt = this.getActionIndex();;
+  let saveCpt = this.getActionIndex();
   this.refresh();
-  while(this.getActionIndex()<saveCpt-1)
+  while (this.getActionIndex() < saveCpt - 1)
     this.next();
-}
+};
 ```
 
-Works well enough!?
+To go from step n to step n-1, all you have to do is know how to go to step 0: Then, you can go to step n-1 by executing the scripts. This is what the snippet above does: Refresh by setting the innerHTML back to its original, and then calling `next` n-1 times.
 
-TODO: gif
+Does it work? Sure. Is it good? Not at all! This approach makes Slipshow’s engine unmaintainable, as one basic feature —going back— adds complexity everywhere else.
 
-This is a very bad solution. But past-self does not see that: he "fixes" all the problem by introducing more complexity:
+But past-self "fixed" all the problem by introducing more complexity:
 - Windows movement should make it look like we go from n to n-1, not from n to 0 to n-1, so we introduce special behavior.
 - It's too long to start from scratch, so there are multiple snapshot points.
 - It's better to store a cloned DOM than the "inner HTML".
 - Some parts should not be refreshed, eg the canvas on which you can draw, so we extract them from the cloning.
 - Multiple slips can be included in each other but keep their state, so we refresh them _independently_.
 
-This is what has made Slipshow's engine turn into an unmaintainable software: One of the most basic feature (going back in the presentation) is made on a horrible basis, that complexifies all other features. Are you happy, past-self?
+No matter past self efforts, there are still problems with animations.
 
-### The solution
+**TODO: Add GIF here.**
+
+---
+
+### The OCaml solution
 
 I haven't introduced my present self. He is an old grumpy guy! He takes so long thinking about how to do things, that he barely does anything. He is a bit of a coward: he never dares to introduce a breaking change. His coding is perfect, but takes ages to complete! He loves the purity of functional programming, at a point where his hello-world programs do not have side effects, such as printing a string. He is experienced, he is even *senior*, he goes to a lot of boring meetings, spreading his wisdom. He *plans* the basic functionality he is going to code during 3 months, then do it in one hour.
 
@@ -153,9 +160,13 @@ He was ready. Ready to answer the interviewer's question. Overtrained for that.
 
 > How would you rewrite that in OCaml?
 
-I would define a monad for undoable side effects, define atomic undos and use `bind` to combine them. ("Whoa" would have answered the interviewer)
+Easy: I would define a monad. ("Exact!" would have answered the interviewer, for sure (he is also an OCaml programmer, after all)).
 
-Let's break down this a bit. The idea is that the script execution would also return their inverted script. If it were written in OCaml, taking as example (part of) step 2 above, we would have:
+#### The plan
+
+The idea is simple but powerful: Each script execution would not only have the desired effects but would also return an inverted script to undo them. This approach ensures reversibility without the brittle complexity of refreshing the entire state.
+
+For instance, let’s revisit (part of) step 2 of the JavaScript code with this idea in mind:
 
 ```javascript
   // 2. [...] move "Infinite computations" down,
@@ -168,32 +179,35 @@ Let's break down this a bit. The idea is that the script execution would also re
   },
 ```
 
-That *looks* quite horrible: A single line (setting a style attribute) is turned into 5 (storing the old value, setting the style, returning the reverted function).
-It also *looks* it's not going to scale: When defining multiple complex scripts, it will be too much work and difficulty to revert them by hand.
+In this example, we store the original state (`old_top`) before applying the new one, then return a function to undo the change.
 
-But it only *looks* this way because we are not using OCaml, and its great support for monadic code. My present self tells you, listen to his wisdom! To witness this, we will need three things:
+While this approach seems to work in this small example, it *looks* it won't scale: A single line (setting a style attribute) is turned into five. When defining multiple complex scripts, it will be lot of work and difficulty to revert them by hand.
+
+#### The OCaml implementation
+
+But it only *looks* this way because we are not using OCaml, and its great support for monadic code. In this section, we will:
 - Define the type and basic values,
 - Define how to combine basic values,
 - Introduce the syntax required to achieve transcendance.
 
-Som what follows is just some basic definition we will need later: a type for undoable computed values, a helper, and an example of an undoable computation just like the example above: setting a style to a new value.
+Let's start with the type definition, and an example of an undoable computation we have already seen: setting a style to a new value.
 
 ```ocaml
-(** An undoable value is just a value and a function to revert the side-effects triggered when computing it *)
+(** An undoable value is a value, and a function to revert the side-effects of its computation *)
 type 'a undoable = 'a * (unit -> unit)
 
-(** Creating an undoable value, with a default value *)
+(** Helper to create an undoable value, with a default undo *)
 let return ?(undo = fun () -> ()) v = (v, undo)
 
 (** A function to set a style in an undoable way *)
-let set_style elem style new_value =
-  let old_value = Style.get elem style in
-  let () = Style.set elem style new_value in
-  let undo () = Style.set elem style old_value in
+let set_style_u elem style new_value =
+  let old_value = get_style elem style in
+  let () = set_style elem style new_value in
+  let undo () = set_style elem style old_value in
   return ~undo ()
 ```
 
-The first true miracle is in the combination of undoable values. Instead of defining a single `undo` function for all the big and complex scripts, present self decided to sit for one year, think very hard, write design sheets, investigate existing solutions, apply for a grant, profile prototypes, go to conferences, in order to finally write the following 8 lines of code:
+We now need to combine undoable computations, which is the first miracle. This combination is going to be called `bind` for historical reasons. It takes an undoable value, a function continuing the computation, and combines them into an undoable value.
 
 ```ocaml
 (** "x" is an undoable value, and "f" is a computation producing undoable values,
@@ -208,65 +222,54 @@ let bind f x =
   (y, undo)
 ```
 
-The idea is that we define "reverted" script only for some very basic building blocks (such as changing the style, see `set_style` above), and then *combine* them, using `bind`, to revert the complex scripts. (Notice that you need to revert *first* the *last* executed script. An insane discovery.)
+(Notice that you need to revert *first* the *last* executed script: `undo2` before `undo1`. An insane discovery.)
 
-At this point, there are some questions you might have:
-- Why a `bind` function, and not just a way to combine all undos? Something like:
-  ```ocaml
-  let combine undos () = List.iter (fun f -> f ()) (List.rev undos)
-  ```
-- How are we going to handle the syntax overhead of using all those `bind` everywhere to combine the undos?
+Present self decided to sit for one year, think very hard, write design sheets, investigate existing solutions, apply for a grant, profile prototypes, go to conferences, in order to finally write those eight lines of code! Really worth it!
 
-To answer the first question, `bind` forces the computation to have an order. You have what was already computed (`x` and its side effect), and the rest of the computation (`f`). So you don't have to worry about the order:
+Now that we have undoable script for some very basic building blocks (such as changing the style), and that we can *combine* them (using `bind`), we are going to be able to write complex scripts and get the undo function for free!
 
-```ocaml
-let step () =
-  let (), undo1 = set_style calcul Top (top + 60) in
-  let (), undo2 = set_style i Top (top + 60) in
-  let (), undo3 = set_style i Visibility "visible" in
-  (), combine_undos [ undo3 ; undo1 ; undo2 ]
-```
+<!-- At this point, there are some questions you might have: -->
+<!-- - Why a `bind` function, and not just a way to combine all undos? Something like: -->
+<!--   ```ocaml -->
+<!--   let combine undos () = List.iter (fun f -> f ()) (List.rev undos) -->
+<!--   ``` -->
+<!-- - How are we going to handle the syntax overhead of using all those `bind` everywhere to combine the undos? -->
 
-Oh no! In the example above, I messed up the order of undos!
+<!-- To answer the first question, `bind` forces the computation to have an order. You have what was already computed (`x` and its side effect), and the rest of the computation (`f`). So you don't have to worry about the order: -->
 
-But more than that, and that answers the second question, OCaml has a special syntax support to write "monadic binds" in a very natural way. If you define a function with a name starting with `let` followed by special characters, it can be applied in a specific way:
+<!-- ```ocaml -->
+<!-- let step () = -->
+<!--   let (), undo1 = set_style calcul Top (top + 60) in -->
+<!--   let (), undo2 = set_style i Top (top + 60) in -->
+<!--   let (), undo3 = set_style i Visibility "visible" in -->
+<!--   (), combine_undos [ undo3 ; undo1 ; undo2 ] -->
+<!-- ``` -->
 
-```ocaml
-(* What looks like a let-binding: *)
-let> x = v in
-body
+<!-- Oh no! In the example above, I messed up the order of undos! -->
 
-(* is in fact an alias for the following function application: *)
-(let>) (fun x -> body) v
-```
-
-Interesting! So if we rename our `bind` function to `let>`:
-
-```ocaml
-let (let>) f x = bind f x
-```
-
-then we can use it in our previous example:
+For instance, let's take a subset of the second step (TODO: add links), in OCaml. Without the need to revert the side effects, it would be written like this:
 
 ```ocaml
 let step () =
-  let> () = set_style calcul Top (top + 60) in
-  let> () = set_style i Top (top + 60) in
+  let () = set_style calcul Top (top + 60) in
+  let () = set_style i Top (top + 60) in
   set_style i Visibility "visible"
 ```
 
-This looks **exactly** like the original script, setting three style values. But in fact, there are two calls to the `bind` combining function:
+Using `bind` and `set_style_u`, we could rewrite it like that:
 
 ```ocaml
 let step () =
-  bind (set_style calcul Top (top + 60)) (fun () ->
-    bind (set_style i Top (top + 60)) (fun () ->
-      set_style i Visibility "visible"
+  bind (set_style_u calcul Top (top + 60)) (fun () ->
+    bind (set_style_u i Top (top + 60)) (fun () ->
+      set_style_u i Visibility "visible"
     )
   )
 ```
 
-Which itself is equal, when "reducing" the `bind`s according to their definition:
+Ouch! Much less readable... We'll solve that later. First, let's verify that it is what we want it to be: a function setting the three values, and returning a function to revert them to their original values.
+
+When we expand the `bind`s according to its definition, we get:
 
 ```ocaml
 let step () =
@@ -279,7 +282,7 @@ let step () =
   (), (fun () -> undo2 () ; undo1 ())
 ```
 
-which is exactly:
+which, when we remove some intermediate variables, is equivalent to:
 
 ```ocaml
 let step () =
@@ -289,7 +292,26 @@ let step () =
   (), (fun () -> undo3 (); undo2 (); undo1 ())
 ```
 
-To me, that is crazy! Let's look again at the script:
+Exactly what we wanted it to be! Combining atomic undos with `bind` seem to work. However, there is a big problem: Using `bind` makes the code much less readable.
+
+Fortunately, OCaml has a special syntax, which is _very_ well suited for monads: custom let-bindings. If you define a function whose name is `let` followed by special characters, it can be applied in a specific way:
+
+```ocaml
+(* What looks like a let-binding: *)
+let> x = v in
+body
+
+(* is in fact a syntactic alias for the following function application: *)
+(let>) (fun x -> body) v
+```
+
+Interesting! So if we rename our `bind` function to `let>`:
+
+```ocaml
+let (let>) f x = bind f x
+```
+
+then we can use it to rewrite TODO LINK TO USE OF BINDs:
 
 ```ocaml
 let step () =
@@ -298,7 +320,7 @@ let step () =
   set_style i Visibility "visible"
 ```
 
-This piece of code, which looks exactly like a regular forward script apart from two symbols, actually returns a "reverted script", which restores the old values for each of the three style properties.
+At this point, your mind should be blown! At least mine is. This code looks _exactly_ like the normal code you would write (TODO LinK) but is actually building a function to undo the side effects. Well done, OCaml!
 
 Let's conclude this part with a comparison of the approach from past-self and present self:
 
@@ -334,19 +356,19 @@ let update_pause_ancestors () =
       (fun elem undoes ->
         let> () = undoes in
         set_class "pauseAncestor" false elem)
-      (Jstr.v ".pauseAncestor") (UndoMonad.return ())
+      (Jstr.v ".pauseAncestor") (Undoable.return ())
   in
   (* Find the next pause elem, if there is one *)
   match find_next_pause () with
-  | None -> UndoMonad.return ()
+  | None -> Undoable.return ()
   | Some elem ->
       (* Add the pauseAncestor class to all its parent *)
       let rec hide_parent elem =
-        if Brr.El.class' (Jstr.v "universe") elem then UndoMonad.return ()
+        if Brr.El.class' (Jstr.v "universe") elem then Undoable.return ()
         else
           let> () = set_class "pauseAncestor" true elem in
           match Brr.El.parent elem with
-          | None -> UndoMonad.return ()
+          | None -> Undoable.return ()
           | Some elem -> hide_parent elem
       in
       hide_parent elem
