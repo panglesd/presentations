@@ -105,6 +105,8 @@ title.setAction([
 ]);
 ```
 
+Before highlighting the problem with this architecture, let's mention why Slipshow is scheduling scripts, instead of using a virtual DOM or Functional Reactive Programming. I developed Slipshow as a way to give more interactivity to presentation, so it was very important to give presenters the freedom they need to create animations (eg using a third party JS library modifying the DOM). External modification of the DOM is not compatible with a virtual DOM.
+
 ## The Problem with "Previous"
 
 The "glorified scheduler" is simple: it keeps track of the last executed step, and every time the presenter presses the right arrow key, it executes the next step's function.
@@ -137,7 +139,7 @@ this.previous = () => {
 };
 ```
 
-To go from step $n$ to step $n-1$, all you have to do is know how to go to step $0$: Then, you can go to step $n-1$ by executing the steps forward. This is what the snippet above does: Refresh by setting the innerHTML back to its original, and then calling `next` $n-1$ times. Here is the result of going forward and backward on our example:
+To go from step $n$ to step $n-1$, all you have to do is know how to reset the presentation to step $0$: Then, you can go to step $n-1$ by executing the steps forward. This is what the snippet above does: Refresh by setting the innerHTML back to its original, and then calling `next` $n-1$ times. Here is the result of going forward and backward on our example:
 
 ![](https://choum.net/panglesd/going_backward2.gif)
 
@@ -187,7 +189,37 @@ It only *looks* cumbersome because we are using past-self's Javascript-fu instea
 - Define how to combine basic undo-able values,
 - Introduce the syntax required to achieve transcendance.
 
-Let's start with the type definition, and an example of an undo-able computation we have already seen: setting a style to a new value.
+This part is slightly more technical. But bear with us: every OCaml block will be executable (and editable), with visible side effects. Also, we'll look at simplified real-life scenario. For instance, we'll model "setting the style of an element" with a reference, and we'll use some printf to log what happens.
+
+```ocaml
+(** A style property has a name a value *)
+type property = { name : string; mutable v : int }
+let top = { name = "top"; v = 0}
+let left = { name = "left"; v = 0}
+
+(** Setting a property *)
+let set prop new_value =
+  Format.printf "Setting %s from %d to %d\n" prop.name   prop.v new_value;
+  prop.v <- new_value
+```
+
+Let's now test our defined function:
+
+```ocaml
+let () =
+  set top 6;
+  set top 0
+```
+
+In the code blocks above, click the "Execute" button and you will see both the types of defined values, and the logged output.
+
+You can freely modify an executable code block to make your own tests. When you click "Execute" on a code block below, all blocks _above_ are executed first, as later blocks depend on earlier ones. If you changed the content of a block, you can always come back to its original content with the dedicated button.
+
+#### Basic undo-able values
+
+Ok, we set the context, we are ready to enter the core of the subject: undoing side effects.
+
+Let's start with the type definition, and an example of an undo-able computation for a side effect we just saw: setting a style to a new value.
 
 ```ocaml
 (** An undo-able value is a value, and a function to revert the side-effects of
@@ -195,17 +227,33 @@ Let's start with the type definition, and an example of an undo-able computation
 type 'a undoable = 'a * (unit -> unit)
 
 (** Helper to create an undo-able value, with a default undo *)
-let return ?(undo = fun () -> ()) v = (v, undo)
+let return ?(undo = fun () -> ()) v : 'a undoable = (v, undo)
 
 (** A function to set a style in an undo-able way *)
-let set_style_u elem style new_value =
-  let old_value = get_style elem style in
-  let () = set_style elem style new_value in
-  let undo () = set_style elem style old_value in
+let set_u prop new_value =
+  let old_value = prop.v in
+  let () = set prop new_value in
+  let undo () = set prop old_value in
   return ~undo ()
 ```
 
-We now need to combine undo-able computations, which is the first miracle. This combination is going to be called `bind`. It takes an undo-able value, a function continuing the computation, and combines them into an undo-able value.
+We are going to test every new thing we do, so here we go!
+
+```ocaml
+let (), undo = set_u top 10
+```
+
+This time, we are using `set_u`, which, in addition to the side effects, returns an `undo` function. let's call this function!
+
+```ocaml
+let () = undo ()
+```
+
+It seems to do what i's expected to do: going back to the original value!
+
+#### Combining undo-able values
+
+We now need to combine undo-able computations, which is the first miracle. This combination is going to be called "`bind`". It takes an undo-able value, a function continuing the computation, and combines them into an undo-able value.
 
 ```ocaml
 (** if "x" is an undo-able value,
@@ -225,7 +273,75 @@ let bind f x =
 
 Present self pondered for one year, thought very hard, wrote design sheets, investigated existing solutions, applied for a grant, profiled prototypes, went to conferences, in order to finally write those eight lines of code! Really worth it!
 
-Now that we have undo-able functions for some very basic building blocks (such as changing the style), and now that we can *combine* them (using `bind`), we are able to write complex scripts and get the undo function for free!
+But let's not trust this code without testing it. We have basic undoable functions from above, and we claim we are able to combine them with `bind`. Consider the situation where we modify several style properties: without the undoable requirement:
+
+```ocaml
+let step () =
+  let () = set top (left.v + 60) in
+  let () = set top (top.v + 100) in
+  set left 10
+```
+
+We execute it and then reset the original values for what follows.
+
+```ocaml
+let () =
+  Format.printf "Making a step in the presentation:\n";
+  step ();
+  Format.printf "Finished, resetting:\n";
+  set top 0;
+  set left 0
+```
+
+
+Here is how it would look like, using `bind` and `set_u` to revert the side effects:
+
+```ocaml!
+let step () = 
+  bind (set_u top (left.v + 60)) (fun () ->
+    bind (set_u top (top.v + 100)) (fun () ->
+      set_u left 10
+    )
+  )
+```
+
+Ouch, that's not very readable! But don't worry, we'll take care of just that later. It types-check, which is a good sign 🙂 Still, let's test it:
+
+```ocaml
+let () =
+  Format.printf "Making a step in the presentation:\n";
+  let (), undo = step () in
+  Format.printf "Finished, resetting with the undo function:\n";
+  undo ()
+```
+
+It works! The side-effects are reverted one by one, in the right order. You may be convinced that the `bind` function combines well the multiple basic undoable computations, but before tackling the readability issue, I'd like to do one more "exercize" on the bind function, to better understand it.
+
+Let's inline the definition of `bind` (given TODO here) inside its two uses here TODO.
+
+```ocaml
+let step () =
+  let (), undo1 = set_u top (left.v + 60) in
+  let (), undo2 =
+    let (), undo3 = set_u top (top.v + 100) in
+    let (), undo4 = set_u left 10 in
+    (), (fun () -> undo4 (); undo3 ())
+  in
+  (), (fun () -> undo2 (); undo1 ())
+```
+
+which is equivalent (if you look closely) to:
+
+```ocaml
+let step () =
+  let (), undo1 = set_u top (left.v + 60) in
+  let (), undo2 = set_u top (top.v + 100) in
+  let (), undo3 = set_u left 10 in
+  (), (fun () -> undo3 (); undo2 (); undo1 ())
+```
+
+
+<!-- Now that we have undo-able functions for some very basic building blocks (such as changing the style), and now that we can *combine* them (using `bind`), we are able to write complex scripts and get the undo function for free! -->
 
 <!-- At this point, there are some questions you might have: -->
 <!-- - Why a `bind` function, and not just a way to combine all undos? Something like: -->
@@ -247,7 +363,7 @@ Now that we have undo-able functions for some very basic building blocks (such a
 <!-- Oh no! In the example above, I messed up the order of undos! -->
 
 For instance, let's take a part of the second step: setting the `top` and `visibility` styles, (TODO: add links), in OCaml. Without the need to revert the side effects, it would be written like this:
-
+<!-- 
 ```ocaml
 let step () =
   let calcul = query ".calcul" and i = query ".I" in 
@@ -296,8 +412,13 @@ let step () =
 ```
 
 Exactly what we wanted it to be! Combining atomic undos with `bind` seems to work. However, there is a big problem: Using `bind` makes the code much less readable.
+ -->
 
-Fortunately, OCaml has a [special syntax](https://ocaml.org/manual/5.3/bindingops.html), which is _very_ well suited for monads: custom let-bindings. If you define a function whose name is `let` followed by special characters, it can be applied in a specific way:
+There is still a big problem: although `bind` is good at combining undoable operations, it makes the code look bad. Without a solution to this problem, there would be no blog post...
+
+#### The transcendental syntax
+
+Fortunately, OCaml has a [special syntax](https://ocaml.org/manual/5.3/bindingops.html), which is _very_ well suited for monads: custom `let` operators. If you define a function whose name is `let` followed by special characters, it can be applied in a specific way:
 
 ```ocaml
 (* What looks like a let-binding: *)
@@ -318,19 +439,28 @@ then we can use it to rewrite TODO LINK TO USE OF BINDs:
 
 ```ocaml
 let step () =
-  let calcul = query ".calcul" and i = query ".I" in 
-  let> () = set_style calcul Top (top + 60) in
-  let> () = set_style i Top (top + 60) in
-  set_style i Visibility "visible"
+  let> () = set_u top (left.v + 60) in
+  let> () = set_u top (top.v + 100) in
+  set_u left 10
 ```
 
 At this point, your mind should be blown! At least mine is. This code looks _exactly_ like the normal code you would write (TODO LinK) but is actually building a function to undo the side effects. Well done, OCaml!
 
+Mind blown or not, let's test it!
+
+```ocaml
+let () =
+  Format.printf "Making a step in the presentation:\n";
+  let (), undo = step () in
+  Format.printf "Finished, resetting with the undo function:\n";
+  undo ()
+```
+
 ## A more complex real life example
 
-This may look a bit too simple to really show the advantages of OCaml's powerful syntax to hide the reverted script. Indeed, it would have been possible and more explicit to manually handle and combine the undos.
+This may look a bit too simple to really show the advantages of hiding the reverted script with OCaml's syntax. Indeed, it would have been possible, and more explicit, to manually handle and combine the undos.
 
-So, let me describe a more situation, to show that programming complex scripts with the "undo-able" monad is very natural.
+So, let me use part of Slipshow's actual engine, to show that programming complex scripts with the "undo-able" monad is very natural.
 
 Slipshow has the concept of pauses. When you have a pause element, everything after it is hidden. When you press next, the first pause is "consumed", revealing everything that's after it, until the next pause.
 
@@ -350,7 +480,7 @@ Followed by a block.
 
 Implementing the "everything after a pause is hidden" is actually not trivial. In particular, it's more complex than just setting a class.
 
-Past-self came up with a solution (that present self found very good!). It requires that all the parents of the current "paused" element have a specific class (`pauseAncestor`). Some static CSS does the rest of the job.
+Past-self came up with a solution (that present self find very good!). It requires that all the parents of the current "paused" element have a specific class (`pauseAncestor`). Some static CSS does the rest of the job.
 
 When a pause is consumed, the engine needs to:
 1. Remove all the `pauseAncestors` classes,
@@ -358,7 +488,9 @@ When a pause is consumed, the engine needs to:
 3. Find the new first pause,
 4. Add the pauseAncestor class to all of its parent.
 
-Without the requirement to provide an undo function, here is how I would write it:
+(Note that Slipshow drives the presentation dynamically, hence the solution above. The other solution would be to compute all steps from the source of the presentation. But again, it would not make it compatible with complex animations modifying the DOM...)
+
+Without the requirement to provide an undo function, here is how I would write the function consuming a pause:
 
 ```ocaml
 let update_pause_ancestors () =
@@ -438,32 +570,9 @@ I really enjoyed rewriting my project in OCaml. It was a delightful process with
 
 ## Addendum
 
-- I am only fluent in OCaml, so the JavaScript/OCaml comparison is unfair (but OCaml would win in a fair comparison).
+- I am only fluent in OCaml, so the JavaScript/OCaml comparison is unfair (but of course, OCaml would win in a fair comparison).
 - I am curious how one would do that in another language.
 - The `'a undoable` type and `bind` value is a bit more complicated in real life than here due to asynchronicity, but the principle is exactly the same.
 - Speaking of asynchronicity, switching to OCaml also had the huge advantage of being explicit what is async and what is not. In Javascript, my code was crippled with `setTimeout` of 0ms to wait for a css value to have taken effect.
-- I did not use "Functional Reactive Programming" since I want the presentation author to write scripts modifying the DOM directly (as opposed to only being allowed to modify the state). Eg using third party javascript for animations.
 
 Please use the following discuss (TODO: link) to comment!
-
-
-TODO: add https://ocaml.org/play#code=KCoqIFdlIGRlZmluZSB0aGUgdHlwZSBhbmQgYmluZCBmdW5jdGlvbiBmcm9tIHRoZSBibG9nIHBvc3QgKikKdHlwZSAnYSB1bmRvYWJsZSA9ICdhICogKHVuaXQgLT4gdW5pdCkKCmxldCByZXR1cm4gPyh1bmRvID0gZnVuICgpIC0%2BICgpKSB4ID0geCwgdW5kbwoKbGV0IGJpbmQgeCBmID0KICBsZXQgeCwgdW5kbzEgPSB4IGluCiAgbGV0IHksIHVuZG8yID0gZiB4IGluCiAgbGV0IHVuZG8gKCkgPQogICAgbGV0ICgpID0gdW5kbzIgKCkgaW4KICAgIHVuZG8xICgpCiAgaW4KICAoeSwgdW5kbykKCigqKiBJbnN0ZWFkIG9mIHdvcmtpbmcgd2l0aCBhIHN0eWxlLCB3ZSB3aWxsIG1vZGlmeSBhIHJlZmVyZW5jZSdzIHZhbHVlICopCgooKiogU2V0dGluZyBhIHZhbHVlIChhbmQgbG9nZ2luZyB0aGF0IHdlIGRvIHNvIHRvIGJldHRlciB1bmRlcnN0YW5kKSAqKQpsZXQgc2V0IHggbiA9CiAgRm9ybWF0LnByaW50ZiAic2V0dGluZyB4IGZyb20gJWQgdG8gJWRcbiIgIXggbjsKICB4IDo9IG4KCigqKiBTZXR0aW5nIGEgdmFsdWUgaW4gYW4gdW5kby1hYmxlIHdheSAqKQpsZXQgc2V0X3UgeCBuID0KICBsZXQgb2xkX24gPSAheCBpbgogIHNldCB4IG47CiAgbGV0IHVuZG8gKCkgPSBzZXQgeCBvbGRfbiBpbgogIHJldHVybiB%2BdW5kbyAoKQoKKCoqIExldCdzIGNvbWJpbmUgY2FsbHMgdG8gc2V0X3UgdXNpbmcgYmluZCEgKikKCmxldCBzdGVwICgpID0KICBsZXQgeCA9IHJlZiAwIGluCiAgYmluZCAoc2V0X3UgeCAxKSAoZnVuICgpIC0%2BCiAgICBiaW5kIChzZXRfdSB4IDIpIChmdW4gKCkgLT4KICAgICAgc2V0X3UgeCAzCiAgICApCiAgKQoKKCoqIE5vdyB3ZSB0cnkhICopCgpsZXQgKCkgPSBGb3JtYXQucHJpbnRmICJXZSBmaXJzdCBkbyB0aGUgZm9yd2FyZCBjb21wdXRhdGlvbjpcbiIKbGV0ICgpLCB1bmRvID0gc3RlcCAoKQpsZXQgKCkgPSBGb3JtYXQucHJpbnRmICJXZSBub3cgY2FsbCB0aGUgdW5kbyBmdW5jdGlvbjpcbiIKbGV0ICgpID0gdW5kbyAoKQo%3D
-
-and
-
-https://ocaml.org/play#code=KCoqIFdlIGRlZmluZSB0aGUgdHlwZSBhbmQgYmluZCBmdW5jdGlvbiBmcm9tIHRoZSBibG9nIHBvc3QgKikKdHlwZSAnYSB1bmRvYWJsZSA9ICdhICogKHVuaXQgLT4gdW5pdCkKCmxldCByZXR1cm4gPyh1bmRvID0gZnVuICgpIC0%2BICgpKSB4ID0geCwgdW5kbwoKbGV0IGJpbmQgeCBmID0KICBsZXQgeCwgdW5kbzEgPSB4IGluCiAgbGV0IHksIHVuZG8yID0gZiB4IGluCiAgbGV0IHVuZG8gKCkgPQogICAgbGV0ICgpID0gdW5kbzIgKCkgaW4KICAgIHVuZG8xICgpCiAgaW4KICAoeSwgdW5kbykKCigqKiBJbnN0ZWFkIG9mIHdvcmtpbmcgd2l0aCBhIHN0eWxlLCB3ZSB3aWxsIG1vZGlmeSBhIHJlZmVyZW5jZSdzIHZhbHVlICopCgooKiogU2V0dGluZyBhIHZhbHVlIChhbmQgbG9nZ2luZyB0aGF0IHdlIGRvIHNvIHRvIGJldHRlciB1bmRlcnN0YW5kKSAqKQpsZXQgc2V0IHggbiA9CiAgRm9ybWF0LnByaW50ZiAic2V0dGluZyB4IGZyb20gJWQgdG8gJWRcbiIgIXggbjsKICB4IDo9IG4KCigqKiBTZXR0aW5nIGEgdmFsdWUgaW4gYW4gdW5kby1hYmxlIHdheSAqKQpsZXQgc2V0X3UgeCBuID0KICBsZXQgb2xkX24gPSAheCBpbgogIHNldCB4IG47CiAgbGV0IHVuZG8gKCkgPSBzZXQgeCBvbGRfbiBpbgogIHJldHVybiB%2BdW5kbyAoKQoKKCoqIExldCdzIGNvbWJpbmUgY2FsbHMgdG8gc2V0X3UgdXNpbmcgYmluZCwgYW5kIGxldC1vcGVyYXRvciBzeW50YXghICopCgpsZXQgKGxldD4pID0gYmluZAoKbGV0IHN0ZXAgKCkgPQogIGxldCB4ID0gcmVmIDAgaW4KICBsZXQ%2BICgpID0gc2V0X3UgeCAxIGluCiAgbGV0PiAoKSA9IHNldF91IHggMiBpbgogIHNldF91IHggMwoKKCoqIE5vdyB3ZSB0cnkhICopCgpsZXQgKCkgPSBGb3JtYXQucHJpbnRmICJXZSBmaXJzdCBkbyB0aGUgZm9yd2FyZCBjb21wdXRhdGlvbjpcbiIKbGV0ICgpLCB1bmRvID0gc3RlcCAoKQpsZXQgKCkgPSBGb3JtYXQucHJpbnRmICJXZSBub3cgY2FsbCB0aGUgdW5kbyBmdW5jdGlvbjpcbiIKbGV0ICgpID0gdW5kbyAoKQo%3D
-
-
-let (let>) = bind
-
-let () = Format.printf "We first do the forward computation:\n"
-
-let (), undo = 
-  let x = ref 0 in
-  let> () = set_u x 1 in
-  let> () = set_u x 2 in
-  set_u x 3
-
-
-
-let () = undo ()
