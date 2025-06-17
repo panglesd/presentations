@@ -1638,27 +1638,43 @@ relevance:0},{begin:/->/}]})})();hljs.registerLanguage("ocaml",e)})();</script>
  .slip {
    line-height : 47px;
  }
- 
- .showed .mydiff {
+ .show .mydiff {
    background-color: lightgreen;
  }
+ .author {
+  font-size: 35px;
+ }
+ .fosdem {
+  font-size: 30px;
+ }
+ .fff {
+  font-size: 20px;
+ }
+ .bof {
+  font-size: 10px;
+ }
+ .date {
+   font-weight: bold;
+   color: orangered;
+ }
 </style>
-<h1 id="slipshow"><a class="anchor" aria-hidden="true" href="#slipshow"></a><span>Slipshow</span></h1>
+<h1 id="slipshow"><a class="anchor" aria-hidden="true" href="#slipshow"></a><span>Slipshow </span><span class="author"><span>by Paul-Elliot</span></span><span> </span><span class="fosdem"><span>at FOSDEM</span></span><span> </span><span class="fff"><span>Friendly Functional Languages Show And Tell</span></span><span> </span><span class="bof"><span>BOF</span></span></h1>
 <div pause></div>
-<p><strong><span>September 2019</span></strong><span>: The first ever </span><a href="https://choum.net/panglesd/slides/slides-js/slides.html"><span>Slipshow</span></a><span> presentation. Engine written in Javascript in 3 month.</span></p>
-<p pause><strong><span>September 2019 → September 2023</span></strong><span>: nothing.</span></p>
-<p pause><strong><span>November 2023</span></strong><span>:</span></p>
+<p><span class="date"><span>September 2019</span></span><span>: The first ever </span><a href="https://choum.net/panglesd/slides/slides-js/slides.html"><span>Slipshow</span></a><span> presentation. Engine written in Javascript in 3 month.</span></p>
+<p pause><span class="date"><span>September 2023</span></span><span>: </span><span pause></span><span> nothing.</span></p>
+<p pause><span class="date"><span>November 2023</span></span><span>:</span></p>
 <ul>
 <li><span>You </span><strong><span>compile</span></strong><span> from extended </span><strong><span>markdown to presentations</span></strong><span>.</span></li>
 <li><span>Presentations are </span><strong><span>self-contained file</span></strong><span>.</span></li>
 <li><span>You write your presentation with </span><strong><span>live preview</span></strong><span>.</span></li>
 <li><span>Sliphub is a </span><strong><span>collaborative editing server</span></strong><span> for slipshow.</span></li>
-<li><span>A </span><strong><span>Tauri app</span></strong><span> and a </span><strong><span>VSCode plugin</span></strong><span> allows non-CLI users to run Slipshow locally. </span><span pause></span></li>
+<li><span>A </span><strong><span>Tauri app</span></strong></li>
+<li><span>and a </span><strong><span>VSCode plugin</span></strong><span> allows non-CLI users to run Slipshow locally. </span><span pause></span></li>
 </ul>
 <p><strong><span>All written in OCaml...</span></strong><span> (Except the engine)</span></p>
-<p class="block" pause><strong><span>December 2023</span></strong><span>: No more bugs in Slipshow. </span><span pause></span><span> </span><span style="font-size:1.2em"><strong><span>(Except the engine.)</span></strong></span></p>
+<p id="dec" class="block" pause><strong><span>December 2023</span></strong><span>: No more bugs in Slipshow. </span><span pause></span><span> </span><span style="font-size:1.2em"><strong><span>(Except the engine.)</span></strong></span></p>
 <p><span>For instance, </span><strong><span>going back is broken</span></strong><span> </span><span style="font-size:2.2em"><span>🤷</span></span><span>.</span></p>
-<p class="block" pause center-at-unpause=i><strong><span>December 2024</span></strong><span>: Engine rewritten in OCaml and going back fixed.</span></p>
+<p class="block" pause up-at-unpause=dec><strong><span>December 2024</span></strong><span>: Engine rewritten in OCaml and going back fixed.</span></p>
 <div id="i" class="block" title="From step n to step n-1">
 <p><strong><span>Javascript engine</span></strong><span>:</span></p>
 <ul>
@@ -1671,31 +1687,37 @@ relevance:0},{begin:/->/}]})})();hljs.registerLanguage("ocaml",e)})();</script>
 <li><span>Every forward step returns a backward step function.</span></li>
 </ul>
 </div>
-<p class="remark" center-at-unpause pause><span style="font-size: 1.4em"><span>How to write the forward and backward functions in a reasonable way?</span></span></p>
-<p class="theorem" pause><span style="font-size: 1.4em"><span>Use a monad!!!?</span></span></p>
+<p class="remark" center-at-unpause pause><span style="font-size: 1.2em"><span>How to write the forward and backward functions in a reasonable way?</span></span></p>
+<p class="theorem" pause><span style="font-size: 1.2em"><span>Use a monad!!!?</span></span></p>
 <div down-at-unpause="code" pause></div>
 <pre id="code"><code class="hljs nohighlight"><span class="hljs-keyword">let</span> update_pause_ancestors <span class="hljs-literal">()</span> =
-  <span class="hljs-keyword">let</span><span class="mydiff">&gt;</span> <span class="hljs-literal">()</span> =
+  <span class="hljs-keyword">let</span><span class="mydiff">*</span> <span class="hljs-literal">()</span> =
   <span class="hljs-comment">(* 1. Remove all the `pauseAncestors` classes *)</span>
     <span class="hljs-type">Brr</span>.<span class="hljs-type">El</span>.fold_find_by_selector
       (<span class="hljs-keyword">fun</span> elem <span class="mydiff">undo</span> -&gt;
-        <span class="mydiff"><span class="hljs-keyword">let</span>&gt; <span class="hljs-literal">()</span> = undo <span class="hljs-keyword">in</span></span>
-        set_class<span id="mydiff">_u</span> <span class="hljs-string">"pauseAncestor"</span> <span class="hljs-literal">false</span> elem)
-      (<span class="hljs-type">Jstr</span>.v <span class="hljs-string">".pauseAncestor"</span>) (<span id="mydiff"><span class="hljs-type">Undoable</span>.return</span> <span class="hljs-literal">()</span>)
+        <span class="mydiff"><span class="hljs-keyword">let</span>* <span class="hljs-literal">()</span> = undo <span class="hljs-keyword">in</span></span>
+        set_class<span class="mydiff">_u</span> <span class="hljs-string">"pauseAncestor"</span> <span class="hljs-literal">false</span> elem)
+      (<span class="hljs-type">Jstr</span>.v <span class="hljs-string">".pauseAncestor"</span>) (<span class="mydiff">return</span> <span class="hljs-literal">()</span>)
   <span class="hljs-keyword">in</span>
   <span class="hljs-comment">(* 2. Find the new first pause, *)</span>
   <span class="hljs-keyword">match</span> find_next_pause <span class="hljs-literal">()</span> <span class="hljs-keyword">with</span>
-  | <span class="hljs-type">None</span> -&gt; <span class="mydiff"><span class="hljs-type">Undoable</span>.return</span> <span class="hljs-literal">()</span>
+  | <span class="hljs-type">None</span> -&gt; <span class="mydiff">return</span> <span class="hljs-literal">()</span>
   | <span class="hljs-type">Some</span> elem -&gt;
       <span class="hljs-comment">(* 3. Add the "pauseAncestor" class to all its parent *)</span>
       <span class="hljs-keyword">let</span> <span class="hljs-keyword">rec</span> hide_parent elem =
-        <span class="hljs-keyword">let</span><span class="mydiff">&gt;</span> <span class="hljs-literal">()</span> = set_class<span class="mydiff">_u</span> <span class="hljs-string">"pauseAncestor"</span> <span class="hljs-literal">true</span> elem <span class="hljs-keyword">in</span>
+        <span class="hljs-keyword">let</span><span class="mydiff">*</span> <span class="hljs-literal">()</span> = set_class<span class="mydiff">_u</span> <span class="hljs-string">"pauseAncestor"</span> <span class="hljs-literal">true</span> elem <span class="hljs-keyword">in</span>
         <span class="hljs-keyword">match</span> <span class="hljs-type">Brr</span>.<span class="hljs-type">El</span>.parent elem <span class="hljs-keyword">with</span>
-        | <span class="hljs-type">None</span> -&gt; <span class="mydiff"><span class="hljs-type">Undoable</span>.return</span> <span class="hljs-literal">()</span>
+        | <span class="hljs-type">None</span> -&gt; <span class="mydiff">return</span> <span class="hljs-literal">()</span>
         | <span class="hljs-type">Some</span> elem -&gt; hide_parent elem
         <span class="hljs-keyword">in</span>
       hide_parent elem
 </code></pre>
+<script type=slip-script exec-at-unpause pause>
+document.body.classList.add("show");
+let undo = {undo : () => {document.body.classList.remove("show")}};
+return undo;</script>
+<h1 center-at-unpause pause id="thanks"><a class="anchor" aria-hidden="true" href="#thanks"></a><span>Thanks!</span></h1>
+<p><span>https://github.com/panglesd/slipshow/</span></p>
 
           </div>
         </div>

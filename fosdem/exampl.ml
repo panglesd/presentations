@@ -5,7 +5,7 @@ let return ?(undo = fun () -> ()) x = (x, undo)
 let bind x f =
   let (x, undo1) = x in
   let (y, undo2) = f x in
-  let undo () = (* _TODO_ *) undo2 () ; undo1 ()  in
+  let undo () = undo2 () ; undo1 () in
   return ~undo x
 
 let style = ref ""
@@ -17,9 +17,9 @@ let set_style new_value =
 let () = set_style "initial"
 
 let set_style_u new_value =
-  let old_value = !style in
+let old = !style in
   set_style new_value;
-  let undo () = set_style (* _TODO_ *) old_value in
+  let undo () = set_style old in
   return ~undo ()
 
 let (let*) = bind
