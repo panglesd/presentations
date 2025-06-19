@@ -2,25 +2,17 @@
 
 <style>li { margin-top: 30px} </style>
 
-{pause}
-
 - 2019: [Written in 3 month](../thesis/slides.html)
   - Content ⚡ flow separated
   - ✋-written movement
   - Impossible to go back? but **rotation**!
 
-{pause}
-
 - 2020: [Some improvements](../slip-js/slides.html)
   - Content ⚡ flow unified
   - Absolute timing
 
-{pause}
-
 - 2020: [Naturalish flow](../WDCM-2021-slips/wdcm-ada.html)
   - Pause and `*-at-unpause` events
-
-{pause}
 
 - 2020: [Modularized](https://github.com/panglesd/slipshow/pull/1)
 
@@ -50,29 +42,24 @@
 {.block style="text-align:center" #ithappened}
 #### Slipshow's engine has been rewritten in OCaml!
 
-{.corollary pause}
-There is no more bugs in Slipshow.
+{#corollaries}
+> {.corollary pause}
+> There is no more bugs in Slipshow.
+>
+> {.corollary pause}
+> Slipshow relies on a monad.
+>
+> {.corollary pause}
+> I can finally contribute to my own engine. {pause} No-one else can contribute.
+>
+> {.corollary pause}
+> I earned 2000€.
 
-{.corollary pause}
-Slipshow relies on a monad.
+{pause up=y2024 unstatic-at-unpause=corollaries}
 
-{.corollary pause}
-I can finally contribute to my own engine. {pause} No-one else can contribute.
-
-{.corollary pause up=ithappened}
-I earned 2000€.
-
-{pause center #also}
-Also:
-- **Subslips** are back
-- **Slides** were added
-- Break your presentation in **multiple files**
-- Improved **table of content**
-- **More actions**
-
-{pause .block up=also #y2026}
 - 2026?
 
+{pause .block up=also #y2026}
   {#biglist}
   - Rewrite the engine in OxCaml? {pause}
   - Add **AI** to slipshow? {pause}
@@ -138,7 +125,8 @@ Also:
   -  Allow client-side local storage of presentation in Sliphub.
   -  Add support for client-side encrypting "à la cryptpad" in Sliphub.
 
-  
+{pause center}
+# I have three month to do that!
 
 <style>
 @keyframes fontSizeChange { 0%,100% { scale:1; } 50% { scale: 0.5 } }
