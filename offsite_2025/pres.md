@@ -30,6 +30,9 @@ pre {
 .three_elems > * {
   width: 33%
 }
+.four_elems > * {
+  width: 25%
+}
 .notification {
   font-size: 1.1em;
   line-height: 43px;
@@ -42,7 +45,7 @@ pre {
   padding: 10px;
   padding-top: 10px;
   border-radius: 10px;
-  transition: all 0.75s;
+  transition: all 0.75s 1s;
 }
 .notification.active {
   right:20px;
@@ -77,11 +80,17 @@ display: none;
 {.notification slipshow-ui #lyrm}
 > ![](lyrm.png) Salut Paul-Elliot ! Comment vas-tu ? Dis, ça te dirait de parler d'Argos dans ta présentation ? Vu que t'as travaillé dessus...
 
+{.notification slipshow-ui #abdulaziz}
+> ![](abdulaziz.png) Hey, since you are giving a talk at Tarides, maybe you could use this opportunity to promote Outreachy? It was such a great internship!
+
 {.notification slipshow-ui #sabine}
-> ![](sabine.png) Hello Paul-Elliot! I'm sorry, I think speaking about Argos will disturb the talk about odoc. Could you not do it?
+> ![](sabine.png) Hello Paul-Elliot! I'm sorry, I think speaking about Argos or outreachy will disturb the talk about odoc. Could you focus on odoc?
 
 {.notification slipshow-ui #nathalie}
 > ![](nathalie.png) Salut Chéri ! <br> On se voit ce soir ? 💘❤️‍🔥
+
+{.notification slipshow-ui #ganesh}
+> ![](ganesh.png) Hello Paul-Elliot! We are still missing 68765 weeklies from you. Can you please submit them today?
 
 
 {.block}
@@ -115,9 +124,9 @@ The face of the world changed, but **not much has changed** for the average ocam
 {style="text-align: center; font-size: 2em" #wtd}
 So, what to do?
 
-{style="display: flex" .two_elems #container pause up=wtd}
+{style="display: flex" .two_elems #container pause up=wtd exec-at-unpause=activate_riku}
 >
-> {exec-at-unpause}
+> {#activate_riku}
 > ```slip-script
 > slip.setClass(document.querySelector("#riku"), "active", true)
 > ```
@@ -128,26 +137,13 @@ So, what to do?
 > ```
 >
 >
-> {exec-at-unpause}
+> {#activate-jules}
 > ```slip-script
 > slip.setClass(document.querySelector("#jules"), "active", true)
 > ```
 >
-> {exec-at-unpause}
-> ```slip-script
-> slip.setClass(document.querySelector("#jules"), "dismissed", true)
-> ```
 >
 >
-> {exec-at-unpause}
-> ```slip-script
-> slip.setClass(document.querySelector("#nathalie"), "active", true)
-> ```
->
-> {exec-at-unpause}
-> ```slip-script
-> slip.setClass(document.querySelector("#nathalie"), "dismissed", true)
-> ```
 >
 >
 >
@@ -159,7 +155,7 @@ So, what to do?
 > >
 > > ### Offer new stanza options for referencing other packages
 > >
-> > {.unrevealed reveal-at-unpause}
+> > {.unrevealed reveal-at-unpause exec-at-unpause=activate_leandro}
 > > > ```
 > > > (package
 > > >   (depends ...)
@@ -170,7 +166,7 @@ So, what to do?
 > > {#offer-new-stanza}
 > > ### Offer new stanza options for assets and hierarchical documentation
 > >
-> > {exec-at-unpause}
+> > {#activate_leandro}
 > > ```slip-script
 > > slip.setClass(document.querySelector("#leandro"), "active", true)
 > > ```
@@ -239,11 +235,11 @@ So, what to do?
 > > $ odoc compile --parent-id <pkgname>/tuto/ tutorial1.mld
 > > ```
 > >
-> > {.unrevealed reveal-at-unpause}
+> > {.unrevealed reveal-at-unpause exec-at-unpause=activate_jon}
 > > > That looked a bit complicated [$\rightarrow$]{style="padding-left:15px;padding-right:15px;"}
 > > > **Jon will take care of it.**
 > >
-> > {exec-at-unpause}
+> > {#activate_jon}
 > > ```slip-script
 > > slip.setClass(document.querySelector("#jon"), "active", true)
 > > ```
@@ -254,8 +250,8 @@ So, what to do?
 > > ```
 > >
 >
-> {step style="display: none"}
-> > {exec-at-unpause}
+> {step style="display: none" exec-at-unpause=activate-lyrm}
+> > {#activate-lyrm}
 > >  ```slip-script
 > >  slip.setClass(document.querySelector("#lyrm"), "active", true)
 > >  ```
@@ -263,36 +259,40 @@ So, what to do?
 > >  {exec-at-unpause}
 > >  ```slip-script
 > >  slip.setClass(document.querySelector("#lyrm"), "dismissed", true)
-> > ```
-> >
-> > {exec-at-unpause}
-> > ```slip-script
 > > argos = document.querySelector("#argos")
 > > container = document.querySelector("#container")
 > >
 > > slip.setStyle(argos, "width", "33%")
 > > slip.setClass(container, "two_elems", false)
 > > slip.setClass(container, "three_elems", true)
+> > slip.setClass(document.querySelector("#abdulaziz"), "active", true)
 > > ```
-> >
-> > {exec-at-unpause}
-> >  ```slip-script
-> >  slip.setClass(document.querySelector("#sabine"), "active", true)
-> >  ```
 > >
 > >  {exec-at-unpause}
 > >  ```slip-script
-> >  slip.setClass(document.querySelector("#sabine"), "dismissed", true)
+> >  slip.setClass(document.querySelector("#abdulaziz"), "dismissed", true)
+> > argos = document.querySelector("#argos")
+> > outreachy = document.querySelector("#outreachy")
+> > container = document.querySelector("#container")
+> >
+> > slip.setStyle(argos, "width", "25%")
+> > slip.setStyle(outreachy, "width", "25%")
+> > slip.setClass(container, "three_elems", false)
+> > slip.setClass(container, "four_elems", true)
+> > slip.setClass(document.querySelector("#sabine"), "active", true)
 > > ```
 > >
-> > {exec-at-unpause}
-> > ```slip-script
+> >  {exec-at-unpause}
+> >  ```slip-script
+> > slip.setClass(document.querySelector("#sabine"), "dismissed", true)
 > > argos = document.querySelector("#argos")
+> > outreachy = document.querySelector("#outreachy")
 > > container = document.querySelector("#container")
 > >
 > > slip.setStyle(argos, "width", "0%")
+> > slip.setStyle(outreachy, "width", "0%")
 > > slip.setClass(container, "two_elems", true)
-> > slip.setClass(container, "three_elems", false)
+> > slip.setClass(container, "four_elems", false)
 > > ```
 > >
 >
@@ -324,7 +324,18 @@ So, what to do?
 > > {#box2}
 > > >
 > >
-> > {step focus-at-unpause=box1}
+> > {step focus-at-unpause=box1 exec-at-unpause=activate-jules}
+> >
+> > {exec-at-unpause}
+> > ```slip-script
+> > slip.setClass(document.querySelector("#jules"), "dismissed", true)
+> > slip.setClass(document.querySelector("#nathalie"), "active", true)
+> > ```
+> >
+> > {exec-at-unpause}
+> > ```slip-script
+> > slip.setClass(document.querySelector("#nathalie"), "dismissed", true)
+> > ```
 > >
 > > {step unfocus-at-unpause}
 > >
@@ -347,7 +358,7 @@ So, what to do?
 > >
 >
 > {slip no-enter #outreachy style="width:0%"}
-> > # Outreachy mentoring
+> > # [Outreachy mentoring]{style="font-size: 2em"}
 > >
 > > - Super nice experience
 > >
@@ -358,7 +369,7 @@ So, what to do?
 
 {step}
 
-{#duneprs pause}
+{#duneprs pause exec-at-unpause=activate-ganesh}
 > [ocaml/dune#11800](https://github.com/ocaml/dune/pull/11800) and [ocaml/dune#11716](https://github.com/ocaml/dune/pull/11716)
 
 {#ocamlprs}
@@ -366,6 +377,17 @@ So, what to do?
 
 {#ty}
 > # Thank you for your attention
+
+> {#activate-ganesh}
+> ```slip-script
+> slip.setClass(document.querySelector("#ganesh"), "active", true)
+> ```
+>
+> {exec-at-unpause}
+> ```slip-script
+> slip.setClass(document.querySelector("#ganesh"), "dismissed", true)
+> ```
+>
 
 <style>
 #duneprs {
