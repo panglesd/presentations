@@ -45,7 +45,7 @@ pre {
   padding: 10px;
   padding-top: 10px;
   border-radius: 10px;
-  transition: all 0.75s 1s;
+  transition: all 0.75s 2s;
 }
 .notification.active {
   right:20px;
@@ -90,7 +90,10 @@ display: none;
 > ![](nathalie.png) Salut Chéri ! <br> On se voit ce soir ? 💘❤️‍🔥
 
 {.notification slipshow-ui #ganesh}
-> ![](ganesh.png) Hello Paul-Elliot! We are still missing 68765 weeklies from you. Can you please submit them today?
+> ![](ganesh.png) Hello Paul-Elliot! Now that your presentation is finished, could you fill your 68765 missing weeklies?
+
+{.notification slipshow-ui #sonja}
+> ![](sonja.png) Look how cute he is! ![](baby.png){style="float:none; height:400px; vertical-align:top;"}
 
 
 {.block}
@@ -142,6 +145,11 @@ So, what to do?
 > slip.setClass(document.querySelector("#jules"), "active", true)
 > ```
 >
+> {#activate-sonja}
+> ```slip-script
+> slip.setClass(document.querySelector("#sonja"), "active", true)
+> ```
+>
 >
 >
 >
@@ -177,19 +185,14 @@ So, what to do?
 > > ```
 > >
 > > {.unrevealed reveal-at-unpause up=specify}
-> > > Before:
-> > > ```txt
-> > > (documentation
-> > >   (mld_files <list of .mld files>))
-> > > ```
-> > > {.unrevealed reveal-at-unpause #afterdune}
-> > > > After:
+> > > {#afterdune}
+> > > > 
 > > > > ```txt
 > > > > (documentation
 > > > >   (files <files and hierarchy target>))
 > > > >            ; the stanza above includes assets / hierarchy
 > > > > ```
-> > > {.unstatic static-at-unpause up=afterdune #examples-dune}
+> > > {.unrevealed reveal-at-unpause up=afterdune #examples-dune pause_root}
 > > > > #### Examples
 > > > > ```
 > > > > (documentation
@@ -201,54 +204,83 @@ So, what to do?
 > > > > ```
 > > > > (documentation
 > > > >  (files
+> > > >   (dune-project.mld as reference/dune-project.mld)))
+> > > > ```
+> > > > {pause down=lastduneex}
+> > > > ```
+> > > > (documentation
+> > > >  (files
 > > > >   (glob_files_rec            ; Include `doc/`, keep hierarchical
 > > > >    (doc/* with_prefix .))))  ; structure for documentation
 > > > > ```
 > > > >
-> > > {.unrevealed reveal-at-unpause #lastduneex}
+> > > > { #lastduneex}
 > > > > ```
 > > > > doc/index.mld            ->  <pkg doc root>/index.html
 > > > > doc/tuto/index.mld       ->  <pkg doc root>/tuto/index.html
 > > > > doc/tuto/tutorial1.mld   ->  <pkg doc root>/tuto/tutorial1.html
 > > > > ```
 > >
-> > {up=lastduneex}
-> > ## 2. Respect the specification
-> >
-> > ### Install files for odig/ocaml.org's driver
-> >
-> > {.unrevealed reveal-at-unpause}
-> > > Odoc 3 defines a convention for of **opam-installed packages**.
+> > {pause_root}
+> > > ## 2. Respect the specification
 > > >
-> > > Dune needs to respect the convention given the user input.
+> > > {pause up=lastduneex}
+> > > There are two kind of "drivers" for `odoc`:
 > > >
-> > > {.unrevealed reveal-at-unpause}
+> > > {.block}
+> > > - `dune`, `bazel`, `ninja`.
+> > >   - They build doc for a local project.
+> > >
+> > >   - They rely on a their internal project knowledge.
+> > >
+> > > {.block #opamconv}
+> > > - `odig`, `odoc_driver`, `voodoo`.
+> > >   - They build doc for `opam`-installed packages.
+> > >
+> > >   - They rely on a convention on installed files: eg pages are installed on `<switch root>/doc/<pkg name>/odoc-pages/`.
+> > >
+> > > {pause #installfiles up=opamconv exec-at-unpause=activate-sonja}
+> > > ### Install files for odig/ocaml.org's driver
+> > >
+> > > {exec-at-unpause}
+> > > ```slip-script
+> > > slip.setClass(document.querySelector("#sonja"), "dismissed", true)
 > > > ```
-> > > doc/index.mld        ->   <switch>/doc/<pkgname>/index.mld
-> > > doc/tuto/index.mld   ->   <switch>/doc/<pkgname>/tuto/index.mld
-> > > doc/tuto/tuto1.mld   ->   <switch>/doc/<pkgname>/tuto/tuto1.mld
+> > >
+> > > Dune needs to respect the install convention given the user specification.
+> > >
+> > > {pause}
+> > > ```txt
+> > > (documentation (files ...))
+> > >     ->  <switch>/doc/<pkg>/odoc-pages/index.mld
+> > >     ->  <switch>/doc/<pkg>/odoc-pages/logo.png
+> > >     ->  <switch>/doc/<pkg>/odoc-pages/reference/dune-project.mld
+> > >
+> > > (package (documentation (depends ...)))
+> > >     ->  <switch>/doc/<pkg>/odoc-config.sexp
 > > > ```
-> > ### Rewrite the "dune rules" to build documentation with the new CLI
-> >
-> > {.unrevealed reveal-at-unpause}
-> > ```bash
-> > $ odoc compile --parent-id <pkgname>/tuto/ tutorial1.mld
-> > ```
-> >
-> > {.unrevealed reveal-at-unpause exec-at-unpause=activate_jon}
-> > > That looked a bit complicated [$\rightarrow$]{style="padding-left:15px;padding-right:15px;"}
-> > > **Jon will take care of it.**
-> >
-> > {#activate_jon}
-> > ```slip-script
-> > slip.setClass(document.querySelector("#jon"), "active", true)
-> > ```
-> >
-> > {exec-at-unpause}
-> > ```slip-script
-> > slip.setClass(document.querySelector("#jon"), "dismissed", true)
-> > ```
-> >
+> > > This enables the new features for `odoc_driver`.
+> > >
+> > > {pause up=installfiles exec-at-unpause=activate_jon}
+> > > ### Rewrite the "dune rules" to build documentation with the new CLI
+> > >
+> > > ```bash
+> > > $ odoc compile --parent-id <pkgname>/tuto/ tutorial1.mld
+> > > ```
+> > >
+> > > > That looked a bit complicated [$\rightarrow$]{style="padding-left:15px;padding-right:15px;"}
+> > > > **Jon will take care of it.**
+> > >
+> > > {#activate_jon}
+> > > ```slip-script
+> > > slip.setClass(document.querySelector("#jon"), "active", true)
+> > > ```
+> > >
+> > > {exec-at-unpause}
+> > > ```slip-script
+> > > slip.setClass(document.querySelector("#jon"), "dismissed", true)
+> > > ```
+> > >
 >
 > {step style="display: none" exec-at-unpause=activate-lyrm}
 > > {#activate-lyrm}
