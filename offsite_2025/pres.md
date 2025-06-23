@@ -95,6 +95,26 @@ display: none;
 {.notification slipshow-ui #sonja}
 > ![](sonja.png) Look how cute he is! ![](baby.png){style="float:none; height:400px; vertical-align:top;"}
 
+{.notification slipshow-ui #xvw}
+> ![](xvw.png) Hello ! You said your presentation was going to be 15 min. Hurry up for the other speakers! Your presentation is completely absurd!
+
+{.notification slipshow-ui #arthur}
+> ![](arthur.png) J'ai rien compris ! 🤣
+
+{.notification slipshow-ui #cuit}
+> ![](cuit.png) Bravo! But what about category theory?
+
+{.notification slipshow-ui #antonin1}
+> ![](antonin.png) Ouh yeah! 👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏
+
+{.notification slipshow-ui #antonin2}
+> ![](antonin.png) I have a question! Do you like my new handle, "hexadecimo"?
+
+
+{.notification slipshow-ui #isabella}
+> ![](isabella.png) Pretty cool! But I have found a typo.
+
+
 
 {.block}
 In March 2025, the face of the world changed: `odoc.3.0.0` was released.
@@ -148,6 +168,11 @@ So, what to do?
 > {#activate-sonja}
 > ```slip-script
 > slip.setClass(document.querySelector("#sonja"), "active", true)
+> ```
+>
+> {#activate-xvw}
+> ```slip-script
+> slip.setClass(document.querySelector("#xvw"), "active", true)
 > ```
 >
 >
@@ -373,7 +398,14 @@ So, what to do?
 > >
 > > {step reveal-at-unpause=jontookcare}
 > >
-> > {step focus-at-unpause=box2}
+> > {step focus-at-unpause=box2 exec-at-unpause=activate-xvw}
+> >
+> > {exec-at-unpause}
+> > ```slip-script
+> > slip.setClass(document.querySelector("#xvw"), "dismissed", true)
+> > ```
+> >
+> >
 > >
 > > {step unfocus-at-unpause}
 > >
@@ -412,16 +444,41 @@ So, what to do?
 
 > {#activate-ganesh}
 > ```slip-script
-> slip.setClass(document.querySelector("#ganesh"), "active", true)
+> slip.setClass(document.querySelector("#ganesh"), "active", true);
+> slip.setClass(document.querySelector("#cuit"), "active", true);
+> slip.setClass(document.querySelector("#arthur"), "active", true);
+> slip.setClass(document.querySelector("#antonin1"), "active", true);
+> slip.setClass(document.querySelector("#antonin2"), "active", true);
+> slip.setClass(document.querySelector("#isabella"), "active", true);
 > ```
->
-> {exec-at-unpause}
-> ```slip-script
-> slip.setClass(document.querySelector("#ganesh"), "dismissed", true)
-> ```
+<!-- > -->
+<!-- > {exec-at-unpause} -->
+<!-- > ```slip-script -->
+<!-- > slip.setClass(document.querySelector("#ganesh"), "dismissed", true) -->
+<!-- > ``` -->
 >
 
 <style>
+#cuit {
+  top: 200px;
+  transition-delay: 4.5s;
+}
+#antonin1 {
+  top: 371px;
+  transition-delay: 5s;
+}
+#arthur {
+  top: 544px;
+  transition-delay: 5.3s;
+}
+#antonin2 {
+  top: 717px;
+  transition-delay: 6.7s;
+}
+#isabella {
+  top: 890px;
+  transition-delay: 7s;
+}
 #duneprs {
     position: absolute;
     top: 1326px;
