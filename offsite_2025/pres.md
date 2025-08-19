@@ -45,7 +45,7 @@ pre {
   padding: 10px;
   padding-top: 10px;
   border-radius: 10px;
-  transition: all 0.75s 2s;
+  transition: all 0.75s 3s;
 }
 .notification.active {
   right:20px;
@@ -77,14 +77,23 @@ display: none;
 {.notification slipshow-ui #jon}
 ![](jon.png) Hi Paul-Elliot! That reminds me: could you review my [+19242]{style="color:green"},[-454]{style="color:red"} lines WIP commit?
 
+{.notification slipshow-ui #jon2}
+![](jon.png) Hi Paul-Elliot! That reminds me: could you review my [+1965456242]{style="color:green"},[-4]{style="color:red"} lines PR from yesterday?
+
 {.notification slipshow-ui #lyrm}
-> ![](lyrm.png) Salut Paul-Elliot ! Comment vas-tu ? Dis, ça te dirait de parler d'Argos dans ta présentation ? Vu que t'as travaillé dessus...
+> ![](lyrm.png) Hello Paul-Elliot ! Would you mind speaking about Argos too? It is part of your "world after odoc 3"!
 
 {.notification slipshow-ui #abdulaziz}
-> ![](abdulaziz.png) Hey, since you are giving a talk at Tarides, maybe you could use this opportunity to promote Outreachy? It was such a great internship!
+> ![](abdulaziz.png) Hey, since you are giving this talk at Tarides, maybe you could use this opportunity to promote Outreachy? It was such a great internship!
 
 {.notification slipshow-ui #sabine}
 > ![](sabine.png) Hello Paul-Elliot! I'm sorry, I think speaking about Argos or outreachy will disturb the talk about odoc. Could you focus on odoc?
+
+{.notification slipshow-ui #agenda}
+> ![](agenda.png) Event reminder: Sabine's birthday (today)
+
+{.notification slipshow-ui #cake}
+> ![](cake.png) Happy birthday Sabine!
 
 {.notification slipshow-ui #nathalie}
 > ![](nathalie.png) Salut Chéri ! <br> On se voit ce soir ? 💘❤️‍🔥
@@ -93,10 +102,10 @@ display: none;
 > ![](ganesh.png) Hello Paul-Elliot! Now that your presentation is finished, could you fill your 68765 missing weeklies?
 
 {.notification slipshow-ui #sonja}
-> ![](sonja.png) Look how cute he is! ![](baby.png){style="float:none; height:400px; vertical-align:top;"}
+> ![](sonja.png) Look how cute he is! ![](baby.png){style="float:none; height:600px; vertical-align:top;"}
 
 {.notification slipshow-ui #xvw}
-> ![](xvw.png) Hello ! You said your presentation was going to be 15 min. Hurry up for the other speakers! Your presentation is completely absurd!
+> ![](xvw.png) Hello! You said your presentation was going to be 15 min. Hurry up for the other speakers! Your presentation is completely absurd! (`ocaml-eglot` is great!)
 
 {.notification slipshow-ui #arthur}
 > ![](arthur.png) J'ai rien compris ! 🤣
@@ -147,17 +156,67 @@ The face of the world changed, but **not much has changed** for the average ocam
 {style="text-align: center; font-size: 2em" #wtd}
 So, what to do?
 
-{style="display: flex" .two_elems #container pause up=wtd exec-at-unpause=activate_riku}
+{style="display: flex" .two_elems #container pause up=wtd exec-at-unpause=activate-lyrm}
 >
-> {#activate_riku}
-> ```slip-script
-> slip.setClass(document.querySelector("#riku"), "active", true)
-> ```
+> <!-- > {#activate_riku} -->
+> <!-- > ```slip-script -->
+> <!-- > slip.setClass(document.querySelector("#riku"), "active", true) -->
+> <!-- > ``` -->
+> <!-- > -->
+> <!-- > {exec-at-unpause} -->
+> <!-- > ```slip-script -->
+> <!-- > slip.setClass(document.querySelector("#riku"), "dismissed", true) -->
+> <!-- > ``` -->
 >
-> {exec-at-unpause}
-> ```slip-script
-> slip.setClass(document.querySelector("#riku"), "dismissed", true)
-> ```
+> {style="display: none"}
+> > {#activate-lyrm}
+> >  ```slip-script
+> >  slip.setClass(document.querySelector("#lyrm"), "active", true)
+> >  ```
+> >
+> >  {exec-at-unpause}
+> >  ```slip-script
+> >  slip.setClass(document.querySelector("#lyrm"), "dismissed", true)
+> > argos = document.querySelector("#argos")
+> > container = document.querySelector("#container")
+> >
+> > slip.setStyle(argos, "width", "33%")
+> > slip.setClass(container, "two_elems", false)
+> > slip.setClass(container, "three_elems", true)
+> > slip.setClass(document.querySelector("#abdulaziz"), "active", true)
+> > ```
+> >
+> >  {exec-at-unpause}
+> >  ```slip-script
+> >  slip.setClass(document.querySelector("#abdulaziz"), "dismissed", true)
+> > argos = document.querySelector("#argos")
+> > outreachy = document.querySelector("#outreachy")
+> > container = document.querySelector("#container")
+> >
+> > slip.setStyle(argos, "width", "25%")
+> > slip.setStyle(outreachy, "width", "25%")
+> > slip.setClass(container, "three_elems", false)
+> > slip.setClass(container, "four_elems", true)
+> > slip.setClass(document.querySelector("#sabine"), "active", true)
+> > slip.setClass(document.querySelector("#agenda"), "active", true)
+> > slip.setClass(document.querySelector("#cake"), "active", true)
+> > ```
+> >
+> >  {exec-at-unpause}
+> >  ```slip-script
+> > slip.setClass(document.querySelector("#sabine"), "dismissed", true)
+> > slip.setClass(document.querySelector("#agenda"), "dismissed", true)
+> > slip.setClass(document.querySelector("#cake"), "dismissed", true)
+> > argos = document.querySelector("#argos")
+> > outreachy = document.querySelector("#outreachy")
+> > container = document.querySelector("#container")
+> >
+> > slip.setStyle(argos, "width", "0%")
+> > slip.setStyle(outreachy, "width", "0%")
+> > slip.setClass(container, "two_elems", true)
+> > slip.setClass(container, "four_elems", false)
+> > ```
+> >
 >
 >
 > {#activate-jules}
@@ -307,51 +366,7 @@ So, what to do?
 > > > ```
 > > >
 >
-> {step style="display: none" exec-at-unpause=activate-lyrm}
-> > {#activate-lyrm}
-> >  ```slip-script
-> >  slip.setClass(document.querySelector("#lyrm"), "active", true)
-> >  ```
-> >
-> >  {exec-at-unpause}
-> >  ```slip-script
-> >  slip.setClass(document.querySelector("#lyrm"), "dismissed", true)
-> > argos = document.querySelector("#argos")
-> > container = document.querySelector("#container")
-> >
-> > slip.setStyle(argos, "width", "33%")
-> > slip.setClass(container, "two_elems", false)
-> > slip.setClass(container, "three_elems", true)
-> > slip.setClass(document.querySelector("#abdulaziz"), "active", true)
-> > ```
-> >
-> >  {exec-at-unpause}
-> >  ```slip-script
-> >  slip.setClass(document.querySelector("#abdulaziz"), "dismissed", true)
-> > argos = document.querySelector("#argos")
-> > outreachy = document.querySelector("#outreachy")
-> > container = document.querySelector("#container")
-> >
-> > slip.setStyle(argos, "width", "25%")
-> > slip.setStyle(outreachy, "width", "25%")
-> > slip.setClass(container, "three_elems", false)
-> > slip.setClass(container, "four_elems", true)
-> > slip.setClass(document.querySelector("#sabine"), "active", true)
-> > ```
-> >
-> >  {exec-at-unpause}
-> >  ```slip-script
-> > slip.setClass(document.querySelector("#sabine"), "dismissed", true)
-> > argos = document.querySelector("#argos")
-> > outreachy = document.querySelector("#outreachy")
-> > container = document.querySelector("#container")
-> >
-> > slip.setStyle(argos, "width", "0%")
-> > slip.setStyle(outreachy, "width", "0%")
-> > slip.setClass(container, "two_elems", true)
-> > slip.setClass(container, "four_elems", false)
-> > ```
-> >
+> {step style="display: none"}
 >
 > {slip}
 > > # ![](ocaml_logo.png){height=130px style="padding-right: 8px;vertical-align: -20px;"}.org and [odoc 3]{style="font-size:2em"}
@@ -396,7 +411,17 @@ So, what to do?
 > >
 > > {step unfocus-at-unpause}
 > >
-> > {step reveal-at-unpause=jontookcare}
+> > {step reveal-at-unpause=jontookcare exec-at-unpause=activate-jon2}
+> >
+> > {#activate-jon2}
+> > ```slip-script
+> > slip.setClass(document.querySelector("#jon2"), "active", true)
+> > ```
+> >
+> > {exec-at-unpause}
+> > ```slip-script
+> > slip.setClass(document.querySelector("#jon2"), "dismissed", true)
+> > ```
 > >
 > > {step focus-at-unpause=box2 exec-at-unpause=activate-xvw}
 > >
@@ -463,9 +488,17 @@ So, what to do?
   top: 200px;
   transition-delay: 4.5s;
 }
+#agenda {
+  top: 200px;
+  transition-delay: 6s;
+}
 #antonin1 {
   top: 371px;
   transition-delay: 5s;
+}
+#cake {
+  top: 371px;
+  transition-delay: 6.5s;
 }
 #arthur {
   top: 544px;

@@ -1,18 +1,18 @@
-# Slipshow
+# Slipshow {pause}
 
 <style>li { margin-top: 30px} </style>
 
 - 2019: [Written in 3 month](../thesis/slides.html)
   - Content ⚡ flow separated
   - ✋-written movement
-  - Impossible to go back? but **rotation**!
+  - Impossible to go back? but **rotation**! {pause}
 
 - 2020: [Some improvements](../slip-js/slides.html)
   - Content ⚡ flow unified
-  - Absolute timing
+  - Absolute timing {pause}
 
 - 2020: [Naturalish flow](../WDCM-2021-slips/wdcm-ada.html)
-  - Pause and `*-at-unpause` events
+  - Pause and `*-at-unpause` events {pause}
 
 - 2020: [Modularized](https://github.com/panglesd/slipshow/pull/1)
 
@@ -44,20 +44,21 @@
 
 {#corollaries}
 > {.corollary pause}
-> There is no more bugs in Slipshow.
+> There is no more bugs in Slipshow: Slipshow is secure by design.
 >
 > {.corollary pause}
 > Slipshow relies on a monad.
 >
 > {.corollary pause}
-> I can finally contribute to my own engine. {pause} No-one else can contribute.
+> I can finally contribute to my own engine. {pause} I lost 25 millions contributors.
 >
 > {.corollary pause}
 > I earned 2000€.
 
 {pause up=y2024 unstatic-at-unpause=corollaries}
 
-- 2026?
+{style="text-align: center; font-size: 2em" #wtd}
+So, what to do?
 
 {pause .block up=also #y2026}
   {#biglist}
@@ -126,7 +127,7 @@
   -  Add support for client-side encrypting "à la cryptpad" in Sliphub.
 
 {pause center}
-# I have three month to do that!
+# I'll focus on that!
 
 <style>
 @keyframes fontSizeChange { 0%,100% { scale:1; } 50% { scale: 0.5 } }
