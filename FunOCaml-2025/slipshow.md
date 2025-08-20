@@ -3,6 +3,19 @@ dimension: 16:9
 ---
 
 <style>
+#nuage-de-points.stop p {
+  transition: opacity 1s, transform 1s;
+  opacity: 0.1;
+}
+#nuage-de-points p {
+}
+#nuage-de-points.stop .selected {
+  opacity: 1;
+  transform: scale(1.5);
+}
+#nuage-de-points.stop .finished {
+  opacity: 0;
+}
 #nuage-de-points {
   display: flex;
   flex-wrap: wrap;
@@ -15,8 +28,83 @@ dimension: 16:9
   margin-top: 20px;
   margin-bottom: 20px;
 }
-.red {
-  color: red;
+.abs {
+  position: absolute;
+}
+#n1 {
+  top: 90px;
+  left: 30px;
+}
+#n2 {
+  top: 590px;
+  left: 530px;
+  transform: rotate(40deg);
+}
+#n3 {
+  top: 350px;
+  left: 930px;
+}
+#n4 {
+  top: 280px;
+  left: 990px;
+  transform: rotate(-10deg);
+}
+#n5 {
+  top: 230px;
+  left: 390px;
+  transform: rotate(-180deg);
+}
+#n6 {
+  top: 430px;
+  left: -150px;
+  transform: rotate(90deg);
+}
+#n7 {
+  top: 530px;
+  left: 870px;
+  transform: rotate(-30deg);
+}
+#n8 {
+  top: 30px;
+  left: 1670px;
+  transform: rotate(-10deg);
+}
+#n9 {
+  top: 650px;
+  left: 1170px;
+  transform:  translateX(350px) rotate(-90deg);
+}
+#adaptative-scaling {
+  top: 880px;
+  left: 570px;
+  transform:  translateX(350px) rotate(-55deg);
+}
+#n11 {
+  top: 90px;
+  left: 570px;
+}
+#math_support {
+  top: 180px;
+  left: 1200px;
+  transform: rotate(35deg);
+}
+#frame.stop {
+  opacity: 1;
+}
+#frame {
+  transition: opacity 3s;
+  transition-delay: 2s;
+  opacity: 0;
+  position: absolute;
+  top: 370px;
+  left: 50px;
+  width: 600px;
+  height: 400px;
+//  background-color: rgba(255,0,0,0.5);
+  overflow: visible;
+}
+#rec1 {
+  transform:  translate(-350px, -150px) scale(0.4);
 }
 </style>
 
@@ -25,57 +113,72 @@ dimension: 16:9
 {#nuage-de-points children:pause}
 ---
 
-{.red}
+{#cmfiles}
 Compile markdown files
 
-{.red}
+{#gen-stand}
 Generate *Standalone* HTML files
 
-{.red}
+{#not-bs}
 Not based on slides
 
+{#can-zoom}
 Can Zoom
 
+{#can-annotate}
 You can annotate your presentation
 
+{#custom_script}
 Custom scripts
 
-{.red}
+{#hot-reloading}
 Write your presentation with hot-reloading
 
-{.red}
+{#embedded-pdfs}
 Support for embedding PDFs
 
+{#video}
 Embed Videos and Audio
 
+{#available-static}
 Available as a static binary
 
+{#available-vscode}
 Available as a VSCode extension
 
+{#available-gui}
 Available with a GUI
 
-{.red}
+{#bidirectional}
 Bi-directional
 
+{#feature-toc}
 Features a table of content
 
+{#feature-theme}
 Has supports for themes
 
+{#custom_script2}
 Allow the execution of custom scripts
 
+{#nbosbst}
 Not based on slides (but supports them)
 
+{#extensible-js}
 Extensible via JavaScript
 
+{#markdown-output}
 Markdown output
 
-{.red}
+{#has-speaker-view}
 Speaker view
 
+{#front-support}
 Frontmatter support
 
 Mobile support
 
+{#multi-input}
 Multi-file input
 
 {.red}
@@ -101,31 +204,309 @@ Fun name
 
 Versionning-friendly
 
+{.abs #n1}
 No LLM knows about it
 
+{.abs #n2}
 Compatible with pointer devices
 
+{.abs #n3}
 Can make coffee
 
+{.abs #n4}
 Sponsored by NLNet
 
+{.abs #n5}
 Type safe
 
+{.abs #n6}
 Live-collaboration editing
 
+{.abs #n7}
 Syntax highlighting
 
+{.abs #n8}
 Offline first
 
+{.abs #n9}
 Support for environment such as `theorem`
 
+{.abs #adaptative-scaling}
 Adaptative scaling
 
+{.abs #n11}
 User-defined dimensions
+
+{.abs #math_support}
+Mathematics support
 
 ---
 
-{down=nuage-de-points}
+{exec}
+```slip-script
+slip.setClass(document.querySelector("#nuage-de-points"), "stop", true);
+```
+
+{exec pause}
+```slip-script
+slip.setClass(document.querySelector("#cmfiles"), "selected", true);
+```
+
+<style>
+.addons {
+  position:absolute;
+}
+#cmf-addons {
+  top:300px;
+  left:600px;
+  width: 900px;
+  display: flex;
+  justify-content: space-around;
+}
+</style>
+
+{#cmf-addons .addons .block}
+> ```
+> ## Title
+>
+> Wait for it...
+>
+> {pause}
+>
+> **Surprise!**
+> ```
+> ---
+>
+> ## Title
+>
+> Wait for it...
+>
+> {pause}
+>
+> **Surprise!**
+
+{exec pause unstatic=cmf-addons}
+```slip-script
+slip.setClass(document.querySelector("#cmfiles"), "finished", true);
+slip.setClass(document.querySelector("#cmfiles"), "selected", false);
+slip.setClass(document.querySelector("#gen-stand"), "selected", true);
+```
+
+<style>
+#icon {
+  top:400px;
+  left:600px;
+  width:400px;
+  text-align: center;
+}
+#icon img {
+  width:300px;
+}
+</style>
+
+{#icon .addons .block}
+![](html_icon.png) <!-- TODO: turn into a gif -->
+
+{exec unstatic=icon pause}
+```slip-script
+slip.setClass(document.querySelector("#gen-stand"), "finished", true);
+slip.setClass(document.querySelector("#gen-stand"), "selected", false);
+slip.setClass(document.querySelector("#not-bs"), "selected", true);
+```
+
+<style>
+#nbos {
+  top:300px;
+  left:600px;
+  width: 900px;
+}
+</style>
+
+{#nbos .addons .block}
+> We are still on slide 1?
+> 
+
+{exec pause unstatic=nbos}
+```slip-script
+slip.setClass(document.querySelector("#not-bs"), "finished", true);
+slip.setClass(document.querySelector("#not-bs"), "selected", false);
+slip.setClass(document.querySelector("#can-zoom"), "selected", true);
+```
+
+<style>
+#cz-addons {
+  top:300px;
+  left:600px;
+  width: 500px;
+}
+</style>
+
+{#cz-addons .addons .block}
+> ```
+> {focus=can-zoom-popup}
+> ```
+
+{focus=cz-addons}
+
+{unfocus}
+
+{exec pause unstatic=cz-addons}
+```slip-script
+slip.setClass(document.querySelector("#can-zoom"), "finished", true);
+slip.setClass(document.querySelector("#can-zoom"), "selected", false);
+slip.setClass(document.querySelector("#nbosbst"), "selected", true);
+```
+
+<style>
+#nbbs-addons {
+  top:000px;
+  left:600px;
+  width: 1000px;
+}
+</style>
+
+{#nbbs-addons .addons .block carousel change-page=~n:all children:slide children:no-enter}
+>
+> # Slide 1
+>
+> Lorem ipsum 
+>
+> - Content 1
+>
+> - Content 2
+>
+> ---
+> # Slide 2
+> Another content
+
+{exec pause unstatic=nbbs-addons}
+```slip-script
+slip.setClass(document.querySelector("#nbosbst"), "finished", true);
+slip.setClass(document.querySelector("#nbosbst"), "selected", false);
+slip.setClass(document.querySelector("#can-annotate"), "selected", true);
+```
+
+{exec pause unstatic=nbbs-addons}
+```slip-script
+slip.setClass(document.querySelector("#can-annotate"), "finished", true);
+slip.setClass(document.querySelector("#can-annotate"), "selected", false);
+slip.setClass(document.querySelector("#custom_script"), "selected", true);
+slip.setClass(document.querySelector("#custom_script2"), "selected", true);
+```
+
+{exec pause unstatic=nbbs-addons}
+```slip-script
+slip.setClass(document.querySelector("#custom_script"), "finished", true);
+slip.setClass(document.querySelector("#custom_script"), "selected", false);
+slip.setClass(document.querySelector("#custom_script2"), "finished", true);
+slip.setClass(document.querySelector("#custom_script2"), "selected", false);
+slip.setClass(document.querySelector("#bidirectional"), "selected", true);
+```
+
+{exec pause unstatic=nbbs-addons}
+```slip-script
+slip.setClass(document.querySelector("#bidirectional"), "finished", true);
+slip.setClass(document.querySelector("#bidirectional"), "selected", false);
+slip.setClass(document.querySelector("#video"), "selected", true);
+```
+
+{exec pause unstatic=nbbs-addons}
+```slip-script
+slip.setClass(document.querySelector("#video"), "finished", true);
+slip.setClass(document.querySelector("#video"), "selected", false);
+slip.setClass(document.querySelector("#embedded-pdfs"), "selected", true);
+```
+
+{exec pause unstatic=nbbs-addons}
+```slip-script
+slip.setClass(document.querySelector("#embedded-pdfs"), "finished", true);
+slip.setClass(document.querySelector("#embedded-pdfs"), "selected", false);
+slip.setClass(document.querySelector("#feature-toc"), "selected", true);
+```
+
+{exec pause unstatic=nbbs-addons}
+```slip-script
+slip.setClass(document.querySelector("#feature-toc"), "finished", true);
+slip.setClass(document.querySelector("#feature-toc"), "selected", false);
+slip.setClass(document.querySelector("#feature-theme"), "selected", true);
+```
+
+{exec pause unstatic=nbbs-addons}
+```slip-script
+slip.setClass(document.querySelector("#feature-theme"), "finished", true);
+slip.setClass(document.querySelector("#feature-theme"), "selected", false);
+slip.setClass(document.querySelector("#markdown-output"), "selected", true);
+```
+
+{exec pause unstatic=nbbs-addons}
+```slip-script
+slip.setClass(document.querySelector("#markdown-output"), "finished", true);
+slip.setClass(document.querySelector("#markdown-output"), "selected", false);
+slip.setClass(document.querySelector("#hot-reloading"), "selected", true);
+```
+
+{exec pause unstatic=nbbs-addons}
+```slip-script
+slip.setClass(document.querySelector("#hot-reloading"), "finished", true);
+slip.setClass(document.querySelector("#hot-reloading"), "selected", false);
+slip.setClass(document.querySelector("#available-static"), "selected", true);
+```
+
+{exec pause unstatic=nbbs-addons}
+```slip-script
+slip.setClass(document.querySelector("#available-static"), "finished", true);
+slip.setClass(document.querySelector("#available-static"), "selected", false);
+slip.setClass(document.querySelector("#available-vscode"), "selected", true);
+```
+
+{exec pause unstatic=nbbs-addons}
+```slip-script
+slip.setClass(document.querySelector("#available-vscode"), "finished", true);
+slip.setClass(document.querySelector("#available-vscode"), "selected", false);
+slip.setClass(document.querySelector("#available-gui"), "selected", true);
+```
+
+{exec pause unstatic=nbbs-addons}
+```slip-script
+slip.setClass(document.querySelector("#available-gui"), "finished", true);
+slip.setClass(document.querySelector("#available-gui"), "selected", false);
+slip.setClass(document.querySelector("#extensible-js"), "selected", true);
+```
+
+{exec pause unstatic=nbbs-addons}
+```slip-script
+slip.setClass(document.querySelector("#extensible-js"), "finished", true);
+slip.setClass(document.querySelector("#extensible-js"), "selected", false);
+slip.setClass(document.querySelector("#has-speaker-view"), "selected", true);
+```
+
+{exec pause unstatic=nbbs-addons}
+```slip-script
+slip.setClass(document.querySelector("#has-speaker-view"), "finished", true);
+slip.setClass(document.querySelector("#has-speaker-view"), "selected", false);
+slip.setClass(document.querySelector("#multi-input"), "selected", true);
+```
+
+{exec pause unstatic=nbbs-addons}
+```slip-script
+slip.setClass(document.querySelector("#multi-input"), "finished", true);
+slip.setClass(document.querySelector("#multi-input"), "selected", false);
+slip.setClass(document.querySelector("#front-support"), "selected", true);
+```
+
+{exec pause unstatic=nbbs-addons}
+```slip-script
+slip.setClass(document.querySelector("#front-support"), "finished", true);
+slip.setClass(document.querySelector("#front-support"), "selected", false);
+slip.setClass(document.querySelector("#adaptative-scaling"), "selected", true);
+```
+
+{exec pause unstatic=nbbs-addons}
+```slip-script
+slip.setClass(document.querySelector("#adaptative-scaling"), "finished", true);
+slip.setClass(document.querySelector("#adaptative-scaling"), "selected", false);
+slip.setClass(document.querySelector("#math_support"), "selected", true);
+```
 
 1. Slipshow: Compile from markdown, to a standalone html file, not based on slides.
   - Slipshow basics
