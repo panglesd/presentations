@@ -235,6 +235,16 @@ TODO: speak about undo monad
 
 # Conclusion
 
-What is the conclusion?
+And the conclusion is that...
 
-OCaml helped me advance quickly my personal project, Slipshow, an alternative to slides
+Slipshow has a lot of features ... (recommencer la présentation depuis le début)
+
+Puis revenir au début et dire
+
+There is NO conclusion. Use the tools you like to build the software you love.
+
+<!--
+   Life is a process. Slipshow started as Javascript, it became OCaml, what will it be next I don't know.
+   Work on what you like
+
+-->
