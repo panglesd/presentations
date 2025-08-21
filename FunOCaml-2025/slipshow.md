@@ -7,13 +7,69 @@ dimension: 16:9
   transition: opacity 1s, transform 1s;
   opacity: 0.1;
 }
-#nuage-de-points p {
+#nuage-de-points.stop #cmfiles.selected {
+  transform: scale(2) translateX(50px);
+}
+#nuage-de-points.stop #not-bs.selected {
+  transform: scale(2) translateX(-50px);
+}
+#nuage-de-points.stop #nbosbst.selected {
+  transform: scale(2) translateX(150px) translateY(50px);
+}
+#nuage-de-points.stop #custom_script2.selected {
+  transform: scale(2) translateX(-350px) translateY(-150px);
+}
+#nuage-de-points.stop #video.selected {
+  transform: scale(2) translateX(150px);
+}
+#nuage-de-points.stop #embedded-pdfs.selected {
+  transform: scale(2) translateX(-25px);
+}
+#nuage-de-points.stop #markdown-output.selected {
+  transform: scale(2) translateX(-125px) translateY(25px);
+}
+#nuage-de-points.stop #hot-reloading.selected {
+  transform: scale(2) translateX(125px);
+}
+#nuage-de-points.stop #available-vscode.selected {
+  transform: scale(2) translateX(-125px);
+}
+#nuage-de-points.stop #live-collab.selected {
+  transform: scale(2) translateX(225px);
+}
+#nuage-de-points.stop #user-def-dim.selected {
+  transform: scale(2) translateY(100px);
+}
+#nuage-de-points.stop #ext-doc-tut.selected {
+  transform: scale(2) translateX(-150px);
+}
+#nuage-de-points.stop #hierar-pres.selected {
+  transform: scale(2) translateX(300px);
+}
+#nuage-de-points.stop #satheorem.selected {
+  transform: scale(2) translateX(-200px) translateY(100px);
+}
+#nuage-de-points.stop #offline-first.selected {
+  transform: scale(2) translateX(-200px) translateY(100px);
+}
+#nuage-de-points.stop #versionning-friendly.selected {
+  transform: scale(2) translateX(-200px) translateY(-100px);
+}
+#nuage-de-points.stop #friendly-community.selected {
+  transform: scale(2) translateX(200px) translateY(-100px);
+}
+#nuage-de-points.stop #secure-by-design.selected {
+  transform: scale(2) translateX(-200px) translateY(-100px);
+}
+#nuage-de-points.stop #no-llms.selected {
+  transform: scale(2) translateX(200px) translateY(100px);
 }
 #nuage-de-points.stop .selected {
   opacity: 1;
-  transform: scale(1.5);
+  transform: scale(2);
 }
 #nuage-de-points.stop .finished {
+  transform: scale(1);
   opacity: 0;
 }
 #nuage-de-points {
@@ -253,9 +309,52 @@ Mathematics support
 
 ---
 
-{exec}
+<style>
+#countdown-10 {
+  position: absolute;
+  z-index:100;
+  top:0px;
+  font-size: 3em;
+  left:0px;
+  background-color: lightgrey;
+  padding: 10px;
+  border: 1px solid black;
+  border-radius: 10px;
+}
+</style>
+
+{#countdown-10 .unstatic}
+
+{exec static=countdown-10}
 ```slip-script
 slip.setClass(document.querySelector("#nuage-de-points"), "stop", true);
+
+function startCountdown(elementId) {
+    const display = document.getElementById(elementId);
+    let timeRemaining = 10 * 60; // 10 minutes in seconds
+
+    const interval = setInterval(() => {
+        const minutes = Math.floor(timeRemaining / 60);
+        const seconds = timeRemaining % 60;
+
+        display.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+        timeRemaining--;
+
+        if (timeRemaining < 0) {
+            clearInterval(interval);
+            display.textContent = "00:00";
+        }
+    }, 1000);
+
+    return interval; // return the interval ID so it can be cancelled
+}
+
+// Start the countdown
+const countdownInterval = startCountdown('countdown-10');
+slip.state.cdi = countdownInterval;
+// To cancel it:
+slip.onUndo(() => clearInterval(countdownInterval));
 ```
 
 {exec pause}
@@ -273,6 +372,7 @@ slip.setClass(document.querySelector("#cmfiles"), "selected", true);
   width: 900px;
   display: flex;
   justify-content: space-around;
+  align-items: center;
 }
 </style>
 
@@ -286,6 +386,9 @@ slip.setClass(document.querySelector("#cmfiles"), "selected", true);
 >
 > **Surprise!**
 > ```
+> ---
+> [➡️]{style="font-size: 3em"}
+>
 > ---
 >
 > ## Title
@@ -405,7 +508,52 @@ slip.setClass(document.querySelector("#custom_script"), "selected", true);
 slip.setClass(document.querySelector("#custom_script2"), "selected", true);
 ```
 
-{exec pause unstatic=nbbs-addons}
+
+
+<style>
+#custscript-addons {
+  top:450px;
+  left:50px;
+  width: 1300px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+</style>
+
+{#custscript-addons .addons .block}
+> ````
+> - Some
+> - bullet
+> - points
+>
+> {exec}
+> ```slip-script
+> document.querySelector("li").
+>   forEach((elem) => {
+>     slip.setClass(elem, "red", true)
+>   })
+> ```
+> ````
+> ---
+> [➡️]{style="font-size: 3em"}
+>
+> ---
+>
+> {#bpex}
+> - Some
+> - bullet
+> - points
+>
+> {exec}
+> ```slip-script
+> slip.setClass(document.querySelector("#bpex"), "tored", true)
+> ```
+>
+> <style> .tored { background-color: red; } </style>
+
+
+{exec pause unstatic=custscript-addons}
 ```slip-script
 slip.setClass(document.querySelector("#custom_script"), "finished", true);
 slip.setClass(document.querySelector("#custom_script"), "selected", false);
@@ -428,7 +576,20 @@ slip.setClass(document.querySelector("#video"), "selected", false);
 slip.setClass(document.querySelector("#embedded-pdfs"), "selected", true);
 ```
 
-{exec pause unstatic=nbbs-addons}
+
+<style>
+#pdf-demo {
+  top:100px;
+  left:200px;
+  width: 650px;
+}
+</style>
+
+{#pdf-demo .addons .block}
+> ![](ocaml.pdf){style=width:600px change-page="~n:all"}
+
+
+{exec pause unstatic=pdf-demo}
 ```slip-script
 slip.setClass(document.querySelector("#embedded-pdfs"), "finished", true);
 slip.setClass(document.querySelector("#embedded-pdfs"), "selected", false);
@@ -449,7 +610,43 @@ slip.setClass(document.querySelector("#feature-theme"), "selected", false);
 slip.setClass(document.querySelector("#markdown-output"), "selected", true);
 ```
 
-{exec pause unstatic=nbbs-addons}
+<style>
+#mout-addons {
+  top:150px;
+  left:10px;
+  width: 1300px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+</style>
+
+{#mout-addons .addons .block}
+> ```
+> ## Title
+>
+> Wait for it...
+>
+> {pause}
+>
+> **Surprise!**
+> ```
+> ---
+> [➡️]{style="font-size: 3em"}
+>
+> ---
+>
+> ```
+> ## Title
+>
+> Wait for it...
+>
+> **Surprise!**
+> ```
+
+
+
+{exec pause unstatic=mout-addons}
 ```slip-script
 slip.setClass(document.querySelector("#markdown-output"), "finished", true);
 slip.setClass(document.querySelector("#markdown-output"), "selected", false);
@@ -463,7 +660,25 @@ slip.setClass(document.querySelector("#hot-reloading"), "selected", false);
 slip.setClass(document.querySelector("#available-static"), "selected", true);
 ```
 
-{exec pause unstatic=nbbs-addons}
+<style>
+#static-bin-av {
+  top:600px;
+  left:00px;
+  width: 1850px;
+}
+</style>
+
+{#static-bin-av .addons .block}
+> ```
+> $ wget https://github.com/panglesd/slipshow/releases/download/v0.6.0/slipshow-linux-x86_64.tar
+> $ tar xvf slipshow-linux-x86_64.tar
+> $ cp bin/slipshow /usr/bin/slipshow
+> ```
+
+
+
+
+{exec pause unstatic=static-bin-av}
 ```slip-script
 slip.setClass(document.querySelector("#available-static"), "finished", true);
 slip.setClass(document.querySelector("#available-static"), "selected", false);
@@ -477,19 +692,71 @@ slip.setClass(document.querySelector("#available-vscode"), "selected", false);
 slip.setClass(document.querySelector("#available-gui"), "selected", true);
 ```
 
-{exec pause unstatic=nbbs-addons}
+
+<style>
+#av-gui {
+  top:600px;
+  left:700px;
+  text-align: center;
+  width: 850px;
+}
+</style>
+
+{#av-gui .addons .block}
+Made with ![](logo-tauri.svg){style=background-color:#272727;padding:20px;vertical-align:middle}
+
+
+
+{exec pause unstatic=av-gui}
 ```slip-script
 slip.setClass(document.querySelector("#available-gui"), "finished", true);
 slip.setClass(document.querySelector("#available-gui"), "selected", false);
+slip.setClass(document.querySelector("#live-collab"), "selected", true);
+```
+
+<style>
+#shlink {
+  top:600px;
+  left:700px;
+  text-align: center;
+  width: 850px;
+}
+</style>
+
+{#shlink .addons .block}
+See <https://sliphub.choum.net/funocaml>
+
+
+
+{exec pause unstatic=shlink}
+```slip-script
+slip.setClass(document.querySelector("#live-collab"), "finished", true);
+slip.setClass(document.querySelector("#live-collab"), "selected", false);
 slip.setClass(document.querySelector("#extensible-js"), "selected", true);
 ```
 
-{exec pause unstatic=nbbs-addons}
+{exec pause unstatic=nbbs-addons speaker-note=spvtosend}
 ```slip-script
 slip.setClass(document.querySelector("#extensible-js"), "finished", true);
 slip.setClass(document.querySelector("#extensible-js"), "selected", false);
 slip.setClass(document.querySelector("#has-speaker-view"), "selected", true);
 ```
+
+{#spvtosend}
+> Don't forget to show the speaker view.
+>
+> Don't forget to show the "Don't forget to show the speaker view" note.
+>
+> Don't forget to show the "Don't forget to show the "Don't forget to show the speaker view" note." note.
+>
+> Don't forget to show the "Don't forget to show the "Don't forget to show the "Don't forget to show the speaker view" note." note." note.
+>
+> Don't forget to show the "Don't forget to show the "Don't forget to show the "Don't forget to show the "Don't forget to show the speaker view" note." note." note." note.
+>
+> Don't forget to show the "Don't forget to show the "Don't forget to show the "Don't forget to show the "Don't forget to show the "Don't forget to show the speaker view" note." note." note." note." note.
+>
+> Don't forget to show the "Don't forget to show the "Don't forget to show the "Don't forget to show the "Don't forget to show the "Don't forget to show the "Don't forget to show the speaker view" note." note." note." note." note." note.
+
 
 {exec pause unstatic=nbbs-addons}
 ```slip-script
@@ -498,14 +765,51 @@ slip.setClass(document.querySelector("#has-speaker-view"), "selected", false);
 slip.setClass(document.querySelector("#multi-input"), "selected", true);
 ```
 
-{exec pause unstatic=nbbs-addons}
+
+<style>
+#inclde {
+  top:200px;
+  left:200px;
+  width: 850px;
+}
+</style>
+
+{#inclde .addons .block}
+> ```
+> # Chapter 1
+>
+> {include src="chapter1.md"}
+>
+> # Chapter 2
+>
+> {include src="chapter2.md"}
+> ```
+
+{exec pause unstatic=inclde}
 ```slip-script
 slip.setClass(document.querySelector("#multi-input"), "finished", true);
 slip.setClass(document.querySelector("#multi-input"), "selected", false);
 slip.setClass(document.querySelector("#front-support"), "selected", true);
 ```
 
-{exec pause unstatic=nbbs-addons}
+<style>
+#fmspt {
+  top:200px;
+  left:600px;
+  width: 850px;
+}
+</style>
+
+{#fmspt .addons .block}
+> ```
+> ---
+> theme: default
+> dimension: 16:9
+> ---
+> Content
+> ```
+
+{exec pause unstatic=fmspt}
 ```slip-script
 slip.setClass(document.querySelector("#front-support"), "finished", true);
 slip.setClass(document.querySelector("#front-support"), "selected", false);
@@ -519,21 +823,61 @@ slip.setClass(document.querySelector("#adaptative-scaling"), "selected", false);
 slip.setClass(document.querySelector("#math_support"), "selected", true);
 ```
 
-{exec pause unstatic=nbbs-addons}
+<style>
+#math-addons {
+  top:450px;
+  left:10px;
+  width: 1700px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+</style>
+
+{#math-addons .addons .block}
+> ````
+> The complexity is in $\mathcal O(\infty)$,
+> because:
+>
+> ```math
+> \frac
+>   {\Gamma, x : \tau_1 \vdash e : \tau_2}
+>   {\Gamma \vdash \lambda x.e : \tau_1 \to \tau_2}
+> ```
+> ````
+> ---
+> [➡️]{style="font-size: 3em"}
+>
+> ---
+>
+> The complexity is in $\mathcal O(\infty)$, because:
+>
+> ```math
+> \frac{\Gamma, x : \tau_1 \vdash e : \tau_2}
+>     {\Gamma \vdash \lambda x.e : \tau_1 \to \tau_2}
+> ```
+
+{exec pause unstatic=math-addons}
 ```slip-script
 slip.setClass(document.querySelector("#math_support"), "finished", true);
 slip.setClass(document.querySelector("#math_support"), "selected", false);
-slip.setClass(document.querySelector("#live-collab"), "selected", true);
-```
-
-{exec pause unstatic=nbbs-addons}
-```slip-script
-slip.setClass(document.querySelector("#live-collab"), "finished", true);
-slip.setClass(document.querySelector("#live-collab"), "selected", false);
 slip.setClass(document.querySelector("#open-source"), "selected", true);
 ```
 
-{exec pause unstatic=nbbs-addons}
+
+<style>
+#ops {
+  top:200px;
+  left:600px;
+  width: 850px;
+}
+</style>
+
+{#ops .addons .block}
+> [https://github.com/panglesd/slipshow](https://github.com/panglesd/slipshow)
+
+
+{exec pause unstatic=ops}
 ```slip-script
 slip.setClass(document.querySelector("#open-source"), "finished", true);
 slip.setClass(document.querySelector("#open-source"), "selected", false);
@@ -547,28 +891,143 @@ slip.setClass(document.querySelector("#user-def-dim"), "selected", false);
 slip.setClass(document.querySelector("#ext-help-page"), "selected", true);
 ```
 
-{exec pause unstatic=nbbs-addons}
+
+<style>
+#ext-help-p {
+  top:00px;
+  left:100px;
+  width: 1650px;
+  height:700px;
+  overflow: scroll;
+}
+</style>
+
+{#ext-help-p .addons .block}
+> ```
+> SLIPSHOW(1)                     Slipshow Manual                    SLIPSHOW(1)
+>
+> NAME
+>        slipshow - A tool to compile and preview slipshow presentation
+>
+> SYNOPSIS
+>        slipshow COMMAND …
+>
+> COMMANDS
+>        compile [OPTION]… [FILE.md]
+>            Compile a slipshow source file into a slipshow html presentation
+>
+>        markdown [OPTION]… [FILE.md]
+>            Compile  a  slipshow  source into a pure Markdown file, effectively
+>            removing presentation attributes
+>
+>        serve [OPTION]… [FILE.md]
+>            Serve a live preview of a slipshow presentation, with hot-reloading
+>
+>        themes [COMMAND] …
+>            Manages themes for slipshow presentations
+>
+> COMMON OPTIONS
+>        --help[=FMT] (default=auto)
+>            Show this help in format FMT. The value FMT must be  one  of  auto,
+>            pager,  groff  or  plain.  With  auto, the format is pager or plain
+>            whenever the TERM env var is dumb or undefined.
+>
+>        --version
+>            Show version information.
+>
+> EXIT STATUS
+>        slipshow exits with:
+>
+>        0   on success.
+>
+>        123 on indiscriminate errors reported on standard error.
+>
+>        124 on command line parsing errors.
+>
+>        125 on unexpected internal errors (bugs).
+>
+> Slipshow 11VERSION11: The King's Sl...                             SLIPSHOW(1)
+> ```
+
+
+{exec pause unstatic=ext-help-p}
 ```slip-script
 slip.setClass(document.querySelector("#ext-help-page"), "finished", true);
 slip.setClass(document.querySelector("#ext-help-page"), "selected", false);
 slip.setClass(document.querySelector("#ext-doc-tut"), "selected", true);
 ```
 
-{exec pause unstatic=nbbs-addons}
+<style>
+#rtdd {
+  top:200px;
+  left:600px;
+  width: 850px;
+}
+</style>
+
+{#rtdd .addons .block}
+> [https://slipshow.readthedocs.io/](https://slipshow.readthedocs.io/)
+
+{exec pause unstatic=rtdd}
 ```slip-script
 slip.setClass(document.querySelector("#ext-doc-tut"), "finished", true);
 slip.setClass(document.querySelector("#ext-doc-tut"), "selected", false);
 slip.setClass(document.querySelector("#hierar-pres"), "selected", true);
 ```
 
-{exec pause unstatic=nbbs-addons}
+<style>
+#hierarchy-explained {
+  top:200px;
+  left:200px;
+  width: 1350px;
+  display: flex
+}
+</style>
+
+{#hierarchy-explained .addons .block}
+> {slide}
+> ---
+> ## Title 1
+>
+> Lorem ipsum
+>
+> - Content 1
+>
+> - Content 2
+>
+> ---
+> {step}
+>
+> {slide}
+> ---
+> ## Title 2
+> Another content
+
+{step}
+
+{exec pause unstatic=hierarchy-explained}
 ```slip-script
 slip.setClass(document.querySelector("#hierar-pres"), "finished", true);
 slip.setClass(document.querySelector("#hierar-pres"), "selected", false);
 slip.setClass(document.querySelector("#syntax-high"), "selected", true);
 ```
 
-{exec pause unstatic=nbbs-addons}
+<style>
+#shlt {
+  top:200px;
+  left:600px;
+  width: 850px;
+}
+</style>
+
+{#shlt .addons .block}
+> ```ocaml
+> let x = fun _ -> "hello" +. 3
+> ```
+
+
+
+{exec pause unstatic=shlt}
 ```slip-script
 slip.setClass(document.querySelector("#syntax-high"), "finished", true);
 slip.setClass(document.querySelector("#syntax-high"), "selected", false);
@@ -582,14 +1041,62 @@ slip.setClass(document.querySelector("#mobile-support"), "selected", false);
 slip.setClass(document.querySelector("#satheorem"), "selected", true);
 ```
 
-{exec pause unstatic=nbbs-addons}
+<style>
+#theorems-demo {
+  top:250px;
+  left:50px;
+  width: 1700px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+</style>
+
+{#theorems-demo .addons .block}
+> ````
+> {.definition title="Halting problem"}
+> Given an algorithm, output
+> whether it will halt or loop.
+>
+> {.theorem}
+> The halting problem cannot
+> be solved by an algorithm.
+> ````
+> ---
+> [➡️]{style="font-size: 3em"}
+>
+> ---
+>
+> {.definition title="Halting problem"}
+> Given an algorithm, output
+> whether it will halt or loop.
+>
+> {.theorem}
+> The halting problem cannot
+> be solved by an algorithm.
+
+
+{exec pause unstatic=theorems-demo}
 ```slip-script
 slip.setClass(document.querySelector("#satheorem"), "finished", true);
 slip.setClass(document.querySelector("#satheorem"), "selected", false);
 slip.setClass(document.querySelector("#nlnet-sponsored"), "selected", true);
 ```
 
-{exec pause unstatic=nbbs-addons}
+<style>
+#nlsponslogo {
+  top:400px;
+  left:200px;
+  text-align: center;
+  width: 850px;
+}
+</style>
+
+{#nlsponslogo .addons .block}
+![](logo-nlnet.svg){style=vertical-align:middle;width:400px}
+
+
+{exec pause unstatic=nlsponslogo}
 ```slip-script
 slip.setClass(document.querySelector("#nlnet-sponsored"), "finished", true);
 slip.setClass(document.querySelector("#nlnet-sponsored"), "selected", false);
@@ -603,7 +1110,20 @@ slip.setClass(document.querySelector("#lightning-fast"), "selected", false);
 slip.setClass(document.querySelector("#fun-name"), "selected", true);
 ```
 
-{exec pause unstatic=nbbs-addons}
+<style>
+#funname {
+  top:400px;
+  left:200px;
+  text-align: center;
+  width: 850px;
+}
+</style>
+
+{#funname .addons .block}
+The name is a pun on slideshows. No link with underwears.
+
+
+{exec pause unstatic=funname}
 ```slip-script
 slip.setClass(document.querySelector("#fun-name"), "finished", true);
 slip.setClass(document.querySelector("#fun-name"), "selected", false);
@@ -617,14 +1137,47 @@ slip.setClass(document.querySelector("#offline-first"), "selected", false);
 slip.setClass(document.querySelector("#many-predefined-actions"), "selected", true);
 ```
 
-{exec pause unstatic=nbbs-addons}
+<style>
+#mpda {
+  top:400px;
+  left:600px;
+  text-align: center;
+  width: 850px;
+}
+</style>
+
+{#mpda .addons .block}
+`pause`, `step`, `unstatic`, `static`, `unreveal`, `reveal`, `unfocus`,
+`center`, `enter`, `down`, `focus`, `up`, `scroll`, `emph`, `unemph`, `execute`,
+`play-media`, `change-page`, `speaker-note`.
+
+
+
+
+{exec pause unstatic=mpda}
 ```slip-script
 slip.setClass(document.querySelector("#many-predefined-actions"), "finished", true);
 slip.setClass(document.querySelector("#many-predefined-actions"), "selected", false);
 slip.setClass(document.querySelector("#has-nice-logo"), "selected", true);
 ```
 
-{exec pause unstatic=nbbs-addons}
+
+<style>
+#slslogo {
+  top:200px;
+  left:200px;
+  text-align: center;
+  width: 850px;
+}
+</style>
+
+{#slslogo .addons .block}
+![](logo-slipshow.svg){style=vertical-align:middle;width:400px}
+
+
+
+
+{exec pause unstatic=slslogo}
 ```slip-script
 slip.setClass(document.querySelector("#has-nice-logo"), "finished", true);
 slip.setClass(document.querySelector("#has-nice-logo"), "selected", false);
@@ -677,7 +1230,9 @@ slip.setClass(document.querySelector("#can-make-coffee"), "selected", true);
 ```slip-script
 slip.setClass(document.querySelector("#can-make-coffee"), "finished", true);
 slip.setClass(document.querySelector("#can-make-coffee"), "selected", false);
+clearInterval(slip.state.cdi)
 ```
+
 
 1. Slipshow: Compile from markdown, to a standalone html file, not based on slides.
   - Slipshow basics
