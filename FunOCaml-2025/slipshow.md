@@ -64,6 +64,9 @@ dimension: 16:9
 #nuage-de-points.stop #no-llms.selected {
   transform: scale(2) translateX(200px) translateY(100px);
 }
+#nuage-de-points.stop #feature-toc.selected {
+  transform: scale(2) translateX(-200px);
+}
 #nuage-de-points.stop .selected {
   opacity: 1;
   transform: scale(2);
