@@ -31,45 +31,45 @@ dimension: 16:9
 .abs {
   position: absolute;
 }
-#n1 {
+#no-llms {
   top: 90px;
   left: 30px;
 }
-#n2 {
+#compat-pointer {
   top: 590px;
   left: 530px;
   transform: rotate(40deg);
 }
-#n3 {
+#can-make-coffee {
   top: 350px;
   left: 930px;
 }
-#n4 {
+#nlnet-sponsored {
   top: 280px;
   left: 990px;
   transform: rotate(-10deg);
 }
-#n5 {
+#type-safe {
   top: 230px;
   left: 390px;
   transform: rotate(-180deg);
 }
-#n6 {
+#live-collab {
   top: 430px;
   left: -150px;
   transform: rotate(90deg);
 }
-#n7 {
+#syntax-high {
   top: 530px;
   left: 870px;
   transform: rotate(-30deg);
 }
-#n8 {
+#offline-first {
   top: 30px;
   left: 1670px;
   transform: rotate(-10deg);
 }
-#n9 {
+#satheorem {
   top: 650px;
   left: 1170px;
   transform:  translateX(350px) rotate(-90deg);
@@ -79,7 +79,7 @@ dimension: 16:9
   left: 570px;
   transform:  translateX(350px) rotate(-55deg);
 }
-#n11 {
+#user-def-dim {
   top: 90px;
   left: 570px;
 }
@@ -176,65 +176,76 @@ Speaker view
 {#front-support}
 Frontmatter support
 
+{#mobile-support}
 Mobile support
 
 {#multi-input}
 Multi-file input
 
-{.red}
+{#hierar-pres}
 Hierarchical presentation
 
+{#many-predefined-actions}
 Many predefined actions
 
+{#ext-doc-tut}
 Extensive documentation and tutorial
 
+{#friendly-community}
 Friendly community (me)
 
+{#ext-help-page}
 Extensive help page
 
+{#open-source}
 Open source
 
+{#secure-by-design}
 Secure-by-design
 
+{#lightning-fast}
 Lightning fast
 
+{#has-nice-logo}
 Has a nice logo
 
+{#fun-name}
 Fun name
 
+{#versionning-friendly}
 Versionning-friendly
 
-{.abs #n1}
+{.abs #no-llms}
 No LLM knows about it
 
-{.abs #n2}
+{.abs #compat-pointer}
 Compatible with pointer devices
 
-{.abs #n3}
+{.abs #can-make-coffee}
 Can make coffee
 
-{.abs #n4}
+{.abs #nlnet-sponsored}
 Sponsored by NLNet
 
-{.abs #n5}
+{.abs #type-safe}
 Type safe
 
-{.abs #n6}
+{.abs #live-collab}
 Live-collaboration editing
 
-{.abs #n7}
+{.abs #syntax-high}
 Syntax highlighting
 
-{.abs #n8}
+{.abs #offline-first}
 Offline first
 
-{.abs #n9}
+{.abs #satheorem}
 Support for environment such as `theorem`
 
 {.abs #adaptative-scaling}
 Adaptative scaling
 
-{.abs #n11}
+{.abs #user-def-dim}
 User-defined dimensions
 
 {.abs #math_support}
@@ -506,6 +517,166 @@ slip.setClass(document.querySelector("#adaptative-scaling"), "selected", true);
 slip.setClass(document.querySelector("#adaptative-scaling"), "finished", true);
 slip.setClass(document.querySelector("#adaptative-scaling"), "selected", false);
 slip.setClass(document.querySelector("#math_support"), "selected", true);
+```
+
+{exec pause unstatic=nbbs-addons}
+```slip-script
+slip.setClass(document.querySelector("#math_support"), "finished", true);
+slip.setClass(document.querySelector("#math_support"), "selected", false);
+slip.setClass(document.querySelector("#live-collab"), "selected", true);
+```
+
+{exec pause unstatic=nbbs-addons}
+```slip-script
+slip.setClass(document.querySelector("#live-collab"), "finished", true);
+slip.setClass(document.querySelector("#live-collab"), "selected", false);
+slip.setClass(document.querySelector("#open-source"), "selected", true);
+```
+
+{exec pause unstatic=nbbs-addons}
+```slip-script
+slip.setClass(document.querySelector("#open-source"), "finished", true);
+slip.setClass(document.querySelector("#open-source"), "selected", false);
+slip.setClass(document.querySelector("#user-def-dim"), "selected", true);
+```
+
+{exec pause unstatic=nbbs-addons}
+```slip-script
+slip.setClass(document.querySelector("#user-def-dim"), "finished", true);
+slip.setClass(document.querySelector("#user-def-dim"), "selected", false);
+slip.setClass(document.querySelector("#ext-help-page"), "selected", true);
+```
+
+{exec pause unstatic=nbbs-addons}
+```slip-script
+slip.setClass(document.querySelector("#ext-help-page"), "finished", true);
+slip.setClass(document.querySelector("#ext-help-page"), "selected", false);
+slip.setClass(document.querySelector("#ext-doc-tut"), "selected", true);
+```
+
+{exec pause unstatic=nbbs-addons}
+```slip-script
+slip.setClass(document.querySelector("#ext-doc-tut"), "finished", true);
+slip.setClass(document.querySelector("#ext-doc-tut"), "selected", false);
+slip.setClass(document.querySelector("#hierar-pres"), "selected", true);
+```
+
+{exec pause unstatic=nbbs-addons}
+```slip-script
+slip.setClass(document.querySelector("#hierar-pres"), "finished", true);
+slip.setClass(document.querySelector("#hierar-pres"), "selected", false);
+slip.setClass(document.querySelector("#syntax-high"), "selected", true);
+```
+
+{exec pause unstatic=nbbs-addons}
+```slip-script
+slip.setClass(document.querySelector("#syntax-high"), "finished", true);
+slip.setClass(document.querySelector("#syntax-high"), "selected", false);
+slip.setClass(document.querySelector("#mobile-support"), "selected", true);
+```
+
+{exec pause unstatic=nbbs-addons}
+```slip-script
+slip.setClass(document.querySelector("#mobile-support"), "finished", true);
+slip.setClass(document.querySelector("#mobile-support"), "selected", false);
+slip.setClass(document.querySelector("#satheorem"), "selected", true);
+```
+
+{exec pause unstatic=nbbs-addons}
+```slip-script
+slip.setClass(document.querySelector("#satheorem"), "finished", true);
+slip.setClass(document.querySelector("#satheorem"), "selected", false);
+slip.setClass(document.querySelector("#nlnet-sponsored"), "selected", true);
+```
+
+{exec pause unstatic=nbbs-addons}
+```slip-script
+slip.setClass(document.querySelector("#nlnet-sponsored"), "finished", true);
+slip.setClass(document.querySelector("#nlnet-sponsored"), "selected", false);
+slip.setClass(document.querySelector("#lightning-fast"), "selected", true);
+```
+
+{exec pause unstatic=nbbs-addons}
+```slip-script
+slip.setClass(document.querySelector("#lightning-fast"), "finished", true);
+slip.setClass(document.querySelector("#lightning-fast"), "selected", false);
+slip.setClass(document.querySelector("#fun-name"), "selected", true);
+```
+
+{exec pause unstatic=nbbs-addons}
+```slip-script
+slip.setClass(document.querySelector("#fun-name"), "finished", true);
+slip.setClass(document.querySelector("#fun-name"), "selected", false);
+slip.setClass(document.querySelector("#offline-first"), "selected", true);
+```
+
+{exec pause unstatic=nbbs-addons}
+```slip-script
+slip.setClass(document.querySelector("#offline-first"), "finished", true);
+slip.setClass(document.querySelector("#offline-first"), "selected", false);
+slip.setClass(document.querySelector("#many-predefined-actions"), "selected", true);
+```
+
+{exec pause unstatic=nbbs-addons}
+```slip-script
+slip.setClass(document.querySelector("#many-predefined-actions"), "finished", true);
+slip.setClass(document.querySelector("#many-predefined-actions"), "selected", false);
+slip.setClass(document.querySelector("#has-nice-logo"), "selected", true);
+```
+
+{exec pause unstatic=nbbs-addons}
+```slip-script
+slip.setClass(document.querySelector("#has-nice-logo"), "finished", true);
+slip.setClass(document.querySelector("#has-nice-logo"), "selected", false);
+slip.setClass(document.querySelector("#type-safe"), "selected", true);
+```
+
+{exec pause unstatic=nbbs-addons}
+```slip-script
+slip.setClass(document.querySelector("#type-safe"), "finished", true);
+slip.setClass(document.querySelector("#type-safe"), "selected", false);
+slip.setClass(document.querySelector("#compat-pointer"), "selected", true);
+```
+
+{exec pause unstatic=nbbs-addons}
+```slip-script
+slip.setClass(document.querySelector("#compat-pointer"), "finished", true);
+slip.setClass(document.querySelector("#compat-pointer"), "selected", false);
+slip.setClass(document.querySelector("#versionning-friendly"), "selected", true);
+```
+
+{exec pause unstatic=nbbs-addons}
+```slip-script
+slip.setClass(document.querySelector("#versionning-friendly"), "finished", true);
+slip.setClass(document.querySelector("#versionning-friendly"), "selected", false);
+slip.setClass(document.querySelector("#friendly-community"), "selected", true);
+```
+
+{exec pause unstatic=nbbs-addons}
+```slip-script
+slip.setClass(document.querySelector("#friendly-community"), "finished", true);
+slip.setClass(document.querySelector("#friendly-community"), "selected", false);
+slip.setClass(document.querySelector("#secure-by-design"), "selected", true);
+```
+
+{exec pause unstatic=nbbs-addons}
+```slip-script
+slip.setClass(document.querySelector("#secure-by-design"), "finished", true);
+slip.setClass(document.querySelector("#secure-by-design"), "selected", false);
+slip.setClass(document.querySelector("#no-llms"), "selected", true);
+```
+
+{exec pause unstatic=nbbs-addons}
+```slip-script
+slip.setClass(document.querySelector("#no-llms"), "finished", true);
+slip.setClass(document.querySelector("#no-llms"), "selected", false);
+slip.setClass(document.querySelector("#can-make-coffee"), "selected", true);
+```
+
+{exec pause unstatic=nbbs-addons}
+```slip-script
+slip.setClass(document.querySelector("#can-make-coffee"), "finished", true);
+slip.setClass(document.querySelector("#can-make-coffee"), "selected", false);
 ```
 
 1. Slipshow: Compile from markdown, to a standalone html file, not based on slides.
