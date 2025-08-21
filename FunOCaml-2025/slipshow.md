@@ -20,7 +20,7 @@ dimension: 16:9
   transform: scale(2) translateX(-350px) translateY(-150px);
 }
 #nuage-de-points.stop #video.selected {
-  transform: scale(2) translateX(150px);
+  transform: scale(2) translateX(150px) translateY(-100px);
 }
 #nuage-de-points.stop #embedded-pdfs.selected {
   transform: scale(2) translateX(-25px);
@@ -569,7 +569,20 @@ slip.setClass(document.querySelector("#bidirectional"), "selected", false);
 slip.setClass(document.querySelector("#video"), "selected", true);
 ```
 
-{exec pause unstatic=nbbs-addons}
+<style>
+#video-demo {
+  top:300px;
+  left:200px;
+  width: 1050px;
+}
+</style>
+
+{#video-demo .addons .block external}
+> ![](c6.mp4){style=width:100% #videoelem}
+
+{play-media=videoelem}
+
+{exec pause unstatic=video-demo}
 ```slip-script
 slip.setClass(document.querySelector("#video"), "finished", true);
 slip.setClass(document.querySelector("#video"), "selected", false);
