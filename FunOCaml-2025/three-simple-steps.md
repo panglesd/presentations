@@ -92,8 +92,66 @@ Order:
 
 - I'm going to highlight three things that help me write software efficiently
   - Language
+    - First show that many features are used:
+      - ✅️ Functors
+      - ✅️ First class modules for actions (show `actions.mli` ?)
+      - ✅️ GADT to direct parsing.
+      - ✅️ Extensible variants
+      - ✅️ Polymorphic datatypes
+      - ❌ Objects
+      - ❌ Effects
+    - Then speak about undo monad
+
+    ```ocaml
+    type 'a with_undo = { value : 'a; undo : unit -> unit }
+
+    let set x v =
+      Format.printf "Setting value from %d to %d\n%!" !x v;
+      x := v
+
+    let ( := ) x v = set x v
+
+    let set_u x v =
+      let undo =
+        let old = !x in
+        fun () -> x := old
+      in
+      let value = x := v in
+      { value; undo }
+
+    let bind (x : 'a with_undo) (f : 'a -> 'b with_undo) : 'b with_undo =
+      let y = f x.value in
+      let undo () =
+        y.undo ();
+        x.undo ()
+      in
+      { value = y.value; undo }
+
+    let ( let* ) x v = bind x v
+    let ( := ) v n = set_u v n
+    let x = ref 0
+
+    let { undo; _ } =
+      let* () = x := 5 in
+      x := 7
+
+    let () = undo ();;
+
+    x
+    ```
+
   - Tooling
+    - Dune vendoring
+      - Show vendoring folder
+    - Dune monorepo
+      - Show ../ folder
+    - LSP/Merlin
+      - Show how 
   - Ecosystem
+    - cmdliner
+    - cmarkit
+    - Brr and JS bindings
+    - Lambdasoup
 
 TODO: speak about undo monad
   - Many advanced features
