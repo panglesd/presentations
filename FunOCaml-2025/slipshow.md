@@ -747,27 +747,636 @@ slip.setClass(document.querySelector("#live-collab"), "selected", false);
 slip.setClass(document.querySelector("#extensible-js"), "selected", true);
 ```
 
-{exec pause unstatic=nbbs-addons speaker-note=spvtosend}
+{exec pause unstatic=nbbs-addons speaker-note=spvtosend1p1}
 ```slip-script
 slip.setClass(document.querySelector("#extensible-js"), "finished", true);
 slip.setClass(document.querySelector("#extensible-js"), "selected", false);
 slip.setClass(document.querySelector("#has-speaker-view"), "selected", true);
 ```
 
-{#spvtosend}
+{#spvtosend1p1}
+> {#spvtosend2}
+> ---
 > Don't forget to show the speaker view.
 >
-> Don't forget to show the "Don't forget to show the speaker view" note.
+> <style>
+> #spvtosend2 blockquote {
+> padding: 0 1em;
+> padding-right: 0;
+> color: #59636e;
+> border-left: .25em solid #d1d9e0;
+> }
+> </style>
+
+{speaker-note}
+> {#spvtosend3}
+> ---
+> Don't forget to show the speaker view.
 >
-> Don't forget to show the "Don't forget to show the "Don't forget to show the speaker view" note." note.
+> <style>
+> #spvtosend3 blockquote {
+> padding: 0 1em;
+> padding-right: 0;
+> color: #59636e;
+> border-left: .25em solid #d1d9e0;
+> }
+> </style>
 >
-> Don't forget to show the "Don't forget to show the "Don't forget to show the "Don't forget to show the speaker view" note." note." note.
+> Don't forget to show the:
+> 
+> {blockquote}
+> > Don't forget to show the speaker view.
 >
-> Don't forget to show the "Don't forget to show the "Don't forget to show the "Don't forget to show the "Don't forget to show the speaker view" note." note." note." note.
+> note.
+
+{speaker-note}
+> {#spvtosend4}
+> ---
+> Don't forget to show the speaker view.
 >
-> Don't forget to show the "Don't forget to show the "Don't forget to show the "Don't forget to show the "Don't forget to show the "Don't forget to show the speaker view" note." note." note." note." note.
+> <style>
+> #spvtosend4 blockquote {
+> padding: 0 1em;
+> padding-right: 0;
+> color: #59636e;
+> border-left: .25em solid #d1d9e0;
+> }
+> </style>
 >
-> Don't forget to show the "Don't forget to show the "Don't forget to show the "Don't forget to show the "Don't forget to show the "Don't forget to show the "Don't forget to show the speaker view" note." note." note." note." note." note.
+> Don't forget to show the:
+> 
+> {blockquote}
+> > Don't forget to show the speaker view.
+>
+> note.
+>
+> Don't forget to show the:
+> 
+> {blockquote}
+> > Don't forget to show the:
+> > 
+> > {blockquote}
+> > > Don't forget to show the speaker view.
+> >
+> > note.
+>
+> note.
+>
+>
+>
+> Don't forget to show the:
+>
+> {blockquote}
+> > Don't forget to show the:
+> > 
+> > {blockquote}
+> > > Don't forget to show the:
+> > > 
+> > > {blockquote}
+> > > > Don't forget to show the speaker view.
+> > >
+> > > note.
+> >
+> > note.
+>
+> note.
+>
+>
+>
+>
+> Don't forget to show the:
+>
+> {blockquote}
+> > Don't forget to show the:
+> >
+> > {blockquote}
+> > > Don't forget to show the:
+> > > 
+> > > {blockquote}
+> > > > Don't forget to show the:
+> > > > 
+> > > > {blockquote}
+> > > > > Don't forget to show the speaker view.
+> > > >
+> > > > note.
+> > >
+> > > note.
+> >
+> > note.
+>
+> note.
+>
+>
+> <!-- STOP -->
+>
+>
+>
+> Don't forget to show the:
+>
+> {blockquote}
+> > Don't forget to show the:
+> >
+> > {blockquote}
+> > > Don't forget to show the:
+> > >
+> > > {blockquote}
+> > > > Don't forget to show the:
+> > > > 
+> > > > {blockquote}
+> > > > > Don't forget to show the:
+> > > > > 
+> > > > > {blockquote}
+> > > > > > Don't forget to show the speaker view.
+> > > > >
+> > > > > note.
+> > > >
+> > > > note.
+> > >
+> > > note.
+> >
+> > note.
+>
+> note.>
+>
+> Don't forget to show the:
+>
+> {blockquote}
+> > Don't forget to show the:
+> >
+> > {blockquote}
+> > > Don't forget to show the:
+> > >
+> > > {blockquote}
+> > > > Don't forget to show the:
+> > > >
+> > > > {blockquote}
+> > > > > Don't forget to show the:
+> > > > > 
+> > > > > {blockquote}
+> > > > > > Don't forget to show the:
+> > > > > > 
+> > > > > > {blockquote}
+> > > > > > > Don't forget to show the speaker view.
+> > > > > >
+> > > > > > note.
+> > > > >
+> > > > > note.
+> > > >
+> > > > note.
+> > >
+> > > note.
+> >
+> > note.
+>
+> note.>
+>
+> Don't forget to show the:
+>
+> {blockquote}
+> > Don't forget to show the:
+> >
+> > {blockquote}
+> > > Don't forget to show the:
+> > >
+> > > {blockquote}
+> > > > Don't forget to show the:
+> > > >
+> > > > {blockquote}
+> > > > > Don't forget to show the:
+> > > > >
+> > > > > {blockquote}
+> > > > > > Don't forget to show the:
+> > > > > > 
+> > > > > > {blockquote}
+> > > > > > > Don't forget to show the:
+> > > > > > > 
+> > > > > > > {blockquote}
+> > > > > > > > Don't forget to show the speaker view.
+> > > > > > >
+> > > > > > > note.
+> > > > > >
+> > > > > > note.
+> > > > >
+> > > > > note.
+> > > >
+> > > > note.
+> > >
+> > > note.
+> >
+> > note.
+>
+> note.>
+>
+> Don't forget to show the:
+>
+> {blockquote}
+> > Don't forget to show the:
+> >
+> > {blockquote}
+> > > Don't forget to show the:
+> > >
+> > > {blockquote}
+> > > > Don't forget to show the:
+> > > >
+> > > > {blockquote}
+> > > > > Don't forget to show the:
+> > > > >
+> > > > > {blockquote}
+> > > > > > Don't forget to show the:
+> > > > > >
+> > > > > > {blockquote}
+> > > > > > > Don't forget to show the:
+> > > > > > > 
+> > > > > > > {blockquote}
+> > > > > > > > Don't forget to show the:
+> > > > > > > > 
+> > > > > > > > {blockquote}
+> > > > > > > > > Don't forget to show the speaker view.
+> > > > > > > >
+> > > > > > > > note.
+> > > > > > >
+> > > > > > > note.
+> > > > > >
+> > > > > > note.
+> > > > >
+> > > > > note.
+> > > >
+> > > > note.
+> > >
+> > > note.
+> >
+> > note.
+>
+> note.>
+>
+> Don't forget to show the:
+>
+> {blockquote}
+> > Don't forget to show the:
+> >
+> > {blockquote}
+> > > Don't forget to show the:
+> > >
+> > > {blockquote}
+> > > > Don't forget to show the:
+> > > >
+> > > > {blockquote}
+> > > > > Don't forget to show the:
+> > > > >
+> > > > > {blockquote}
+> > > > > > Don't forget to show the:
+> > > > > >
+> > > > > > {blockquote}
+> > > > > > > Don't forget to show the:
+> > > > > > >
+> > > > > > > {blockquote}
+> > > > > > > > Don't forget to show the:
+> > > > > > > > 
+> > > > > > > > {blockquote}
+> > > > > > > > > Don't forget to show the:
+> > > > > > > > > 
+> > > > > > > > > {blockquote}
+> > > > > > > > > > Don't forget to show the speaker view.
+> > > > > > > > >
+> > > > > > > > > note.
+> > > > > > > >
+> > > > > > > > note.
+> > > > > > >
+> > > > > > > note.
+> > > > > >
+> > > > > > note.
+> > > > >
+> > > > > note.
+> > > >
+> > > > note.
+> > >
+> > > note.
+> >
+> > note.
+>
+> note.>
+>
+> Don't forget to show the:
+>
+> {blockquote}
+> > Don't forget to show the:
+> >
+> > {blockquote}
+> > > Don't forget to show the:
+> > >
+> > > {blockquote}
+> > > > Don't forget to show the:
+> > > >
+> > > > {blockquote}
+> > > > > Don't forget to show the:
+> > > > >
+> > > > > {blockquote}
+> > > > > > Don't forget to show the:
+> > > > > >
+> > > > > > {blockquote}
+> > > > > > > Don't forget to show the:
+> > > > > > >
+> > > > > > > {blockquote}
+> > > > > > > > Don't forget to show the:
+> > > > > > > >
+> > > > > > > > {blockquote}
+> > > > > > > > > Don't forget to show the:
+> > > > > > > > > 
+> > > > > > > > > {blockquote}
+> > > > > > > > > > Don't forget to show the:
+> > > > > > > > > > 
+> > > > > > > > > > {blockquote}
+> > > > > > > > > > > Don't forget to show the speaker view.
+> > > > > > > > > >
+> > > > > > > > > > note.
+> > > > > > > > >
+> > > > > > > > > note.
+> > > > > > > >
+> > > > > > > > note.
+> > > > > > >
+> > > > > > > note.
+> > > > > >
+> > > > > > note.
+> > > > >
+> > > > > note.
+> > > >
+> > > > note.
+> > >
+> > > note.
+> >
+> > note.
+>
+> note.>
+>
+> Don't forget to show the:
+>
+> {blockquote}
+> > Don't forget to show the:
+> >
+> > {blockquote}
+> > > Don't forget to show the:
+> > >
+> > > {blockquote}
+> > > > Don't forget to show the:
+> > > >
+> > > > {blockquote}
+> > > > > Don't forget to show the:
+> > > > >
+> > > > > {blockquote}
+> > > > > > Don't forget to show the:
+> > > > > >
+> > > > > > {blockquote}
+> > > > > > > Don't forget to show the:
+> > > > > > >
+> > > > > > > {blockquote}
+> > > > > > > > Don't forget to show the:
+> > > > > > > >
+> > > > > > > > {blockquote}
+> > > > > > > > > Don't forget to show the:
+> > > > > > > > >
+> > > > > > > > > {blockquote}
+> > > > > > > > > > Don't forget to show the:
+> > > > > > > > > > 
+> > > > > > > > > > {blockquote}
+> > > > > > > > > > > Don't forget to show the:
+> > > > > > > > > > > 
+> > > > > > > > > > > {blockquote}
+> > > > > > > > > > > > Don't forget to show the speaker view.
+> > > > > > > > > > >
+> > > > > > > > > > > note.
+> > > > > > > > > >
+> > > > > > > > > > note.
+> > > > > > > > >
+> > > > > > > > > note.
+> > > > > > > >
+> > > > > > > > note.
+> > > > > > >
+> > > > > > > note.
+> > > > > >
+> > > > > > note.
+> > > > >
+> > > > > note.
+> > > >
+> > > > note.
+> > >
+> > > note.
+> >
+> > note.
+>
+> note.>
+>
+> Don't forget to show the:
+>
+> {blockquote}
+> > Don't forget to show the:
+> >
+> > {blockquote}
+> > > Don't forget to show the:
+> > >
+> > > {blockquote}
+> > > > Don't forget to show the:
+> > > >
+> > > > {blockquote}
+> > > > > Don't forget to show the:
+> > > > >
+> > > > > {blockquote}
+> > > > > > Don't forget to show the:
+> > > > > >
+> > > > > > {blockquote}
+> > > > > > > Don't forget to show the:
+> > > > > > >
+> > > > > > > {blockquote}
+> > > > > > > > Don't forget to show the:
+> > > > > > > >
+> > > > > > > > {blockquote}
+> > > > > > > > > Don't forget to show the:
+> > > > > > > > >
+> > > > > > > > > {blockquote}
+> > > > > > > > > > Don't forget to show the:
+> > > > > > > > > >
+> > > > > > > > > > {blockquote}
+> > > > > > > > > > > Don't forget to show the:
+> > > > > > > > > > > 
+> > > > > > > > > > > {blockquote}
+> > > > > > > > > > > > Don't forget to show the:
+> > > > > > > > > > > > 
+> > > > > > > > > > > > {blockquote}
+> > > > > > > > > > > > > Don't forget to show the speaker view.
+> > > > > > > > > > > >
+> > > > > > > > > > > > note.
+> > > > > > > > > > >
+> > > > > > > > > > > note.
+> > > > > > > > > >
+> > > > > > > > > > note.
+> > > > > > > > >
+> > > > > > > > > note.
+> > > > > > > >
+> > > > > > > > note.
+> > > > > > >
+> > > > > > > note.
+> > > > > >
+> > > > > > note.
+> > > > >
+> > > > > note.
+> > > >
+> > > > note.
+> > >
+> > > note.
+> >
+> > note.
+>
+> note.>
+>
+> Don't forget to show the:
+>
+> {blockquote}
+> > Don't forget to show the:
+> >
+> > {blockquote}
+> > > Don't forget to show the:
+> > >
+> > > {blockquote}
+> > > > Don't forget to show the:
+> > > >
+> > > > {blockquote}
+> > > > > Don't forget to show the:
+> > > > >
+> > > > > {blockquote}
+> > > > > > Don't forget to show the:
+> > > > > >
+> > > > > > {blockquote}
+> > > > > > > Don't forget to show the:
+> > > > > > >
+> > > > > > > {blockquote}
+> > > > > > > > Don't forget to show the:
+> > > > > > > >
+> > > > > > > > {blockquote}
+> > > > > > > > > Don't forget to show the:
+> > > > > > > > >
+> > > > > > > > > {blockquote}
+> > > > > > > > > > Don't forget to show the:
+> > > > > > > > > >
+> > > > > > > > > > {blockquote}
+> > > > > > > > > > > Don't forget to show the:
+> > > > > > > > > > >
+> > > > > > > > > > > {blockquote}
+> > > > > > > > > > > > Don't forget to show the:
+> > > > > > > > > > > > 
+> > > > > > > > > > > > {blockquote}
+> > > > > > > > > > > > > Don't forget to show the:
+> > > > > > > > > > > > > 
+> > > > > > > > > > > > > {blockquote}
+> > > > > > > > > > > > > > Don't forget to show the speaker view.
+> > > > > > > > > > > > >
+> > > > > > > > > > > > > note.
+> > > > > > > > > > > >
+> > > > > > > > > > > > note.
+> > > > > > > > > > >
+> > > > > > > > > > > note.
+> > > > > > > > > >
+> > > > > > > > > > note.
+> > > > > > > > >
+> > > > > > > > > note.
+> > > > > > > >
+> > > > > > > > note.
+> > > > > > >
+> > > > > > > note.
+> > > > > >
+> > > > > > note.
+> > > > >
+> > > > > note.
+> > > >
+> > > > note.
+> > >
+> > > note.
+> >
+> > note.
+>
+> note.>
+>
+> Don't forget to show the:
+>
+> {blockquote}
+> > Don't forget to show the:
+> >
+> > {blockquote}
+> > > Don't forget to show the:
+> > >
+> > > {blockquote}
+> > > > Don't forget to show the:
+> > > >
+> > > > {blockquote}
+> > > > > Don't forget to show the:
+> > > > >
+> > > > > {blockquote}
+> > > > > > Don't forget to show the:
+> > > > > >
+> > > > > > {blockquote}
+> > > > > > > Don't forget to show the:
+> > > > > > >
+> > > > > > > {blockquote}
+> > > > > > > > Don't forget to show the:
+> > > > > > > >
+> > > > > > > > {blockquote}
+> > > > > > > > > Don't forget to show the:
+> > > > > > > > >
+> > > > > > > > > {blockquote}
+> > > > > > > > > > Don't forget to show the:
+> > > > > > > > > >
+> > > > > > > > > > {blockquote}
+> > > > > > > > > > > Don't forget to show the:
+> > > > > > > > > > >
+> > > > > > > > > > > {blockquote}
+> > > > > > > > > > > > Don't forget to show the:
+> > > > > > > > > > > >
+> > > > > > > > > > > > {blockquote}
+> > > > > > > > > > > > > Don't forget to show the:
+> > > > > > > > > > > > > 
+> > > > > > > > > > > > > {blockquote}
+> > > > > > > > > > > > > > Don't forget to show the:
+> > > > > > > > > > > > > > 
+> > > > > > > > > > > > > > {blockquote}
+> > > > > > > > > > > > > > > Don't forget to show the speaker view.
+> > > > > > > > > > > > > >
+> > > > > > > > > > > > > > note.
+> > > > > > > > > > > > >
+> > > > > > > > > > > > > note.
+> > > > > > > > > > > >
+> > > > > > > > > > > > note.
+> > > > > > > > > > >
+> > > > > > > > > > > note.
+> > > > > > > > > >
+> > > > > > > > > > note.
+> > > > > > > > >
+> > > > > > > > > note.
+> > > > > > > >
+> > > > > > > > note.
+> > > > > > >
+> > > > > > > note.
+> > > > > >
+> > > > > > note.
+> > > > >
+> > > > > note.
+> > > >
+> > > > note.
+> > >
+> > > note.
+> >
+> > note.
+>
+> note.
+>
+<!-- > Don't forget to show the "Don't forget to show the speaker view" note. -->
+<!-- > -->
+<!-- > Don't forget to show the "Don't forget to show the "Don't forget to show the speaker view" note." note. -->
+<!-- > -->
+<!-- > Don't forget to show the "Don't forget to show the "Don't forget to show the "Don't forget to show the speaker view" note." note." note. -->
+<!-- > -->
+<!-- > Don't forget to show the "Don't forget to show the "Don't forget to show the "Don't forget to show the "Don't forget to show the speaker view" note." note." note." note. -->
+<!-- > -->
+<!-- > Don't forget to show the "Don't forget to show the "Don't forget to show the "Don't forget to show the "Don't forget to show the "Don't forget to show the speaker view" note." note." note." note." note. -->
+<!-- > -->
+<!-- > Don't forget to show the "Don't forget to show the "Don't forget to show the "Don't forget to show the "Don't forget to show the "Don't forget to show the "Don't forget to show the speaker view" note." note." note." note." note." note. -->
 
 
 {exec pause unstatic=nbbs-addons}
