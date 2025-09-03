@@ -5,10 +5,12 @@ dimension: 16:9
 {.unrevealed #surrprise}
 # Surprise: this was only the first part!
 
+{#initial-sn}
+- **Over-engineered**
 
 {style=display:flex}
-<!-- > {slip #part1 style="width:49%"} -->
-<!-- > {include src="slipshow.md"} -->
+> {slip #part1 style="width:49%" speaker-note=initial-sn}
+> {include src="slipshow.md"}
 >
 > {reveal=surrprise}
 >

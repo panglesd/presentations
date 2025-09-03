@@ -3,6 +3,9 @@
   transition: opacity 1s, transform 1s;
   opacity: 0.1;
 }
+#nuage-de-points.stop.all-stop p {
+  opacity: 1;
+}
 #nuage-de-points.stop #cmfiles.selected {
   transform: scale(2) translateX(50px);
 }
@@ -303,10 +306,14 @@ Adaptative scaling
 {.abs #user-def-dim}
 User-defined dimensions
 
-{.abs #math_support}
+{.abs #math_support speaker-note=sn-stop}
 Mathematics support
 
 ---
+
+{#sn-stop}
+**STOOOOOOOOOOOOOOOOOOP**
+
 
 <style>
 #countdown-10 {
@@ -329,24 +336,25 @@ Mathematics support
 slip.setClass(document.querySelector("#nuage-de-points"), "stop", true);
 
 function startCountdown(elementId) {
-    const display = document.getElementById(elementId);
-    let timeRemaining = 10 * 60; // 10 minutes in seconds
+  const display = document.getElementById(elementId);
+  let timeRemaining = 10 * 60; // 10 minutes in seconds
+  function do_ () {
+    const minutes = Math.floor(timeRemaining / 60);
+    const seconds = timeRemaining % 60;
 
-    const interval = setInterval(() => {
-        const minutes = Math.floor(timeRemaining / 60);
-        const seconds = timeRemaining % 60;
+    display.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 
-        display.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    timeRemaining--;
 
-        timeRemaining--;
+    if (timeRemaining < 0) {
+        clearInterval(interval);
+        display.textContent = "00:00";
+    }
+  }
+  do_();
+  const interval = setInterval(do_, 1000);
 
-        if (timeRemaining < 0) {
-            clearInterval(interval);
-            display.textContent = "00:00";
-        }
-    }, 1000);
-
-    return interval; // return the interval ID so it can be cancelled
+  return interval; // return the interval ID so it can be cancelled
 }
 
 // Start the countdown
@@ -356,10 +364,13 @@ slip.state.cdi = countdownInterval;
 slip.onUndo(() => clearInterval(countdownInterval));
 ```
 
-{exec pause}
+{exec pause speaker-note=sn-actions}
 ```slip-script
 slip.setClass(document.querySelector("#cmfiles"), "selected", true);
 ```
+
+{#sn-actions}
+Don't forget to speak about actions
 
 <style>
 .addons {
@@ -373,17 +384,20 @@ slip.setClass(document.querySelector("#cmfiles"), "selected", true);
   justify-content: space-around;
   align-items: center;
 }
+.emphasized {
+  font-weight: bold;
+}
 </style>
 
 {#cmf-addons .addons .block}
-> ```
+> ```txt
 > ## Title
 >
 > Wait for it...
 >
 > {pause}
 >
-> **Surprise!**
+> Surprise!{emph}
 > ```
 > ---
 > [➡️]{style="font-size: 3em"}
@@ -396,7 +410,7 @@ slip.setClass(document.querySelector("#cmfiles"), "selected", true);
 >
 > {pause}
 >
-> **Surprise!**
+> Surprise!{emph}
 
 {exec pause unstatic=cmf-addons}
 ```slip-script
@@ -528,7 +542,7 @@ slip.setClass(document.querySelector("#custom_script2"), "selected", true);
 >
 > {exec}
 > ```slip-script
-> document.querySelector("li").
+> document.querySelectorAll("li").
 >   forEach((elem) => {
 >     slip.setClass(elem, "red", true)
 >   })
@@ -546,7 +560,10 @@ slip.setClass(document.querySelector("#custom_script2"), "selected", true);
 >
 > {exec}
 > ```slip-script
-> slip.setClass(document.querySelector("#bpex"), "tored", true)
+> document.querySelectorAll("#bpex li").
+>   forEach((elem) => {
+>     slip.setClass(elem, "tored", true)
+>   })
 > ```
 >
 > <style> .tored { background-color: red; } </style>
@@ -561,12 +578,15 @@ slip.setClass(document.querySelector("#custom_script2"), "selected", false);
 slip.setClass(document.querySelector("#bidirectional"), "selected", true);
 ```
 
-{exec pause unstatic=nbbs-addons}
+{exec pause unstatic=nbbs-addons speaker-note=sn-slipshow-has-support-for-videos}
 ```slip-script
 slip.setClass(document.querySelector("#bidirectional"), "finished", true);
 slip.setClass(document.querySelector("#bidirectional"), "selected", false);
 slip.setClass(document.querySelector("#video"), "selected", true);
 ```
+
+{#sn-slipshow-has-support-for-videos}
+Say: "Slipshow has support for videos"
 
 <style>
 #video-demo {
@@ -598,7 +618,13 @@ slip.setClass(document.querySelector("#embedded-pdfs"), "selected", true);
 </style>
 
 {#pdf-demo .addons .block}
-> ![](ocaml.pdf){style=width:600px change-page="~n:all"}
+> ![](ocaml.pdf){style=width:600px change-page="~n:2-40" #the-pdf}
+
+{change-page="~n:all the-pdf" speaker-note=sn-pdf-end}
+
+{#sn-pdf-end}
+**PDF almost finished**
+
 
 
 {exec pause unstatic=pdf-demo}
@@ -1853,6 +1879,15 @@ slip.setClass(document.querySelector("#can-make-coffee"), "finished", true);
 slip.setClass(document.querySelector("#can-make-coffee"), "selected", false);
 clearInterval(slip.state.cdi)
 ```
+
+{exec}
+```slip-script
+slip.setClass(document.querySelector(".stop"), "all-stop", true);
+document.querySelectorAll(".finished").forEach((elem => {
+  slip.setClass(elem, "finished", false);
+}))
+```
+
 
 
 <!-- 1. Slipshow: Compile from markdown, to a standalone html file, not based on slides. -->
