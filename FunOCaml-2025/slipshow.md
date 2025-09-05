@@ -1531,7 +1531,41 @@ slip.setClass(document.querySelector("#open-source"), "selected", false);
 slip.setClass(document.querySelector("#user-def-dim"), "selected", true);
 ```
 
-{exec pause unstatic=nbbs-addons}
+<style>
+#ratios {
+  top:500px;
+  left:500px;
+  width: 1250px;
+}
+#seize-neuf{
+  display: inline-block;
+  background-color: lightgrey;
+  border: 1px solid black;
+  width: 480px;
+  height: 270px;
+}
+#quatre-tiers{
+  display: inline-block;
+  background-color: lightgrey;
+  border: 1px solid black;
+  width: 400px;
+  height: 300px;
+}
+#absurdratio {
+  display: inline-block;
+  background-color: lightgrey;
+  border: 1px solid black;
+  width: 120px;
+  height: 268px;
+}
+</style>
+
+{#ratios .addons .block}
+> {#seize-neuf} or {#quatre-tiers} or {#absurdratio} or ...
+
+
+
+{exec pause unstatic=ratios}
 ```slip-script
 slip.setClass(document.querySelector("#user-def-dim"), "finished", true);
 slip.setClass(document.querySelector("#user-def-dim"), "selected", false);
@@ -1634,21 +1668,16 @@ slip.setClass(document.querySelector("#hierar-pres"), "selected", true);
 {#hierarchy-explained .addons .block}
 > {slide}
 > ---
-> ## Title 1
 >
-> Lorem ipsum
->
-> - Content 1
->
-> - Content 2
+> [PART 1]{style="font-size:3em"}
 >
 > ---
 > {step}
 >
 > {slide}
 > ---
-> ## Title 2
-> Another content
+> [PART 2]{style="font-size:3em"}
+>
 
 {step}
 

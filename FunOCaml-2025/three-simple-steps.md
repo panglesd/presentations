@@ -32,9 +32,107 @@ All people working on Slipshow follow a strict hygiene of life to achieve greate
 
 <!-- Pay to unlock. I'll make it free but you can buy my other book, How to
 achieve transcendence in three simple steps -->
+
+{#ocaml-section}
 ## 3. OCaml
 
 Well, actually that is the main reason.
+
+{style=display:flex}
+----
+
+{slip pause=oneofone}
+---
+# Ecosystem
+
+{#oneofone}
+OCaml is even more full-featured than Slipshow
+
+<style>
+p code {
+  background-color:#f3f3f3;
+  padding:10px;
+}
+</style>
+
+- `cmdliner` writes a help page for me,
+
+- `js_of_ocaml` writes Javascript for me,
+
+- `cmarkit` parses markdown for me,
+
+- `perfect-freehand` generates strokes for me,
+
+  {#thatsajs pause}
+  - That's a JS library!
+
+- `patricoferris` binds `code-mirror` for me! {pause}
+
+- `lambdasoup` write "`jq` for html" for me!
+
+  ```ocaml
+  open Soup
+
+  let () =
+    let content = read_file Sys.argv.(1) |> parse in
+    let iframe = content $ "#slipshow__internal_iframe" in
+    let a = R.attribute "srcdoc" iframe in
+    print_endline a
+  ```
+
+{up=ocaml-section}
+---
+
+{slip pause=featurelistoca}
+---
+# Language
+
+{#featurelistoca style="display: flex; flex-wrap: wrap; justify-content: space-evenly;" children:.block children:style="margin: 10px"}
+> ✅️ Functors
+>
+> ✅️ First class modules
+>
+> ✅️ GADT
+>
+> {#monadic-binds}
+> ✅️ Monadic binds
+>
+> ✅️ Extensible variants
+>
+> ✅️ Polymorphic datatypes
+>
+> ❌ Objects
+>
+> ❌ Effects
+>
+> ❌ Parallelism
+
+<style>.ssellected { background-color: lightgreen } </style>
+
+{exec pause}
+```slip-script
+slip.setClass(document.querySelector("#monadic-binds"), "ssellected", true)
+```
+
+## Monadic binds: The Undo Monad
+
+```ocaml
+type 'a undoable = 'a * (unit -> unit)
+```
+
+
+
+{step}
+---
+
+{slip}
+---
+# Tooling
+
+----
+
+
+
 
 - A single language for browser and (static) native code
   - Static typing,
@@ -150,7 +248,7 @@ Order:
   - Ecosystem
     - cmdliner
     - cmarkit
-    - Brr and JS bindings
+    - `js_of_ocaml`, Brr and JS bindings
     - Lambdasoup
 
 TODO: speak about undo monad
