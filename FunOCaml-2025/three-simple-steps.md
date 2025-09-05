@@ -1,3 +1,8 @@
+---
+dimension: 16:9
+---
+
+
 # The SECRET of how to achieve full-featuredness in 3 SIMPLE STEPS
 
 {pause up}
@@ -114,11 +119,111 @@ p code {
 slip.setClass(document.querySelector("#monadic-binds"), "ssellected", true)
 ```
 
+{#tum}
 ## Monadic binds: The Undo Monad
 
-```ocaml
-type 'a undoable = 'a * (unit -> unit)
-```
+<x-ocaml>
+type 'a with_undo = { v : 'a; undo : unit -> unit }
+</x-ocaml>
+
+A value, and a way to "undo" its side effects.
+
+<script async
+  src="https://cdn.jsdelivr.net/gh/art-w/x-ocaml.js@6/x-ocaml.js"
+  src-worker="https://cdn.jsdelivr.net/gh/art-w/x-ocaml.js@6/x-ocaml.worker+effects.js"
+  integrity="sha256-3ITn2LRgP/8Rz6oqP5ZQTysesNaSi6/iEdbDvBfyCSE="
+  crossorigin="anonymous"
+  x-ocamlformat="disable=true"
+></script>
+
+{.unstatic}
+<x-ocaml>
+let set x v =
+   Format.printf "Setting value from %d to %d\n%!" !x v;
+   x := v
+let (:=) x v = set x v
+</x-ocaml>
+
+{pause #setu up=tum}
+<x-ocaml>
+let set_u x n =
+  let undo =
+    let old_x = !x in
+    fun () -> x := old_x
+  in
+  let v = x := n in
+  { v; undo }
+</x-ocaml>
+
+{#hiding-block}
+
+{unstatic=hiding-block}
+
+<style>
+#hiding-block {
+    height: 100px;
+    background-color: grey;
+    position: absolute;
+    width: 37%;
+    top: 828px;
+    left: 271px;
+}
+</style>
+
+
+{pause up=setu}
+A way to combine undoable values
+
+{#bindmon}
+<x-ocaml>
+let bind (x : 'a with_undo) (f : 'a -> 'b with_undo) : 'b with_undo =
+  let y = f x.v in
+  let undo () =
+    y.undo ();
+    x.undo ()
+  in
+  { v = y.v; undo }
+</x-ocaml>
+
+{#hiding-block2}
+
+{unstatic=hiding-block2}
+
+<style>
+#hiding-block2 {
+    height: 100px;
+    background-color: grey;
+    position: absolute;
+    width: 37%;
+    top: 1410px;
+    left: 271px;
+}
+</style>
+
+
+{pause up}
+Is all you need!
+
+
+{.unstatic}
+<x-ocaml>
+let ( let* ) x v = bind x v
+let ( := ) v n = set_u v n
+</x-ocaml>
+
+
+<x-ocaml>
+let x = ref 0
+let { undo; _ } =
+  let* () = x := 5 in
+  x := 7;;
+</x-ocaml>
+
+{pause}
+
+<x-ocaml>
+let () = undo ();;
+</x-ocaml>
 
 
 
