@@ -28,10 +28,13 @@
   transform: scale(2) translateX(-125px) translateY(25px);
 }
 #nuage-de-points.stop #hot-reloading.selected {
-  transform: scale(2) translateX(125px);
+  transform: scale(2) translateX(125px) translateY(-75px);
 }
 #nuage-de-points.stop #available-vscode.selected {
-  transform: scale(2) translateX(-125px);
+  transform: scale(2) translateX(-125px) translateY(-140px);
+}
+#nuage-de-points.stop #available-gui.selected {
+  transform: scale(2) translateY(-100px);
 }
 #nuage-de-points.stop #live-collab.selected {
   transform: scale(2) translateX(225px);
@@ -691,7 +694,20 @@ slip.setClass(document.querySelector("#markdown-output"), "selected", false);
 slip.setClass(document.querySelector("#hot-reloading"), "selected", true);
 ```
 
-{exec pause unstatic=nbbs-addons}
+{#static-hot-reload .addons .block}
+> ![](hot-reloading.mp4){play-media}
+
+<style>
+#static-hot-reload {
+  top:350px;
+  padding-top: 0;
+  left:00px;
+  width: 1850px;
+}
+</style>
+
+
+{exec pause unstatic=static-hot-reload}
 ```slip-script
 slip.setClass(document.querySelector("#hot-reloading"), "finished", true);
 slip.setClass(document.querySelector("#hot-reloading"), "selected", false);
@@ -723,7 +739,22 @@ slip.setClass(document.querySelector("#available-static"), "selected", false);
 slip.setClass(document.querySelector("#available-vscode"), "selected", true);
 ```
 
-{exec pause unstatic=nbbs-addons}
+{#static-vscode .addons .block}
+> ![](vscode.mp4){play-media}
+
+
+<style>
+#static-vscode {
+  top:200px;
+  padding-top: 0;
+  left:00px;
+  width: 1850px;
+}
+</style>
+
+
+
+{exec pause unstatic=static-vscode}
 ```slip-script
 slip.setClass(document.querySelector("#available-vscode"), "finished", true);
 slip.setClass(document.querySelector("#available-vscode"), "selected", false);
@@ -733,8 +764,8 @@ slip.setClass(document.querySelector("#available-gui"), "selected", true);
 
 <style>
 #av-gui {
-  top:600px;
-  left:700px;
+  top:120px;
+  left:800px;
   text-align: center;
   width: 850px;
 }
@@ -743,9 +774,21 @@ slip.setClass(document.querySelector("#available-gui"), "selected", true);
 {#av-gui .addons .block}
 Made with ![](logo-tauri.svg){style=background-color:#272727;padding:20px;vertical-align:middle}
 
+{#static-gui .addons .block}
+> ![](gui.mp4){play-media}
 
 
-{exec pause unstatic=av-gui}
+<style>
+#static-gui {
+  top:400px;
+  padding-top: 0;
+  left:00px;
+  width: 1850px;
+}
+</style>
+
+
+{exec pause unstatic="av-gui static-gui"}
 ```slip-script
 slip.setClass(document.querySelector("#available-gui"), "finished", true);
 slip.setClass(document.querySelector("#available-gui"), "selected", false);
