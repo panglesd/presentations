@@ -1,8 +1,3 @@
----
-dimension: 16:9
----
-
-
 # The SECRET of how to achieve full-featuredness in 3 SIMPLE STEPS
 
 {pause up}
@@ -234,159 +229,265 @@ let () = undo ();;
 ---
 # Tooling
 
+{#featurelistocatooling style="display: flex; flex-wrap: wrap; justify-content: space-evenly;" children:.block children:style="margin: 10px"}
+>
+> {#dunefeat}
+> ✅️ Dune
+>
+> {#merlinfeat}
+> ✅️ Merlin
+>
+> {#ocamleglotfeat}
+> ✅️ Ocaml-eglot
+>
+> ✅️ Ocamlformat
+
+{exec pause down=treemd}
+```slip-script
+slip.setClass(document.querySelector("#dunefeat"), "ssellected", true)
+```
+
+{#treemd carousel change-page='~n:"3 5"'}
+> ```
+>    
+>     slipshow
+>     ├── docs
+>     ├── src
+>     │   ├── cli
+>     │   ├── communication
+>     │   ├── compiler
+>     │   ├── engine
+>     │   ├── server
+>     │   ├── static_data
+>     │   └── themes
+>     ├── test
+>     
+>     
+>     
+>     
+>     
+>     
+>     
+>                     
+>                     
+>                     
+>                     
+> ```
+>
+> ```
+>  
+>     slipshow
+>     ├── docs
+>     ├── src
+>     │   ├── cli
+>     │   ├── communication
+>     │   ├── compiler
+>     │   ├── engine
+>     │   ├── server
+>     │   ├── static_data
+>     │   └── themes
+>     ├── test
+>     └── vendor
+>         └── github.com
+>             └── panglesd
+>                 ├── cmarkit
+>                 ├── irmin-watcher
+>                 ├── pdfjs_ocaml
+>                 └── perfect-freehand-ocaml
+>              
+>              
+>                       
+>                   
+> ```
+>
+> ```
+> .── dune-workspace
+> ├── slipshow
+> │   ├── docs
+> │   ├── src
+> │   │   ├── cli
+> │   │   ├── communication
+> │   │   ├── compiler
+> │   │   ├── engine
+> │   │   ├── server
+> │   │   ├── static_data
+> │   │   └── themes
+> │   ├── test
+> │   └── vendor
+> │       └── github.com
+> │           └── panglesd
+> │               ├── cmarkit
+> │               ├── irmin-watcher
+> │               ├── pdfjs_ocaml
+> │               └── perfect-freehand-ocaml
+> ├── sliphub
+> │   └── ...
+> └── slipshow-vscode
+>     └── ...
+> ```
+
+{exec pause}
+```slip-script
+slip.setClass(document.querySelector("#dunefeat"), "ssellected", false)
+slip.setClass(document.querySelector("#merlinfeat"), "ssellected", true)
+slip.setClass(document.querySelector("#ocamleglotfeat"), "ssellected", true)
+```
+
+Demo
+
 ----
 
+{step}
 
 
+<!-- - A single language for browser and (static) native code -->
+<!--   - Static typing, -->
+<!--   - Precise compiler errors. Illustration: Add an `id` to communication message. -->
+<!--   - Lovely syntax -->
 
-- A single language for browser and (static) native code
-  - Static typing,
-  - Precise compiler errors. Illustration: Add an `id` to communication message.
-  - Lovely syntax
+<!-- {pause up} -->
 
-{pause up}
+<!-- A new step looks like this -->
 
-A new step looks like this
+<!-- ```ocaml -->
+<!-- let elem = next_activated_elem () in -->
 
-```ocaml
-let elem = next_activated_elem () in
+<!-- List.iter -->
+<!--   (fun action -> maybe_activate action elem) -->
+<!--   all_actions -->
+<!-- ``` -->
 
-List.iter
-  (fun action -> maybe_activate action elem)
-  all_actions
-```
+<!-- {.block #quest} -->
+<!-- How to go back? -->
 
-{.block #quest}
-How to go back?
+<!-- ```ocaml -->
+<!-- type 'a undoable = 'a * (unit -> unit) -->
+<!-- ``` -->
 
-```ocaml
-type 'a undoable = 'a * (unit -> unit)
-```
+<!-- {pause up=quest} -->
+<!-- ```ocaml -->
+<!-- # let set = (:=) -->
+<!-- val set : 'a ref -> 'a -> unit -->
+<!-- ``` -->
 
-{pause up=quest}
-```ocaml
-# let set = (:=)
-val set : 'a ref -> 'a -> unit
-```
+<!-- {carousel change-page} -->
+<!-- > ```ocaml -->
+<!-- > # let set_u x n = -->
+<!-- >     let undo = -->
+<!-- >       ?????? -->
+<!-- >       ??????                -->
+<!-- >     in -->
+<!-- >     (x := n), undo -->
+<!-- > -->
+<!-- > val set : 'a ref -> 'a -> unit undoable -->
+<!-- > ``` -->
+<!-- > ```ocaml -->
+<!-- > # let set_u x n = -->
+<!-- >     let undo = -->
+<!-- >       let old = !x in -->
+<!-- >       fun () -> x := old -->
+<!-- >     in -->
+<!-- >     (x := n), undo -->
+<!-- > -->
+<!-- > val set : 'a ref -> 'a -> unit undoable -->
+<!-- > ``` -->
 
-{carousel change-page}
-> ```ocaml
-> # let set_u x n =
->     let undo =
->       ??????
->       ??????               
->     in
->     (x := n), undo
->
-> val set : 'a ref -> 'a -> unit undoable
-> ```
-> ```ocaml
-> # let set_u x n =
->     let undo =
->       let old = !x in
->       fun () -> x := old
->     in
->     (x := n), undo
->
-> val set : 'a ref -> 'a -> unit undoable
-> ```
+<!-- Order: -->
 
-Order:
+<!-- - I'm going to highlight three things that help me write software efficiently -->
+<!--   - Language -->
+<!--     - First show that many features are used: -->
+<!--       - ✅️ Functors -->
+<!--       - ✅️ First class modules for actions (show `actions.mli` ?) -->
+<!--       - ✅️ GADT to direct parsing. -->
+<!--       - ✅️ Extensible variants -->
+<!--       - ✅️ Polymorphic datatypes -->
+<!--       - ❌ Objects -->
+<!--       - ❌ Effects -->
+<!--     - Then speak about undo monad -->
 
-- I'm going to highlight three things that help me write software efficiently
-  - Language
-    - First show that many features are used:
-      - ✅️ Functors
-      - ✅️ First class modules for actions (show `actions.mli` ?)
-      - ✅️ GADT to direct parsing.
-      - ✅️ Extensible variants
-      - ✅️ Polymorphic datatypes
-      - ❌ Objects
-      - ❌ Effects
-    - Then speak about undo monad
+<!--     ```ocaml -->
+<!--     type 'a with_undo = { value : 'a; undo : unit -> unit } -->
 
-    ```ocaml
-    type 'a with_undo = { value : 'a; undo : unit -> unit }
+<!--     let set x v = -->
+<!--       Format.printf "Setting value from %d to %d\n%!" !x v; -->
+<!--       x := v -->
 
-    let set x v =
-      Format.printf "Setting value from %d to %d\n%!" !x v;
-      x := v
+<!--     let ( := ) x v = set x v -->
 
-    let ( := ) x v = set x v
+<!--     let set_u x v = -->
+<!--       let undo = -->
+<!--         let old = !x in -->
+<!--         fun () -> x := old -->
+<!--       in -->
+<!--       let value = x := v in -->
+<!--       { value; undo } -->
 
-    let set_u x v =
-      let undo =
-        let old = !x in
-        fun () -> x := old
-      in
-      let value = x := v in
-      { value; undo }
+<!--     let bind (x : 'a with_undo) (f : 'a -> 'b with_undo) : 'b with_undo = -->
+<!--       let y = f x.value in -->
+<!--       let undo () = -->
+<!--         y.undo (); -->
+<!--         x.undo () -->
+<!--       in -->
+<!--       { value = y.value; undo } -->
 
-    let bind (x : 'a with_undo) (f : 'a -> 'b with_undo) : 'b with_undo =
-      let y = f x.value in
-      let undo () =
-        y.undo ();
-        x.undo ()
-      in
-      { value = y.value; undo }
+<!--     let ( let* ) x v = bind x v -->
+<!--     let ( := ) v n = set_u v n -->
+<!--     let x = ref 0 -->
 
-    let ( let* ) x v = bind x v
-    let ( := ) v n = set_u v n
-    let x = ref 0
+<!--     let { undo; _ } = -->
+<!--       let* () = x := 5 in -->
+<!--       x := 7 -->
 
-    let { undo; _ } =
-      let* () = x := 5 in
-      x := 7
+<!--     let () = undo ();; -->
 
-    let () = undo ();;
+<!--     x -->
+<!--     ``` -->
 
-    x
-    ```
+<!--   - Tooling -->
+<!--     - Dune vendoring -->
+<!--       - Show vendoring folder -->
+<!--     - Dune monorepo -->
+<!--       - Show ../ folder -->
+<!--     - LSP/Merlin -->
+<!--       - Show how  -->
+<!--   - Ecosystem -->
+<!--     - cmdliner -->
+<!--     - cmarkit -->
+<!--     - `js_of_ocaml`, Brr and JS bindings -->
+<!--     - Lambdasoup -->
 
-  - Tooling
-    - Dune vendoring
-      - Show vendoring folder
-    - Dune monorepo
-      - Show ../ folder
-    - LSP/Merlin
-      - Show how 
-  - Ecosystem
-    - cmdliner
-    - cmarkit
-    - `js_of_ocaml`, Brr and JS bindings
-    - Lambdasoup
+<!-- TODO: speak about undo monad -->
+<!--   - Many advanced features -->
+<!--     - Functors and First class module: actions -->
+<!--     - GADT: TODO -->
+<!--     - Extensible variants: AST and Cmarkit -->
+<!--     - Effects: I'm still trying -->
+<!-- - Excellent tooling -->
+<!--   - Dune -->
+<!--     - Slipshow's build is complex -->
+<!--     - Vendoring is easy -->
+<!--     - Moving directories is easy -->
+<!--     - Monorepoing is easy -->
+<!--   - Merlin/Ocaml-lsp-server/Ocaml-eglot -->
+<!--   - OCamlformat -->
 
-TODO: speak about undo monad
-  - Many advanced features
-    - Functors and First class module: actions
-    - GADT: TODO
-    - Extensible variants: AST and Cmarkit
-    - Effects: I'm still trying
-- Excellent tooling
-  - Dune
-    - Slipshow's build is complex
-    - Vendoring is easy
-    - Moving directories is easy
-    - Monorepoing is easy
-  - Merlin/Ocaml-lsp-server/Ocaml-eglot
-  - OCamlformat
-
-(OCaml also has disappointed me.
-  * Only few choices between extra high quality libraries
-  * Compilation is a bit too fast
-  * Can't multiply a string and a float
-  * [...])
-
-
-
-
+<!-- (OCaml also has disappointed me. -->
+<!--   * Only few choices between extra high quality libraries -->
+<!--   * Compilation is a bit too fast -->
+<!--   * Can't multiply a string and a float -->
+<!--   * [...]) -->
 
 
 
 
 
 
----
+
+
+
+
+<!-- --- -->
 
 <style>
 #emoji {
@@ -410,7 +511,7 @@ TODO: speak about undo monad
 </style>
 
 
-{pause}
+<!-- {pause} -->
 
 
 {#lock}

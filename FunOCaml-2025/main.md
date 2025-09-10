@@ -5,6 +5,9 @@ dimension: 16:9
 {.unrevealed #surrprise}
 # Surprise: this was only the first part!
 
+{.unstatic #thanksattention}
+# Thank you for your attention!
+
 {#initial-sn}
 - **Over-engineered**
 
@@ -18,3 +21,5 @@ dimension: 16:9
 >
 > {slip #my-part2 style="width:49%"}
 > {include src="three-simple-steps.md"}
+
+{step unstatic=surrprise static=thanksattention}
