@@ -1,7 +1,53 @@
-# The SECRET of how to achieve full-featuredness in 3 SIMPLE STEPS
+# The SECRET of adding features in 3 SIMPLE STEPS
 
+{.block #step1dis}
+{pause}
+-----
+# Step 1: Discipline
+
+{style="display: flex; justify-content: space-around"}
+> {style="text-align: center"}
+> ### Morning
+>
+> {.unrevealed reveal}
+> > 5:00 – Waking up, go for a footing,
+> >
+> > 6:00 – Yoga Sun salutations and stretching,
+> >
+> > 6:30 – Cold shower,
+> >
+> > 6:45 – eat vegan breakfast,
+> >
+> > 7:00 – First beer,
+> >
+> > 8:00 – Read blog posts on how to be efficient.
+>
+> ---
+>
+> {style="text-align: center"}
+> ### Afternoon
+>
+> {.unrevealed reveal}
+> > 1:00 – Fasting window (Yogi tea)
+> >
+> > 1:30 – Nutella spread
+> >
+> > 2:30 – Look at cat videos on youtube
+> >
+> > 7:30 – Get Things Done
+> >
+> > 8:00 – Look back on work done
+> >
+> > 11:59 – Last beer
+
+<!-- Pay to unlock. I'll make it free but you can buy my other book, How to
+achieve transcendence in three simple steps -->
+
+{.block #step2org}
 {pause up}
-## 1. ORGANIZATION
+-----
+
+# Step 2: Organization
 
 {include .notshowing #theroles src=roles.md}
 
@@ -13,30 +59,14 @@ slip.setClass(document.querySelector("#theroles"), "notshowing", false);
 ```
 
 
-{pause up}
-## 2. HYGIENE
 
-All people working on Slipshow follow a strict hygiene of life to achieve greater efficiency:
+{.block}
+{#ocaml-section pause up}
+-----
 
-- 5am – Waking up,
-- 5:15am – Go for a footing,
-- 6am – Sun salutations and stretching,
-- 6:30 – Cold shower,
-- 6:45 – eat vegan breakfast
-- 7am – Solo Agile standup
-- 8am-12pm – Pomodoro sessions with deep breathing in between
-- 12pm-1pm – Fasting window (Yogi tea)
-- 1pm – Squats and abs (10 reps).
-- 1:30pm-5pm – Pomodoro sessions with deep breathing in between
-- 5pm – No meeting
+# Step 3: OCaml
 
-<!-- Pay to unlock. I'll make it free but you can buy my other book, How to
-achieve transcendence in three simple steps -->
-
-{#ocaml-section}
-## 3. OCaml
-
-Well, actually that is the main reason.
+Last but not least!
 
 {style=display:flex}
 ----
@@ -225,7 +255,7 @@ let () = undo ();;
 {step}
 ---
 
-{slip}
+{slip pause=featurelistocatooling}
 ---
 # Tooling
 
@@ -489,34 +519,34 @@ Demo
 
 <!-- --- -->
 
-<style>
-#emoji {
-  font-size: 10em;
-}
-#lock {
-  padding: 20px;
-  position: absolute;
-  left: 500px;
-  top: 400px;
-  text-align: center;
-  font-size: 1em;
-  background: rgba(255, 255, 255, 0.75);
-  border-radius: 20px;
-  border: 2px solid black;
-  z-index: 10;
-}
-.blur {
-  filter: blur(10px);
-}
-</style>
+<!-- <style> -->
+<!-- #emoji { -->
+<!--   font-size: 10em; -->
+<!-- } -->
+<!-- #lock { -->
+<!--   padding: 20px; -->
+<!--   position: absolute; -->
+<!--   left: 500px; -->
+<!--   top: 400px; -->
+<!--   text-align: center; -->
+<!--   font-size: 1em; -->
+<!--   background: rgba(255, 255, 255, 0.75); -->
+<!--   border-radius: 20px; -->
+<!--   border: 2px solid black; -->
+<!--   z-index: 10; -->
+<!-- } -->
+<!-- .blur { -->
+<!--   filter: blur(10px); -->
+<!-- } -->
+<!-- </style> -->
 
 
-<!-- {pause} -->
+<!-- <\!-- {pause} -\-> -->
 
 
-{#lock}
-> [🔒]{#emoji}
->
-> Unlock at FunOCaml 2025, \
-> Warsaw, September 15-16
+<!-- {#lock} -->
+<!-- > [🔒]{#emoji} -->
+<!-- > -->
+<!-- > Unlock at FunOCaml 2025, \ -->
+<!-- > Warsaw, September 15-16 -->
 

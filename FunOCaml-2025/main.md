@@ -3,7 +3,7 @@ dimension: 16:9
 ---
 
 {.unrevealed #surrprise}
-# Surprise: this was only the first part!
+# The structure of the presentation is visually visible
 
 {.unstatic #thanksattention}
 # Thank you for your attention!
@@ -15,11 +15,11 @@ dimension: 16:9
 > {slip #part1 style="width:49%" speaker-note=initial-sn}
 > {include src="slipshow.md"}
 >
-> {reveal=surrprise}
->
-> {pause}
+> {pause reveal=surrprise}
 >
 > {slip #my-part2 style="width:49%"}
 > {include src="three-simple-steps.md"}
 
-{step unstatic=surrprise static=thanksattention}
+{unstatic=surrprise static=thanksattention}
+
+{unstatic="step1dis step2org"}
