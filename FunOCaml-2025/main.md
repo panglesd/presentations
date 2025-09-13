@@ -15,7 +15,7 @@ dimension: 16:9
 > {slip #part1 style="width:49%" speaker-note=initial-sn}
 > {include src="slipshow.md"}
 >
-> {pause reveal=surrprise}
+> {pause clear=draw-links reveal=surrprise}
 >
 > {slip #my-part2 style="width:49%"}
 > {include src="three-simple-steps.md"}

@@ -190,7 +190,7 @@ let set_u x n =
     background-color: grey;
     position: absolute;
     width: 37%;
-    top: 828px;
+    top: 840px;
     left: 271px;
 }
 </style>
@@ -220,7 +220,7 @@ let bind (x : 'a with_undo) (f : 'a -> 'b with_undo) : 'b with_undo =
     background-color: grey;
     position: absolute;
     width: 37%;
-    top: 1410px;
+    top: 1420px;
     left: 271px;
 }
 </style>
