@@ -11,8 +11,8 @@ dimension: 16:9
 {#initial-sn}
 - **Over-engineered**
 
-{style=display:flex}
-> {slip #part1 style="width:49%" speaker-note=initial-sn}
+{style="display:flex; height:10000px"}
+> {slip #part1 style="width:49%; height:" speaker-note=initial-sn}
 > {include src="slipshow.md"}
 >
 > {pause clear=draw-links reveal=surrprise}
@@ -22,4 +22,5 @@ dimension: 16:9
 
 {unstatic=surrprise static=thanksattention}
 
-{unstatic="step1dis step2org"}
+
+![](hearth.draw){unstatic="step1dis step2org" draw}
