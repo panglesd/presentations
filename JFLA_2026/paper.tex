@@ -2,6 +2,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{minted}
+\usepackage{graphicx}
 
 % Numéro et année des JFLAs visées par l'article, obligatoire.
 \jfla{37}{2026}
@@ -32,11 +33,12 @@
   Slipshow est un logiciel de présentation, qui se focalise sur un style de
   discours plus ``continu'' que les slides. Très versatile, il permet à l'auteur
   de la présentations de déclencher de nombreuses actions à chaque étape, voire
-  même d'en définir soi-même. Cela pose un défi ingénieural de taille : comment
+  même d'en définir soi-même. Cela pose un défi pour d'ingéniérie : comment
   ``inverser'' l'execution d'une étape, quand le présentateur souhaite revenir
-  en arrière ? Dans cet article, nous verrons la solution utilisée par Slipshow,
-  basée sur le concept de Monades et son utilisation rendue aisée par le langage
-  de programmation OCaml.
+  en arrière, tout en gardant un code simple, maintenable et extensible ? Dans
+  cet article, nous verrons la solution utilisée par Slipshow, basée sur le
+  patron de conception des monades, et son utilisation rendue aisée par le
+  langage de programmation OCaml.
   %
   %% Il devrait contenir aussi peu de commandes LaTeX que possible pour faciliter
   %% la conversion vers HTML nécessaire à son inclusion dans les actes et sur le
@@ -45,11 +47,10 @@
 
 \section{Introduction}
 
-TODO: remplacer slide par ``diapositive''.
-
-Slipshow est un logiciel de présentation, à l'instar de Beamer, Libre office
+Slipshow est un logiciel de présentation, à l'instar de Beamer, LibreOffice
 Impress ou Reveal.js. Il différe cependant fondamentalement de ces différents
-exemples, en ce qu'il s'éloigne du concept de slides.
+exemples, en ce qu'il s'éloigne du concept de diapositives (ou ``slides'' en
+anglais).
 
 L'inspiration principale de Slipshow est la présentation au tableau. Celle-ci
 est particulièrement adaptée aux sujets techniques et nécessitant un fort
@@ -58,33 +59,40 @@ mathématique, il n'est pas rare de séparer le tableau en deux, et de n'effacer
 qu'une moitié à la fois. Cela assure qu'au moins une moitié du contenu passé
 sera accessible pour le public, en cas de distraction momentanée.
 
-Au contraire, si une distraction intempestive survient peu avant le passage au
-slide suivant, il est probable que le spectateur ait manqué une partie
-importante de l'exposé, l'empêchant potentiellement de comprendre la suite.
+Au contraire, si une distraction intempestive survient peu avant le passage à la
+diapositive suivante, le spectateur distrait manquera irréversiblement la fin de
+la diapositive, l'empêchant potentiellement de comprendre la suite de l'exposé.
 
 Le concept de base d'une présentation Slipshow n'est pas le slide, mais le
 ``slip''. Conceptuellement, un slide est un carré de contenu, du même format que
 l'écran le projetant. Un slip, lui, a la même largeur que l'écran, mais une
-longueur arbitraire. Afin de montrer le contenu d'un slip, l'écran peut
-``glisser'' pour en révéler les parties non visibles, à la manière d'un
-navigateur permettant le déroulement d'une page web.
+longueur verticale arbitraire. Afin de montrer le contenu d'un slip, l'écran
+peut ``glisser'' pour en révéler les parties non visibles, à la manière d'un
+navigateur permettant le déroulement d'une page web : se référer à la figure~\ref{slip-fig} pour un exemple.
 
-TODO: Figure.
+\begin{figure}
+\centering
+\includegraphics[scale=0.75]{s_and_s2.pdf}
+\caption{Les modèles de présentations de slide, et de slip. Le carré rouge représente, à chaque étape, ce qui est visible à l'écran. À gauche, la transition d'un slide à un autre est immédiate. À droite, le déroulement d'un slip est continu.}
+\label{slip-fig}
+\end{figure}
+
+
 
 \subsection{Contenu statique et dynamique}
 
 Bien que les slips forment la génèse du projet Slipshow, celui-ci s'est bien
-agrandi et supporte des présentations par slides, du style de Prezi, voire même
-utilisant des animations tels que celles souvent utilisées dans les vidéos de
-vulgarisation scientifique. En effet, une présentation Slipshow consiste en deux
-parties entrelacées dans le fichier source:
+agrandi et supporte des présentations par diapositives, du style de Prezi, voire
+même utilisant des animations tels que celles souvent utilisées dans les vidéos
+de vulgarisation scientifique. Une présentation Slipshow consiste en
+deux parties entrelacées dans le fichier source:
 
 \begin{itemize}
 \item Une description du contenu statique : le texte, et sa mise en page définie de manière sémantique.
 \item Une description de la dynamique de la présentation : l'ensemble des actions à effectuer, pour chaque étape.
 \end{itemize}
 
-Par exemple, considérons la présentation utilisant le système beamer suivante:
+Par exemple, considérons la présentation utilisant le système \LaTeX/Beamer suivante:
 
 \definecolor{bg}{rgb}{.9, .9, .9}
 \begin{minted}[bgcolor=bg]{latex}
@@ -100,7 +108,7 @@ Par exemple, considérons la présentation utilisant le système beamer suivante
   \end{itemize}
 \end{minted}
 
-correspondrait à la présentation Slipshow suivante:
+Elle correspondrait à la présentation Slipshow suivante:
 
 \begin{minted}[bgcolor=bg]{markdown}
   {.theorem}
@@ -113,13 +121,13 @@ correspondrait à la présentation Slipshow suivante:
 \end{minted}
 
 
-Hormis les différences de syntaxe, les deux versions se ressemblent beaucoup. Premièrement, le source de ces deux présentations est textuel, présentant un avantage par rapport à d'autres solutions tels Libreoffice Impress.
+Hormis les différences de syntaxe, les deux versions se ressemblent beaucoup. Notons que le source de ces deux présentations est textuel, présentant un avantage par rapport à d'autres solutions tels Libreoffice Impress.
 
-Le contenu statique est sous la forme de texte, utilisant une syntaxe spéciale\footnote{Syntaxe spéciale dont la définition ne sera pas l'objet de cet article. TODO: add link.} pour étiquetter des blocs d'une sémantique particulière (théorème, énumération), le système s'occupant de la mise en page à partir de ces étiquettes. Par exemple, l'environnement \verb|theorem| sera affiché différement d'une énumération à tirets.
+Le \emph{contenu statique} est sous la forme de texte, utilisant une syntaxe spéciale\footnote{Proche markdown, mais dont la définition ne sera pas l'objet de cet article.} pour étiquetter des blocs d'une sémantique particulière (énumération à points, théorème, ...) ; le système s'occupant de la mise en page à partir de ces étiquettes. Par exemple, l'environnement \verb|theorem| sera affiché différement d'une énumération à tirets.
 
-Le contenu dynamique d'une présentation est ici défini dans le corps du texte, à nouveau à l'aide d'une syntaxe spéciale. Nous avons deux actions \verb|pause|, qui à leur activation révèlent le contenu qui suit. Ces actions sont définies dans le même flux que celui du texte.
+Le \emph{contenu dynamique} d'une présentation est ici défini dans le corps du texte, à nouveau à l'aide d'une syntaxe spéciale. Nous avons deux actions \texttt{pause}, qui à leur activation révèlent le contenu qui suit. Ces actions sont définies dans le même flot que celui du texte.
 
-Cependant, contrairement à $\LaTeX$/Beamer, l'ensemble des actions possibles pour Slipshow ne se limitent pas à \verb|pause|. En voici un petit aperçu:
+Cependant, contrairement à \LaTeX/Beamer, l'ensemble des actions possibles pour Slipshow ne se limitent pas à \texttt{pause}. En voici un petit aperçu:
 
 \begin{itemize}
 \item \verb|scroll-to=ID| déroule le slip courant jusqu'à ce que l'élément désigné soit entièrement visible.
@@ -135,91 +143,86 @@ Cependant, contrairement à $\LaTeX$/Beamer, l'ensemble des actions possibles po
 
 \subsection{Slipshow et le retour en arrière}
 
-La compléxité du système d'actions de Slipshow pose un défi ingénieural de taille: comment gérer le retour en arrière? Lors d'une présentation, il est fréquent que l'orateur souhaite revenir à une étape précédente, par exemple pour clarifier un point ou répondre à une question.
+La compléxité du système d'actions de Slipshow pose un défi en terme de programmation : comment gérer le retour en arrière? Lors d'une présentation, il est fréquent que l'orateur souhaite revenir à une étape précédente, par exemple pour clarifier un point ou répondre à une question.
 
-Dans le cas de présentations classiques, le peu d'actions possibles (changer de slide, dissiper une pause) rend la définition d'un retour en arrière relativement simple. En effet, chaque action a une action inverse évidente: avancer d'un slide s'inverse en reculant d'un slide, dissiper une pause s'inverse en réappliquant la pause.
+Dans le cas de présentations classiques, le peu d'actions possibles (changer de slide, dissiper une pause) rend la définition d'un retour en arrière relativement simple. En effet, chaque action modifie la présentation de manière très prédictible, et facile à inverser: avancer d'un slide s'inverse en reculant d'un slide, dissiper une pause s'inverse en réappliquant la pause.
 
-Dans le cas de Slipshow, la multiplicité des actions possibles, ainsi que leurs intéraction, rend la définition d'un retour en arrière plus ardue. Par exemple, l'action \verb|scroll-to=ID| n'a pas d'action inverse évidente: il faut se souvenir de la position de départ pour pouvoir y revenir. L'execution d'un script utilisateur peut modifier l'état de la présentation de manière arbitraire, rendant à priori impossible la définition d'une action inverse générique. Finalement, inverser de multiples actions exécutées successivement doit se faire dans un ordre précis, au risque de ne pas retrouver l'état initial.
+Dans le cas de Slipshow, la multiplicité des actions possibles, ainsi que leurs intéractions, rend la définition d'un retour en arrière plus ardue. Par exemple, l'action \texttt{scroll-to=ID} n'a pas d'action inverse évidente: il faut se souvenir de la position de départ pour pouvoir y revenir. L'execution d'un script utilisateur peut modifier l'état de la présentation de manière arbitraire, rendant à priori impossible la définition d'une action inverse générique. Finalement, inverser de multiples actions exécutées successivement doit se faire dans un ordre précis, au risque de ne pas retrouver l'état initial.
 
-Cette compléxité est purement en terme de lisibilité et maintenabilité du code, et non algorithmique. Il est facile de se rendre compte que théoriquement, l'on peut définir une fonction pour aller en avant dans la présentation, et une fonction pour retourner en arrière. Cependant, une manière naive de procéder risquerait d'être difficile à maintenir et à appréhender, avec une logique dupliquée et des risques d'incohérences.
+Cette compléxité est principalement en terme de lisibilité et maintenabilité du code, et non algorithmique. Il est facile de se rendre compte que théoriquement, l'on peut définir une fonction pour aller en avant dans la présentation, et une fonction pour retourner en arrière. Cependant, une manière naive de procéder risquerait d'être difficile à maintenir et à appréhender, avec une logique dupliquée et des risques d'incohérences.
 
-Par exemple, lors de l'ajout d'une nouvelle action, il faudrait penser à ajouter son action inverse dans la fonction de retour en arrière. De plus, si une action est modifiée, il faudrait penser à modifier son action inverse en conséquence. Un système d'analyse statique serait difficile à mettre en place, on ne pourra donc compter que sur la vigilance du développeur.
+Par exemple, lors de l'intégration au code de Slipshow d'une action supplémentaire, il faudrait penser à intégrer son action inverse dans la fonction de retour en arrière. De plus, si une action est modifiée, il faudrait penser à modifier son action inverse en conséquence. Un système d'analyse statique serait difficile à mettre en place, on ne pourrait donc compter que sur la vigilance du développeur.
 
-Dans les toutes premières versions de Slipshow, le retour en arrière était implémenté à l'aide d'un système d'``instantanés''. Avant certaines actions, l'état courant de la présentation était stocké. Pour revenir en arrière, on revenait au dernier instantané, puis on repartait en avant jusqu'à l'étape précédente.
+% Dans les toutes premières versions de Slipshow, le retour en arrière était implémenté à l'aide d'un système d'``instantanés''. Avant certaines actions, l'état courant de la présentation était stocké. Pour revenir en arrière, on revenait au dernier instantané, puis on repartait en avant jusqu'à l'étape précédente à celle d'où l'on partait.
 
-Cependant, cette méthode présentait de nombreux inconvénients, et était la source de nombreuses erreurs. L'impact mémoire était important, avec beaucoup de duplications d'état sauvegardés. Les nouvelles actions étaient difficile à rajouter, car leur fonctionnement interferait souvent avec le système d'instantanés. Par exemple, toute action ayant un effet d'animation impliquait un support spécial pour donner un effet de retour en arrière fluide.
+% Cependant, cette méthode présentait de nombreux inconvénients, et était la source de nombreuses erreurs. L'impact mémoire était important, avec beaucoup de duplications d'états sauvegardés. Les nouvelles actions étaient difficile à rajouter, car leur fonctionnement interferait souvent avec le système d'instantanés. Par exemple, toute action ayant un effet d'animation impliquait un support spécial pour donner un effet de retour en arrière fluide.
 
-La version 1.0 de Slipshow a constitué une réécriture complète du logiciel, dans le langage OCaml. Cette réécriture a été l'occasion de repenser le système de gestion du retour en arrière, et d'adopter une approche radicalement différente, basée sur la programmation monadique.
+La version 0.1.0 de Slipshow a constitué en une réécriture complète du logiciel, dans le langage OCaml. Cette réécriture a été l'occasion de repenser le système de gestion du retour en arrière, et d'adopter une approche radicalement différente, basée sur la programmation monadique. Plusieurs versions et de nombreuses fonctionnalités plus tard, cette approche a prouvé son efficacité.
 
 \subsection{Plan}
 
-Dans cet article, nous commençons par définir ce qu'est une monade en
-programmation, en prenant le langage de programmation OCaml pour les exemples.
+Dans cet article, nous commençons par introduire le patron de conception des ``monades''. Les différents concepts aboutissant à celui de monades sont exemplifiés en utilisant le langage de programmation OCaml.
 
-Ensuite, nous montrons comment des monades ``classiques'' sont utilisées, en
-particulier dans la base de code actuelle de Slipshow.
+L'introduction aux monades rend le papier autonome, mais sa présentation reste brève afin de se concentrer sur la deuxième partie de ce papier : l'application de ce patron de conception au problème initial du ``retour en arrière'', à l'aide d'une monade originale : la monade ``Annulation''.
 
-Nous terminons par la définition d'une monade originale, permettant de résoudre
-élégament le problème initial du retour en arrière dans un outils de
-présentation.
+% Ensuite, nous montrons comment des monades ``classiques'' sont utilisées, en
+% particulier dans la base de code actuelle de Slipshow.
+
+% Après avoir donné des exemples de monades ``classiques'', nous montrons comment nous pouvons appliquer ce patron de conception au problème initial du ``retour en arrière'', à l'aide d'une monade originale: la monade ``Annulation''.
 
 \section{Monades et programmation}
 
-Les monades sont un concept issu de la théorie des catégories, popularisé dans le domaine de la programmation fonctionnelle par le langage Haskell.
-Cependant leur utilisation en programmation et en théorie des catégories diffèrent. Dans cette dernière, une monade est un objet que l'on étudie pour ses propriétés mathématiques, propriétés que l'on démontre à l'aide de preuve rigoureuses.
+Une monade, en programmation, est un patron de conception, une manière
+d'organiser son code pour obtenir certains bénéfices. Nous allons présenter ce
+patron de conception en passant par deux étapes intermédiaires : les
+\emph{foncteurs} et les \emph{foncteurs applicatifs}. Cette terminologie, et les
+définitions qui suiveront sont inspirés de la théorie des catégories, qu'il ne
+soit pas nécessaire de connaître cette théorie pour profiter des bienfaits de ce
+patron de conception.
 
-En programmation, on utilise une ``monade'' comme un patron de conception, une manière d'organiser son code pour obtenir certains bénéfices. En particulier, les monades permettent d'encapsuler des effets de bord dans un programme fonctionnel, qui par nature n'en supporte pas.
-
-Cependant, les qualités de ce patron de conception ne sont pas mesurable au sens mathématiques du terme. On peut seulement constater qu'il donne une manière uniforme d'exprimer de nombreux concepts, et qu'à un oeil habitué il rend leur manipulation plus aisé.
-
-\subsection{Monades en théorie des catégories}
-
-Si l'objectif de cet article n'est pas de s'étendre sur la théorie des catégories, il est intéressant de comprendre d'où la terminologie des ``monades'' vient.
-
-\begin{defi}[Monade]
-  Blablabla
-\end{defi}
-
-\subsection{Les monades en OCaml}
-
-Dans cette section, nous allons voir une présentation accelérée du patron de
-conception des monades. Nous allons découper cette explication en trois parties,
-correspondant à des notions classiques de plus en plus proches des monades : les
-``foncteurs'', les ``applicatifs'' et les monades elles-même.
-
-Les monades permettent de faire des calculs avec, non des valeurs, mais des valeurs \texttt{spéciales}, tout en faisant comme-ci c'étaient des valeurs normales. La notion de spéciale sera à préciser, mais prenons tout de suite un exemple : les valeurs dont le calcul a produit une (ou plusieurs) erreurs.
+Les monades permettent de faire des calculs avec, non des valeurs, mais des
+\emph{valeurs spéciales}, tout en faisant ``comme si'' c'étaient des valeurs
+normales. La notion de ``spéciale'' dépendra du problème que l'on souhaite
+résoudre, mais nous prendrons dans cette section l'exemple suivant de valeur
+spéciales : les valeurs dont le calcul a produit une, ou plusieurs, erreurs.
 
 \begin{minted}{ocaml}
-type erreur = string
-
-type 'a t = Ok of 'a | Error of erreur list
+type 'a t = Ok of 'a | Error of string list
 \end{minted}
 
 Les monades promettent de pouvoir calculer avec ces valeurs ``spéciales'', comme
-si elles étaient de valeurs normales. Pour cela, nous allons voir comment ``réifier'' des calculs de type \texttt{'a -> 'b} en des calculs de type \texttt{'a t -> 'b t}.
+si elles étaient de valeurs normales. Pour cela, nous allons voir comment
+``réifier'' des calculs sur des valeurs (c'est à dire, des fonctions de type
+\texttt{'a -> 'b}) en des calculs sur des valeurs spéciales (c'est à dire, des
+fonctions de type \texttt{'a t -> 'b t}).
 
-\subsubsection{Les foncteurs}
+\subsection{Les foncteurs}
 
 \begin{defi}[Foncteur]
-  Un foncteur (au sens du patron de conception, pas des foncteurs de modules
-  OCaml) est un type paramétré \texttt{'a t} et une fonction \texttt{map}:
+  Un \emph{foncteur}\footnote{Ici, le mot foncteur est à prendre au sens du patron de
+    conception, pas des foncteurs de modules OCaml.} est une structure:
 
   \begin{minted}{ocaml}
-  type 'a t = ...
-
+  type 'a t
   val map : ('a -> 'b) -> ('a t -> 'b t)
   \end{minted}
 
-  Qui soit tel que si \texttt{f : 'a -> b} et \texttt{g : 'b -> 'c}, et
-  \texttt{(o)} est la composition de fonction, alors les fonctions \texttt{map (g o f)} et \texttt{(map
-    g) o (map f)} coincident.
+  La fonction \texttt{map} doit satisfaire deux contraintes de compatibilité :
+  \begin{itemize}
+  \item Compatibilité avec l'identité : \texttt{map (fun (x : 'a) -> x)} doit être la fonction identité de type \texttt{'a t -> 'a t}
+  \item Compatibilité avec la composition: si \texttt{f : 'a -> 'b} et \texttt{g : 'b -> 'c}, et
+  \texttt{(o)} dénote la composition de fonction, alors les fonctions \texttt{map
+    (g o f)} et \texttt{(map g) o (map f)} coincident.
+  \end{itemize}
+  avec
+  la
 \end{defi}
 
 La fonction \texttt{map} ``réifie'' un calcul de valeur normales, en un calcul
 de valeurs spéciales. La condition supplémentaire assure que les réifications
-sont sensées : calculer dans les valeurs spéciales est bien compatible avec le
-calcul dans les valeurs normales. Dans notre exemple de valeurs qui peuvent être
-des erreurs, nous pouvons définir une telle fonction de réification:
+sont sensées : elles sont au moins compatible avec la composition de
+fonction. Dans notre exemple de ``valeurs qui peuvent être des erreurs'', nous
+pouvons définir une telle fonction de réification comme suit :
 
 \begin{minted}{ocaml}
 let map f = function
@@ -227,25 +230,89 @@ let map f = function
   | Error _ as x -> x
 \end{minted}
 
-Si les foncteurs permettent de réifier un calcul représenté par une fonction à une variable, ils sont cependant rapidement limités : leur définition est trop générale pour permettre de réifier des fonctions à multiples arguments, sous formes curryfiées. En effet, étant donnée une fonction \texttt{'a -> 'b -> c}, on peut grâce à \texttt{map} obtenir une fonction de la forme \texttt{'a t -> ('b -> 'c) t}, et non ce que l'on souhaiterait : \texttt{'a t -> 'b t -> 'c t}.
+En voici un exemple d'utilisation de \texttt{map}, dans le cas où l'on utilise une fonction \texttt{read\_file : string -> string t} (souvenons nous que \texttt{'a t} représente nos ``valeurs avec erreurs'' ici) :
+
+\begin{minted}{ocaml}
+let result =
+  let content = read_file "/tmp/file" in
+  let mouline c = c |> sanitize |> convert in
+  map mouline content
+\end{minted}
+
+Nous avons défini notre calcul \texttt{mouline} dans l'espace des valeurs
+normales, mais nous l'appliquons à une valeur pouvant être une erreur à l'aide
+de \texttt{map}. Cependant, cela complique le code, en nécessitant de définir
+une fonction contenant le calcul. Heureusement, la syntaxe OCaml permet de faire
+mieux.
+
+\subsubsection{Support syntaxique en OCaml}
+
+Si on définit en OCaml une fonction nommée \texttt{(let+)} va traiter
+\texttt{let+ <var> = <value> in <body>} comme étant du sucre syntaxique pour
+\texttt{(let+) <value> (fun <var> -> <body>)}. Ce sucre syntaxique permet d'améliorer
+l'exemple précédent:
+
+\begin{minted}{ocaml}
+let (let+) x f = map f x
+
+let result' =
+  let+ content = read_file "/tmp/file" in
+  content |> sanitize |> convert
+\end{minted}
+
+On peut voir que la définition de \texttt{result'} correspond à celle que l'on
+aurait écrit si \texttt{read\_file} avait eu le type \texttt{string -> string}, à
+un unique caractère près : le \texttt{+}!
+
+Cependant, si les foncteurs permettent de réifier un calcul représenté par une
+fonction à une variable, ils sont cependant rapidement limités : leur définition
+est trop générale pour permettre de réifier des fonctions à multiples arguments,
+sous formes curryfiées. En effet, étant donnée une fonction \texttt{'a -> 'b ->
+  c}, on peut grâce à \texttt{map} obtenir une fonction de la forme \texttt{'a t
+  -> ('b -> 'c) t}, et non ce que l'on souhaiterait : \texttt{'a t -> 'b t -> 'c
+  t}.
 
 \subsubsection{Les applicatifs}
 
 \begin{defi}[Applicatif]
-  Un foncteur applicatif est un foncteur \texttt{'a t, map : ('a -> 'b) -> ('a t -> 'b t)} muni de deux fonctions supplémentaires:
+  Un \emph{foncteur applicatif} est un structure:
 
   \begin{minted}{ocaml}
+  type 'a t
   val pure : 'a -> 'a t
   val app : ('a -> 'b) t -> ('a t -> 'b t)
   \end{minted}
 
-  Qui soit tel que TODO.
+  De même que \texttt{map} dans la définition des foncteur, ces deux fonctions
+  doivent satisfaire à des propriétés supplémentaire pour correspondre à ce
+  qu'on attend d'elles.
+  \begin{itemize}
+  \item Compatibilité avec l'identité,\footnote{\texttt{app (pure (fun (x : 'a) -> x))} est la fonction \texttt{fun (x : 'a t) -> x}}
+  \item Compatibilité avec la composition: si \texttt{f : ('a -> 'b) t} et \texttt{g : ('b -> 'c) t},
+    \texttt{(o)} dénote la composition de fonction, et \texttt{*} est \texttt{app o}, alors les fonctions \texttt{app
+      (g * f)} et \texttt{(app g) o (app f)} coincident.
+  \item Compatibilité entre \texttt{pure} et \texttt{app}: \texttt{app (pure f) (pure x)} est \texttt{pure (f x)}.
+  \item \texttt{app u (pure y) = app (pure (fun u -> u y)) u}
+  % \item Associativité de l'application de fonction: les fonction $app (f\otimes g)$ et est la fonction,\footnote{\texttt{app (app (app (pure compose ) u) v) w} est la fonction \texttt{app u (app v w)}}
+  % \item \texttt{app (map f x) y
+  %   = map (fun (x,y) -> f x y) (pair x y)}, où \texttt{pair : 'a t -> 'b t ->
+  %   ('a * 'b) t} est définie par \texttt{pair x y = app (map (fun x y -> (x,y))
+  %   x) y}.
+  \end{itemize}
 \end{defi}
 
-Notons que l'on est maintenant capable de réifier une fonction à deux variables
-: si \texttt{f} st de type \texttt{'a -> 'b -> 'c}, alors \texttt{map f : 'a t
-  -> ('b -> 'c) t}. Et donc \texttt{fun x -> app (map f x) : 'a t -> 'b t -> 'c
-  t}.
+Petite note sur les contraintes de compatibilité : rappelons ce que les
+foncteurs applicatifs modèlent : des ``valeurs spéciales'', sur lesquels on peut
+calculer en réifiant des calculs sur les valeurs normales. Cependant, il existe
+de nombreuses manières de combiner ces réifications, correspondant à différentes
+manières de structurer son code. Les quatres contraintes de compatibilité
+suffisent à assurer que ces organisations de code aboutiront au même résultat.
+
+Notons aussi qu'un foncteur applicatif est bien un foncteur, en définissant
+\texttt{map} comme \texttt{fun g -> app (pure g)}. Nous sommes maintenant
+capable de réifier une fonction à deux variables : si \texttt{f} st de type
+\texttt{'a -> 'b -> 'c}, alors \texttt{map f : 'a t -> ('b -> 'c) t}. Et donc
+\texttt{fun x -> app (map f x) : 'a t -> 'b t -> 'c t}.
 
 Reprenant notre exemple des valeurs à erreurs, nous pouvons l'étendre en un foncteur applicatif :
 
@@ -258,7 +325,7 @@ let app f x = match f, x with
      -> err
 \end{minted}
 
-Notons ici que nous avons défini un moyen de combiner deux valeurs spéciales : \texttt{f} et \texttt{x}. C'est en effet l'essence d'un applicatif : la combinaison de deux valeurs spéciales en une, afin de pouvoir continuer notre calcul avec les deux valeurs. En effet, nous pouvons remplacer, dans la définition d'un foncteur applicatif, la fonction \texttt{app} par la fonction \texttt{pair} suivante:
+Notons ici que nous avons défini un moyen de combiner deux valeurs spéciales : \texttt{f} et \texttt{x}. C'est en effet l'essence d'un applicatif : la combinaison de deux valeurs spéciales en une, afin de pouvoir continuer notre calcul avec les deux valeurs. En effet, nous pouvons remplacer, dans la définition d'un foncteur applicatif, la fonction \texttt{app} par la fonction \texttt{map} avec la fonction \texttt{pair} suivante:\footnote{Il faudra alors aussi adapter les contraintes de compatibilité.}
 
 \begin{minted}{ocaml}
 val pair : 'a t -> 'b t -> ('a * 'b) t
@@ -266,254 +333,330 @@ val pair : 'a t -> 'b t -> ('a * 'b) t
 
 Les applicatifs comme patron de conception sont assez utiles. Ils permettent de calculer avec des valeurs ``spéciales'', tout en maintenant une connaissance statique de toutes les valeurs à partir desquelles nous calculons. Cela permet la génération de graphe de dépendance pour un système incrémental, ou de générer des documentations automatiquement pour une interface en ligne de commande.
 
-Cependant, il manque encore un ingrédient crucial pour pouvoir calculer avec des valeurs spéciales, de manière générale : le cas où notre calcul, à partir de valeurs normales, retourne une valeur spéciale. En d'autres termes, nous souhaiterions réifier un calcul de type \texttt{'a -> 'b t} en un calcul de type \texttt{'a t -> 'b t}.
+Cependant, il manque encore un ingrédient crucial pour pouvoir calculer avec des valeurs spéciales, de manière générale : la possibilité de ``réifier'' un calcul produisant une valeur spéciale. En d'autres termes, nous souhaiterions réifier un calcul de type \texttt{'a -> 'b t} en un calcul de type \texttt{'a t -> 'b t}.
 
 \subsubsection{Enfin, les monades !}
 
-Une monade en OCaml est un type paramétré, muni de trois valeurs :
+\begin{defi}[Monades]
+  Une \emph{monade} est une structure:
+
+  \begin{minted}{ocaml}
+  type 'a t
+  val return : 'a -> 'a t
+  val bind : ('a -> 'b t) -> ('a t -> 'b t)
+  \end{minted}
+
+  Ces deux fonctions doivent satisfaire :
+  \begin{itemize}
+  \item \texttt{bind f (return x)} est \texttt{f x},
+  \item \texttt{bind unit x} est \texttt{x},
+  \item \texttt{bind (fun x -> bind g (f x)) a} est \texttt{bind g (bind f a)}
+  \end{itemize}
+\end{defi}
+
+Un concept de valeur spéciale implémenté sous la forme d'une monade assurera de pouvoir réifier un calcul dans le monde des valeurs ``normales'' et un calcul dans le monde des valeurs spéciales.
+
+Dans notre exemple des valeurs potentiellement erreurs:
 
 \begin{minted}{ocaml}
-type 'a t = ...
-
-val map : 'a t -> ('a -> 'b) -> 'b t
-val bind : 'a t -> ('a -> 'b t) -> 'b t
-val return : 'a -> 'a t
+let bind f = function
+  | Ok x -> f x
+  | Error _ as x -> x
 \end{minted}
 
-tel que l'on ait les propriétés suivantes :
+Ainsi, nous définissons un calcul pouvant échouer, et pouvons l'appliquer à une
+valeur pouvant être elle-même une erreur, comme si c'était une valeur normale.
 
 \subsection{Exemples de monades ``classiques''}
 
-L'exemple possiblement le plus simple de monade en OCaml est la monade \texttt{Option}:
-
-\begin{minted}{ocaml}
-type 'a t = Some of 'a | None
-
-let map x f = match x with
-  | None -> None
-  | Some x -> Some (f x)
-
-let bind x f = match x with
-  | None -> None
-  | Some x -> f x
-
-let return x = Some x
-\end{minted}
-
-Les éléments de cette monade sont les valeurs \textit{pouvant potentiellement être vide}. Les combinateurs \texttt{map} et \texttt{bind} permettent de calculer avec ces valeurs, en ne spécifiant que le cas où la valeur n'est pas vide.
-
-D'autres exemples de monades incluent:
+L'exemple possiblement le plus simple de monade en OCaml est la monade
+\texttt{Option}. Les ``valeurs spéciales'' de cette monade sont les valeurs
+\textit{pouvant potentiellement être vide}. Nous avons vu la monade
+\texttt{Result}. D'autres exemples de monades incluent:
 \begin{itemize}
-\item La monade \texttt{Result} qui contient les valeurs qui peuvent être une erreur.
-\item La monade \texttt{Asynchrone} qui contient les promesses d'une valeur dans le futur.
-\item La monade \texttt{Reactive} qui contient les valeurs pouvant changer dans le temps.
+\item La monade \texttt{Asynchrone}, dont les valeurs spéciales sont des promesses d'une valeur dans le futur.
+\item La monade \texttt{Reactive}, dont les valeurs spéciales sont des valeurs pouvant changer dans le temps.
 \end{itemize}
 
-\begin{minted}{ocaml}
-let open_json path  = ... (* Return a json from a filepath, might error if file not here *)
-let convert_json_to_t json = ... (* Convert a json, might error if json has not the right format *)
-let compute_from_t v = ... (* Do some computation from a value *)
-
-let compute () =
-  let json = open_json path in
-  let value = Result.bind convert_json_to_t json in
-  let output = Result.map compute_from_t value in
-  output
-\end{minted}
-
-\begin{minted}{ocaml}
-let open_json path  = ... (* Return a json from a filepath, might error if file not here *)
-let convert_json_to_t json = ... (* Convert a json, might error if json has not the right format *)
-let compute_from_t v = ... (* Do some computation from a value *)
-
-let compute () =
-  let json = Result.bind open_json path in
-  let output = Result.bind (fun x -> convert_json_to_t) json in
-  let output = Result.map compute_from_t value in
-  output
-\end{minted}
+Ces monades sont utilisées comme patron de conception dans des librairies ajoutant le support pour les types décrit ci-dessus, via une API définissant les fonctions \texttt{pure}, \texttt{map}, \texttt{app} et \texttt{bind}.
 
 \subsection{Support syntaxique pour les monades}
 
+Bien que le lambda calcul soit les fondations fonctionnelles du langage de programmation OCaml, celui-ci propose une syntaxe plus lisible, en particulier à travers les ``let-bindings''. Nous sommes en effet habitué, en OCaml, à écrire:
+
+\begin{minted}{ocaml}
+let est_majeur x y =
+  let x' = parse_json x and y' = parse_json y in
+  let age = extract_age x' y' in
+  age >= 18
+\end{minted}
+
+au lieu de
+
+\begin{minted}{ocaml}
+let est_majeur x y =
+  parse_json x, parse_json y |> fun (x,y) ->
+  extract_age x' y' |> fun age ->
+  age >= 18
+\end{minted}
+
+De même, si \texttt{parse\_json} et \texttt{extract\_age} peuvent retourner une erreur, OCaml permet d'écrire :
+
+\begin{minted}{ocaml}
+let est_majeur x y =
+  let* x' = parse_json x and+ y' = parse_json y in
+  let+ age = extract_age x' y' in
+  age >= 18
+\end{minted}
+
+où \texttt{let*} correspond à \texttt{bind}, \texttt{and+} à \texttt{pair} et \texttt{let+} à \texttt{map}.
 
 
-\subsection{Inconvénients de la programmation monadique}
+% \subsection{Inconvénients de la programmation monadique}
 
-\section{La monade \texttt{Annulation}}
+\section{La monade \texttt{Annulation} pour résoudre le retour en arrière}
 
 Revenons à notre problème initial. Dans le logiciel de présentations Slipshow, le passage à une étape supérieure demande l'exécution de multiples actions, dont l'annulation n'est pas évidente. Avant de considérer le choix technique de Slipshow, regardons certaines des options qui s'offrent à nous.
 
+\subsection{Options non retenues}
+
+\subsubsection{Instantanés du DOM}
+
 Dans les premières versions de Slipshow, le retour en arrière était fait en prenant régulièrement un instantané du DOM (Document Object Model, l'état du document HTML), ainsi qu'en rétablissant l'état du moteur de rendu de manière ad-hoc. Cela était générateur d'erreur, un gâchis de ressources difficile à étendre. De plus, les scripts définis par un utilisateur ne pouvaient fonctionner avec le retour en arrière s'ils avaient un état hors du DOM.
 
-- Avec un état ``pure''
+\subsubsection{État fonctionel}
+
+La solution précédente ``clone'' un état mutable (le DOM). Une autre possibilité, souvent utilisée dans les programmes fonctionnels, est de maintenir l'état courant dans une valeur purement fonctionelle. L'exécution d'une étape serait alors une fonction \texttt{step : state -> state}.
+
+Avec une telle fonction, il est facile de charger les anciens état dans une pile. Revenir en arrière, c'est alors simplement dépiler le dernier état dans la pile, et le considérer comme le nouvel état courant. Il faut alors bien une fonction \texttt{render : state -> unit} qui fasse correspondre l'état visible de la présentation (le DOM) et l'état donné en argument, et appeler cette fonction suffisement souvent.
+
+Cependant, bien que plus adaptée que la précédente, cette solution nécessite de définir à priori quelles pouront être les valeurs définies dans l'état, comment elles s'afficheront. Slipshow souhaite ne contraindre le moins possible les auteurs de présentations, en particulier via l'éxecution de scripts arbitraires avec l'action \texttt{exec}.
+
+\subsection{La monade}
+
+La solution retenue par Slipshow, qui a largement prouvé sa valeur, est l'utilisation d'une monade dont les ``valeurs spéciales'' sont des valeurs dont le calcul a produit des effets de bord, mais qui possèdent une fonction pour annuler ces effets de bord:
 
 \begin{minted}[bgcolor=bg]{ocaml}
   type 'a t = { value : 'a ; undo : unit -> unit }
 \end{minted}
 
-\subsection{Dans le cas asynchrone}
+Par exemple, voila comment mettre changer une référence mutable, tout en donnant la possibilité d'annuler ce changement:
+
+\begin{minted}[bgcolor=bg]{ocaml}
+let set x v =
+  let undo =
+    let old_x = !x in
+    fun () -> x := old_x
+  in
+  let value = x := v in
+  { value ; undo }
+\end{minted}
+
+Et voici comment cette monade combine des valeurs annulables, via la fonction \texttt{bind}. L'ordre d'appel de \texttt{y.undo} et \texttt{x.undo} est important !
+
+\begin{minted}[bgcolor=bg]{ocaml}
+let bind f x =
+  let y = f x.value in
+  let undo () =
+    y.undo () ; x.undo ()
+  in
+  let value = y.value in
+  { value ; undo }
+\end{minted}
+
+\subsection{Utilisation}
+
+L'intégralité des actions de Slipshow sont définies dans la monade Annulation, à partir de valeur de base telles que l'assignation de classe, style attributs. Cela permet d'écrire du code ressemblant de très près à du code ne se souciant pas de l'annulation, et de le réifier en un calcul générant une fonction d'annulation. Nous donnons ici un exemple:
+
+\begin{minted}[bgcolor=bg]{ocaml}
+let update_single elem f =
+  let n = f (get_at elem) in
+  if n <= 0 then
+    let* () = set_at "pauseAncestorMultiplicity" None elem in
+    set_class "pauseAncestor" false elem
+  else
+    let* () =
+      set_at "pauseAncestorMultiplicity" (Some (Jstr.of_int n)) elem
+    in
+    set_class "pauseAncestor" true elem
+
+let do_ _window elems =
+  Undoable.List.iter elems @@ fun elem ->
+  let* () = set_class "pauseTarget" false elem in
+  update elem (fun n -> n - 1)
+\end{minted}
+
+La différence avec une version ``directe'' de cet extrait, ne se préoccupant pas de l'annulation, réside uniquement dans les \texttt{let*} en lieu de \texttt{let}, et \texttt{Undoable.List.iter} en lieu de \texttt{List.iter}.
+
+\section{Quelques extensions}
 
 \subsection{La monade annulation et les animations}
 
 \subsection{L'annulation dans les scripts utilisateur}
 
+Une des difficultés récurrentes provient de la possibilité pour un auteur de présentation de définir ses propres scripts, à exécuter à une étape de la présentation, via l'action \texttt{exec}. Comment la fonction d'annulation de cette action peut-elle être définie ?
+
+Slipshow se retourne vers l'impératif pour cela : il définit une variable mutable, et donne à l'auteur du script une API pour modifier le DOM (par exemple, changer le style d'un élément). Lors de l'appel à une fonction de l'API, la variable mutable est augmentée d'une fonction d'annulation correspondant.
+
+L'auteur du script définit donc, s'il utilise l'API, une fonction d'annulation sans le savoir. S'il ne souhaite ou ne peux utiliser l'API de modification de Slipshow, il peut aussi définir sa propre fonction d'annulation, pour le script entier, et la retourner.
+
 \section{Conclusion}
 
-\section{Consignes générales}
+% \section{Consignes générales}
 
-Pour maintenir l'uniformité des actes des JFLA, nous vous demandons de ne
-changer ni la police par défaut ni sa taille (10 points).
-%
-En particulier, l'usage de paquets comme~\texttt{times} ou~\texttt{libertine}
-est interdit.
-%
-Modifier les paramètres typographiques qui régissent l'apparence du code
-informatique ou des formules mathématiques pour faire tenir un contenu trop
-dense dans une zone trop étroite est également de mauvais aloi.
+% Pour maintenir l'uniformité des actes des JFLA, nous vous demandons de ne
+% changer ni la police par défaut ni sa taille (10 points).
+% %
+% En particulier, l'usage de paquets comme~\texttt{times} ou~\texttt{libertine}
+% est interdit.
+% %
+% Modifier les paramètres typographiques qui régissent l'apparence du code
+% informatique ou des formules mathématiques pour faire tenir un contenu trop
+% dense dans une zone trop étroite est également de mauvais aloi.
 
-L'usage des commandes de positionnement et d'espacement explicites,
-notamment ~vspace et ses cousines, doit être minimisé.
-%
-La commande~sloppy ne doit être utilisée qu'en ultime recours,
-lorsqu'aucune reformulation du texte n'est possible.
+% L'usage des commandes de positionnement et d'espacement explicites,
+% notamment ~vspace et ses cousines, doit être minimisé.
+% %
+% La commande~sloppy ne doit être utilisée qu'en ultime recours,
+% lorsqu'aucune reformulation du texte n'est possible.
 
-L'option~\texttt{review} doit impérativement être utilisée lors de la production
-de la version soumise pour relecture.
-%
-Elle devra être remplacée par l'option~\texttt{final} pour la version finale.
+% L'option~\texttt{review} doit impérativement être utilisée lors de la production
+% de la version soumise pour relecture.
+% %
+% Elle devra être remplacée par l'option~\texttt{final} pour la version finale.
 
-\section{Options de la classe}
+% \section{Options de la classe}
 
-\paragraph{Option~\texttt{english}.}
+% \paragraph{Option~\texttt{english}.}
 
-La classe suppose par défaut un article rédigé en langue française.
-%
-Cette option est à utiliser si l'article est rédigé en langue anglaise.
+% La classe suppose par défaut un article rédigé en langue française.
+% %
+% Cette option est à utiliser si l'article est rédigé en langue anglaise.
 
-\paragraph{Option~\texttt{review}.}
+% \paragraph{Option~\texttt{review}.}
 
-Cette option rajoute les numéros de lignes dans la marge.
+% Cette option rajoute les numéros de lignes dans la marge.
 
-\paragraph{Option~\texttt{final}.}
+% \paragraph{Option~\texttt{final}.}
 
-L'option~\texttt{final} prépare l'article à l'inclusion dans les actes de la
-conférence.
+% L'option~\texttt{final} prépare l'article à l'inclusion dans les actes de la
+% conférence.
 
-\section{Paquets chargés par défaut}
+% \section{Paquets chargés par défaut}
 
-La classe~\texttt{jflart.cls} charge un certain nombre de paquets par défaut.
-%
-\begin{itemize}
-\item
-  %
-  Le paquet~\texttt{babel} pour la prise en charge de la langue française ou
-  anglaise.
+% La classe~\texttt{jflart.cls} charge un certain nombre de paquets par défaut.
+% %
+% \begin{itemize}
+% \item
+%   %
+%   Le paquet~\texttt{babel} pour la prise en charge de la langue française ou
+%   anglaise.
 
-\item
-  %
-  Les paquets~\texttt{color} et~\texttt{graphicx}, pour permettre l'usage de
-  couleurs et l'inclusion d'images.
+% \item
+%   %
+%   Les paquets~\texttt{color} et~\texttt{graphicx}, pour permettre l'usage de
+%   couleurs et l'inclusion d'images.
 
-\item
-  %
-  Le paquet~\texttt{hyperref}, pour l'ajout des hyperliens.
-  %
-  Ceux-ci, par défaut, ne sont pas mis en surbrillance afin de préserver le gris
-  typographique du texte.
+% \item
+%   %
+%   Le paquet~\texttt{hyperref}, pour l'ajout des hyperliens.
+%   %
+%   Ceux-ci, par défaut, ne sont pas mis en surbrillance afin de préserver le gris
+%   typographique du texte.
 
-\item
-  %
-  Les paquets de l'\emph{American Mathematical Society}, à
-  savoir~\texttt{amsmath}, \texttt{amssymb} et~\texttt{amsthm}.
-  %
-  Nous recommandons vivement l'usage des environnements proposés par ces paquets
-  pour énoncer théorèmes, lemmes et définitions (voir plus bas), ainsi que pour
-  aligner d'éventuelles équations et
-  formules~(environnements~\texttt{align},~\texttt{aligned},~\texttt{cases},
-  etc.).
+% \item
+%   %
+%   Les paquets de l'\emph{American Mathematical Society}, à
+%   savoir~\texttt{amsmath}, \texttt{amssymb} et~\texttt{amsthm}.
+%   %
+%   Nous recommandons vivement l'usage des environnements proposés par ces paquets
+%   pour énoncer théorèmes, lemmes et définitions (voir plus bas), ainsi que pour
+%   aligner d'éventuelles équations et
+%   formules~(environnements~\texttt{align},~\texttt{aligned},~\texttt{cases},
+%   etc.).
 
-\item
-  %
-  Le paquet~\texttt{marthpartir} de D.~Rémy, qui propose un support natif pour
-  les mathématiques en mode paragraphe ainsi qu'une commande pour les règles
-  d'inférence.
+% \item
+%   %
+%   Le paquet~\texttt{marthpartir} de D.~Rémy, qui propose un support natif pour
+%   les mathématiques en mode paragraphe ainsi qu'une commande pour les règles
+%   d'inférence.
 
-\end{itemize}
+% \end{itemize}
 
-\section{Divers}
+% \section{Divers}
 
-\subsection{Figures}
+% \subsection{Figures}
 
-\begin{figure}
-  \centering
-  \includegraphics[width=.8\linewidth]{jfla.jpg}
-  \caption{Les JFLA 2002, photographie par Maxence Guesdon}
-  \label{fig:bienbelle}
-\end{figure}
+% \begin{figure}
+%   \centering
+%   \includegraphics[width=.8\linewidth]{jfla.jpg}
+%   \caption{Les JFLA 2002, photographie par Maxence Guesdon}
+%   \label{fig:bienbelle}
+% \end{figure}
 
-L'usage de~\texttt{includegraphics} avec une option~\texttt{width} permet une
-utilisation facile d'images, comme illustré par la figure~\ref{fig:bienbelle}.
+% L'usage de~\texttt{includegraphics} avec une option~\texttt{width} permet une
+% utilisation facile d'images, comme illustré par la figure~\ref{fig:bienbelle}.
 
-\subsection{Mathématiques}
+% \subsection{Mathématiques}
 
-Les environnements suivants ont été prédéfinis via le paquet~\texttt{amsthm}.
+% Les environnements suivants ont été prédéfinis via le paquet~\texttt{amsthm}.
 
-\begin{center}
-  \begin{tabular}{lll}
-    Environnement & Nom français & Nom anglais
-    \\
-    \hline
-    \texttt{theo} & Théorème & \emph{Theorem}
-    \\
-    \texttt{prop} & Proposition & \emph{Proposition}
-    \\
-    \texttt{conj} & Conjecture & \emph{Conjecture}
-    \\
-    \texttt{coro} & Corollaire & \emph{Corollary}
-    \\
-    \texttt{lemm} & Lemme & \emph{Lemma}
-    \\
-    \texttt{defi} & Définition & \emph{Definition}
-    \\
-    \texttt{rema} & Remarque & \emph{Remark}
-    \\
-    \texttt{exem} & Exemple & \emph{Example}
-  \end{tabular}
-\end{center}
+% \begin{center}
+%   \begin{tabular}{lll}
+%     Environnement & Nom français & Nom anglais
+%     \\
+%     \hline
+%     \texttt{theo} & Théorème & \emph{Theorem}
+%     \\
+%     \texttt{prop} & Proposition & \emph{Proposition}
+%     \\
+%     \texttt{conj} & Conjecture & \emph{Conjecture}
+%     \\
+%     \texttt{coro} & Corollaire & \emph{Corollary}
+%     \\
+%     \texttt{lemm} & Lemme & \emph{Lemma}
+%     \\
+%     \texttt{defi} & Définition & \emph{Definition}
+%     \\
+%     \texttt{rema} & Remarque & \emph{Remark}
+%     \\
+%     \texttt{exem} & Exemple & \emph{Example}
+%   \end{tabular}
+% \end{center}
 
-\subsection{Code source}
+% \subsection{Code source}
 
-La classe~\texttt{jflart.cls} ne propose pas de paquet pour la coloration
-syntaxique par défaut.
-%
-Les paquets~\texttt{listings} et~\texttt{minted} sont les plus fréquemment
-utilisés.
+% La classe~\texttt{jflart.cls} ne propose pas de paquet pour la coloration
+% syntaxique par défaut.
+% %
+% Les paquets~\texttt{listings} et~\texttt{minted} sont les plus fréquemment
+% utilisés.
 
-% Pour utiliser le paquet~\texttt{listings}, il est recommandé de
-% charger ce paquet en lui passant l'option~\texttt{final}~:
-% \verb,\usepackage[final]{listings},. Ainsi, les extraits de code
-% source seront bien affichés dans votre article, même lors de la
-% production de la version soumise à relecture pour évaluation avec
-% l'option~\texttt{review} de la classe \texttt{jflart.cls}.
+% % Pour utiliser le paquet~\texttt{listings}, il est recommandé de
+% % charger ce paquet en lui passant l'option~\texttt{final}~:
+% % \verb,\usepackage[final]{listings},. Ainsi, les extraits de code
+% % source seront bien affichés dans votre article, même lors de la
+% % production de la version soumise à relecture pour évaluation avec
+% % l'option~\texttt{review} de la classe \texttt{jflart.cls}.
 
-\subsection{Bibliographie}
+% \subsection{Bibliographie}
 
-Vous pouvez au choix utiliser bibtex ou biblatex pour gérer votre bibliographie.
-%
-Merci d'utiliser le style de citation~\texttt{alpha-fr} avec bibtex, ou son
-équivalent biblatex.
+% Vous pouvez au choix utiliser bibtex ou biblatex pour gérer votre bibliographie.
+% %
+% Merci d'utiliser le style de citation~\texttt{alpha-fr} avec bibtex, ou son
+% équivalent biblatex.
 
-\subsection{Remerciements}
+% \subsection{Remerciements}
 
-La classe ne propose pas d'environnement dédié pour les remerciements et sources de financement éventuelles.
-%
-Nous vous suggérons d'utiliser la commande~{paragraph\{Remerciements.\}} en
-fin d'article.
+% La classe ne propose pas d'environnement dédié pour les remerciements et sources de financement éventuelles.
+% %
+% Nous vous suggérons d'utiliser la commande~{paragraph\{Remerciements.\}} en
+% fin d'article.
 
-\subsection{Autres ressources}
+% \subsection{Autres ressources}
 
-La classe~\texttt{jflart.cls} et sa documentation sont disponibles en
-ligne~\cite{JFLART}.
+% La classe~\texttt{jflart.cls} et sa documentation sont disponibles en
+% ligne~\cite{JFLART}.
 
 \bibliographystyle{alpha-fr}
 \bibliography{jflart}

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Creator: fig2dev Version 3.2.9 -->
+<!-- CreationDate: 2025-10-11 12:55:32 -->
+<!-- Magnification: 1 -->
+<svg	xmlns="http://www.w3.org/2000/svg"
+	xmlns:xlink="http://www.w3.org/1999/xlink"
+	width="230pt" height="257pt"
+	viewBox="-408 1437 3831 4269">
+<g fill="none">
+<!-- Line -->
+<rect x="0" y="4200" width="825" height="750"
+	stroke="#ff0000" stroke-width="30px"/>
+<!-- Line -->
+<rect x="75" y="4275" width="675" height="975"
+	stroke="#000000" stroke-width="8px"/>
+<!-- Text -->
+<text xml:space="preserve" x="150" y="4125" fill="#ff0000" font-family="Times" font-style="normal" font-weight="normal" font-size="84" text-anchor="start">Partie visible</text>
+<!-- Text -->
+<text xml:space="preserve" x="150" y="5100" fill="#000000" font-family="Times" font-style="normal" font-weight="normal" font-size="72" text-anchor="start">Preuve</text>
+<!-- Text -->
+<text xml:space="preserve" x="150" y="4500" fill="#0000ff" font-family="Times" font-style="normal" font-weight="normal" font-size="72" text-anchor="start">Définition</text>
+<!-- Text -->
+<text xml:space="preserve" x="150" y="4800" fill="#ff0000" font-family="Times" font-style="normal" font-weight="normal" font-size="72" text-anchor="start">Théorème</text>
+<!-- Text -->
+<text xml:space="preserve" x="150" y="5625" fill="#000000" font-family="Times" font-style="normal" font-weight="normal" font-size="144" text-anchor="start">Étape 1</text>
+<!-- Line -->
+<rect x="1815" y="2085" width="675" height="600"
+	stroke="#000000" stroke-width="8px"/>
+<!-- Line -->
+<rect x="2640" y="2085" width="675" height="600"
+	stroke="#000000" stroke-width="8px"/>
+<!-- Line -->
+<rect x="-300" y="2100" width="675" height="600"
+	stroke="#000000" stroke-width="8px"/>
+<!-- Line -->
+<rect x="525" y="2100" width="675" height="600"
+	stroke="#000000" stroke-width="8px"/>
+<!-- Line -->
+<polyline points=" -150,3450 3225,3450"
+	stroke="#000000" stroke-width="8px"/>
+<!-- Line -->
+<rect x="2250" y="4575" width="825" height="750"
+	stroke="#ff0000" stroke-width="30px"/>
+<!-- Line -->
+<rect x="2325" y="4275" width="675" height="975"
+	stroke="#000000" stroke-width="8px"/>
+<!-- Line -->
+<rect x="-375" y="2025" width="825" height="750"
+	stroke="#ff0000" stroke-width="30px"/>
+<!-- Line -->
+<rect x="2565" y="2010" width="825" height="750"
+	stroke="#ff0000" stroke-width="30px"/>
+<!-- Text -->
+<text xml:space="preserve" x="1275" y="3825" fill="#000000" font-family="Times" font-style="normal" font-weight="normal" font-size="204" text-anchor="start">Slip</text>
+<!-- Text -->
+<text xml:space="preserve" x="2400" y="5100" fill="#000000" font-family="Times" font-style="normal" font-weight="normal" font-size="72" text-anchor="start">Preuve</text>
+<!-- Text -->
+<text xml:space="preserve" x="2400" y="4500" fill="#0000ff" font-family="Times" font-style="normal" font-weight="normal" font-size="72" text-anchor="start">Définition</text>
+<!-- Text -->
+<text xml:space="preserve" x="2400" y="4800" fill="#ff0000" font-family="Times" font-style="normal" font-weight="normal" font-size="72" text-anchor="start">Théorème</text>
+<!-- Text -->
+<text xml:space="preserve" x="2400" y="5625" fill="#000000" font-family="Times" font-style="normal" font-weight="normal" font-size="144" text-anchor="start">Étape 2</text>
+<!-- Text -->
+<text xml:space="preserve" x="1575" y="5025" fill="#ff0000" font-family="Times" font-style="normal" font-weight="normal" font-size="84" text-anchor="start">Partie visible</text>
+<!-- Text -->
+<text xml:space="preserve" x="1905" y="2237" fill="#0000ff" font-family="Times" font-style="normal" font-weight="normal" font-size="72" text-anchor="start">Définition</text>
+<!-- Text -->
+<text xml:space="preserve" x="1909" y="2486" fill="#ff0000" font-family="Times" font-style="normal" font-weight="normal" font-size="72" text-anchor="start">Théorème</text>
+<!-- Text -->
+<text xml:space="preserve" x="2743" y="2307" fill="#000000" font-family="Times" font-style="normal" font-weight="normal" font-size="72" text-anchor="start">Preuve</text>
+<!-- Text -->
+<text xml:space="preserve" x="75" y="3225" fill="#000000" font-family="Times" font-style="normal" font-weight="normal" font-size="144" text-anchor="start">Étape 1</text>
+<!-- Text -->
+<text xml:space="preserve" x="2325" y="3225" fill="#000000" font-family="Times" font-style="normal" font-weight="normal" font-size="144" text-anchor="start">Étape 2</text>
+<!-- Text -->
+<text xml:space="preserve" x="-210" y="2252" fill="#0000ff" font-family="Times" font-style="normal" font-weight="normal" font-size="72" text-anchor="start">Définition</text>
+<!-- Text -->
+<text xml:space="preserve" x="628" y="2322" fill="#000000" font-family="Times" font-style="normal" font-weight="normal" font-size="72" text-anchor="start">Preuve</text>
+<!-- Text -->
+<text xml:space="preserve" x="-225" y="1950" fill="#ff0000" font-family="Times" font-style="normal" font-weight="normal" font-size="84" text-anchor="start">Partie visible</text>
+<!-- Text -->
+<text xml:space="preserve" x="1125" y="1650" fill="#000000" font-family="Times" font-style="normal" font-weight="normal" font-size="204" text-anchor="start">Slides</text>
+<!-- Text -->
+<text xml:space="preserve" x="2700" y="1950" fill="#ff0000" font-family="Times" font-style="normal" font-weight="normal" font-size="84" text-anchor="start">Partie visible</text>
+<!-- Text -->
+<text xml:space="preserve" x="-206" y="2501" fill="#ff0000" font-family="Times" font-style="normal" font-weight="normal" font-size="72" text-anchor="start">Théorème</text>
+</g>
+</svg>
