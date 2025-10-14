@@ -210,12 +210,12 @@ fonctions de type \texttt{'a t -> 'b t}).
   La fonction \texttt{map} doit satisfaire deux contraintes de compatibilité :
   \begin{itemize}
   \item Compatibilité avec l'identité : \texttt{map (fun (x : 'a) -> x)} doit être la fonction identité de type \texttt{'a t -> 'a t}
-  \item Compatibilité avec la composition: si \texttt{f : 'a -> 'b} et \texttt{g : 'b -> 'c}, et
-  \texttt{(o)} dénote la composition de fonction, alors les fonctions \texttt{map
-    (g o f)} et \texttt{(map g) o (map f)} coincident.
+  \item Compatibilité avec la composition: si \texttt{f : 'a -> 'b} et \texttt{g
+      : 'b -> 'c}, et \texttt{(o)} dénote la composition de fonction, alors les
+    fonctions \texttt{map (g o f)} et \texttt{(map g) o (map f)}
+    coincident, dans le sens où ces deux fonctions peuvent être
+      interchangées dans tout programme sans changement de comportement. On parlera d'équivalence à observation près.
   \end{itemize}
-  avec
-  la
 \end{defi}
 
 La fonction \texttt{map} ``réifie'' un calcul de valeur normales, en un calcul
@@ -233,8 +233,8 @@ let map f = function
 En voici un exemple d'utilisation de \texttt{map}, dans le cas où l'on utilise une fonction \texttt{read\_file : string -> string t} (souvenons nous que \texttt{'a t} représente nos ``valeurs avec erreurs'' ici) :
 
 \begin{minted}{ocaml}
-let result =
-  let content = read_file "/tmp/file" in
+let read_and_sanitize path =
+  let content = read_file path in
   let mouline c = c |> sanitize |> convert in
   map mouline content
 \end{minted}
@@ -255,14 +255,17 @@ l'exemple précédent:
 \begin{minted}{ocaml}
 let (let+) x f = map f x
 
-let result' =
-  let+ content = read_file "/tmp/file" in
+let read_and_sanitize path =
+  let+ content = read_file path in
   content |> sanitize |> convert
 \end{minted}
 
-On peut voir que la définition de \texttt{result'} correspond à celle que l'on
+On peut voir que la définition de \texttt{read\_and\_sanitize} correspond à celle que l'on
 aurait écrit si \texttt{read\_file} avait eu le type \texttt{string -> string}, à
 un unique caractère près : le \texttt{+}!
+
+\subsubsection{Limitations}
+\label{limitations1}
 
 Cependant, si les foncteurs permettent de réifier un calcul représenté par une
 fonction à une variable, ils sont cependant rapidement limités : leur définition
@@ -272,149 +275,218 @@ sous formes curryfiées. En effet, étant donnée une fonction \texttt{'a -> 'b 
   -> ('b -> 'c) t}, et non ce que l'on souhaiterait : \texttt{'a t -> 'b t -> 'c
   t}.
 
-\subsubsection{Les applicatifs}
+Concrètement, dans l'exemple précédent, nous ne pouvons pas combiner deux
+résultats de la fonction \texttt{read\_file}.
 
+\subsection{Les applicatifs}
 \begin{defi}[Applicatif]
-  Un \emph{foncteur applicatif} est un structure:
+  Un \emph{foncteur applicatif} est un foncteur avec les fonctions additionelles suivantes:
 
   \begin{minted}{ocaml}
-  type 'a t
   val pure : 'a -> 'a t
-  val app : ('a -> 'b) t -> ('a t -> 'b t)
+  val pair : 'a t -> 'b t -> ('a * 'b) t
   \end{minted}
 
   De même que \texttt{map} dans la définition des foncteur, ces deux fonctions
   doivent satisfaire à des propriétés supplémentaire pour correspondre à ce
-  qu'on attend d'elles.
+  qu'on attend d'elles :
   \begin{itemize}
-  \item Compatibilité avec l'identité,\footnote{\texttt{app (pure (fun (x : 'a) -> x))} est la fonction \texttt{fun (x : 'a t) -> x}}
-  \item Compatibilité avec la composition: si \texttt{f : ('a -> 'b) t} et \texttt{g : ('b -> 'c) t},
-    \texttt{(o)} dénote la composition de fonction, et \texttt{*} est \texttt{app o}, alors les fonctions \texttt{app
-      (g * f)} et \texttt{(app g) o (app f)} coincident.
-  \item Compatibilité entre \texttt{pure} et \texttt{app}: \texttt{app (pure f) (pure x)} est \texttt{pure (f x)}.
-  \item \texttt{app u (pure y) = app (pure (fun u -> u y)) u}
-  % \item Associativité de l'application de fonction: les fonction $app (f\otimes g)$ et est la fonction,\footnote{\texttt{app (app (app (pure compose ) u) v) w} est la fonction \texttt{app u (app v w)}}
-  % \item \texttt{app (map f x) y
-  %   = map (fun (x,y) -> f x y) (pair x y)}, où \texttt{pair : 'a t -> 'b t ->
-  %   ('a * 'b) t} est définie par \texttt{pair x y = app (map (fun x y -> (x,y))
-  %   x) y}.
+  \item \texttt{map (fun (x, y) -> f x, g y) (pair u v)} et \texttt{pair (map f u) (map g v)} sont équivalents à observation près.
+  \item \texttt{map fst (pair u (pure ()))} et \texttt{u} sont équivalents à observation près.
+  \item \texttt{map snd (pair (pure ()) v)} et \texttt{v} sont équivalents à observation près.
+  \item \texttt{map recombine (pair u (pair v w))} et \texttt{pair (pair u v) w} sont équivalents à observation près, où \texttt{recombine} est \texttt{fun (a,(b,c)) -> ((a,b),c)}.
   \end{itemize}
+
+%  Nous les omettons dans ce papier, elles peuvent être trouvées dans TODO % https://www.researchgate.net/profile/Ross-Paterson-2/publication/215446169_Applicative_Programming_with_Effects/links/5703a08008aedbac12707f3f/Applicative-Programming-with-Effects.pdf?_tp=eyJjb250ZXh0Ijp7ImZpcnN0UGFnZSI6InB1YmxpY2F0aW9uIiwicGFnZSI6InB1YmxpY2F0aW9uIn19 page 11.
+  % \begin{itemize}
+  % \item Compatibilité avec l'identité,\footnote{\texttt{app (pure (fun (x : 'a) -> x))} est la fonction \texttt{fun (x : 'a t) -> x}}
+  % \item Compatibilité avec la composition: si \texttt{f : ('a -> 'b) t} et \texttt{g : ('b -> 'c) t},
+  %   \texttt{(o)} dénote la composition de fonction, et \texttt{*} est \texttt{app o}, alors les fonctions \texttt{app
+  %     (g * f)} et \texttt{(app g) o (app f)} coincident.
+  % \item Compatibilité entre \texttt{pure} et \texttt{app}: \texttt{app (pure f) (pure x)} est \texttt{pure (f x)}.
+  % \item \texttt{app u (pure y) = app (pure (fun u -> u y)) u}
+  % % \item Associativité de l'application de fonction: les fonction $app (f\otimes g)$ et est la fonction,\footnote{\texttt{app (app (app (pure compose ) u) v) w} est la fonction \texttt{app u (app v w)}}
+  % % \item \texttt{app (map f x) y
+  % %   = map (fun (x,y) -> f x y) (pair x y)}, où \texttt{pair : 'a t -> 'b t ->
+  % %   ('a * 'b) t} est définie par \texttt{pair x y = app (map (fun x y -> (x,y))
+  % %   x) y}.
+  % \end{itemize}
 \end{defi}
 
-Petite note sur les contraintes de compatibilité : rappelons ce que les
-foncteurs applicatifs modèlent : des ``valeurs spéciales'', sur lesquels on peut
-calculer en réifiant des calculs sur les valeurs normales. Cependant, il existe
-de nombreuses manières de combiner ces réifications, correspondant à différentes
-manières de structurer son code. Les quatres contraintes de compatibilité
-suffisent à assurer que ces organisations de code aboutiront au même résultat.
+% Petite note sur les contraintes de compatibilité : rappelons ce que les
+% foncteurs applicatifs modèlent : des ``valeurs spéciales'', sur lesquels on peut
+% calculer en réifiant des calculs sur les valeurs normales. Cependant, il existe
+% de nombreuses manières de combiner ces réifications, correspondant à différentes
+% manières de structurer son code. Les quatres contraintes de compatibilité
+% suffisent à assurer que ces organisations de code aboutiront au même résultat.
 
-Notons aussi qu'un foncteur applicatif est bien un foncteur, en définissant
-\texttt{map} comme \texttt{fun g -> app (pure g)}. Nous sommes maintenant
-capable de réifier une fonction à deux variables : si \texttt{f} st de type
-\texttt{'a -> 'b -> 'c}, alors \texttt{map f : 'a t -> ('b -> 'c) t}. Et donc
-\texttt{fun x -> app (map f x) : 'a t -> 'b t -> 'c t}.
+% Notons aussi qu'un foncteur applicatif est bien un foncteur, en définissant
+% \texttt{map} comme \texttt{fun g -> app (pure g)}. Nous sommes maintenant
+% capable de réifier une fonction à deux variables : si \texttt{f} st de type
+% \texttt{'a -> 'b -> 'c}, alors \texttt{map f : 'a t -> ('b -> 'c) t}. Et donc
+% \texttt{fun x -> app (map f x) : 'a t -> 'b t -> 'c t}.
+
+Dans la sous-section~\ref{limitations1}, nous avions vu que nous ne pouvions
+réifier un calcul sous la forme d'une fonction à deux variables : nous ne
+pouvions transformer \texttt{'a -> 'b -> 'c} en \texttt{'a t -> 'b t -> 'c
+  t}.\footnote{La limitation à appliquer \texttt{map} deux fois était qu'il en fallait une version de type \texttt{('a -> 'b) t -> 'a t -> 'b t}. C'est en réalité une définition équivalente à celle donnée dans cet article.} Grâce à \texttt{pair}, c'est maintenant possible :
+
+\begin{minted}{ocaml}
+let map2 f x1 x2 =
+  map (fun (x1 x2) -> f x1 x2) (pair x1 x2)
+\end{minted}
 
 Reprenant notre exemple des valeurs à erreurs, nous pouvons l'étendre en un foncteur applicatif :
 
 \begin{minted}{ocaml}
 let pure x = Ok x
-let app f x = match f, x with
-  | Ok f, Ok x -> Ok (f x)
+let pair x y = match x, y with
+  | Ok f, Ok x -> Ok (x, y)
   | Error x, Error y -> Error (x @ y)
-  | (Error _ as err), Ok _ | Ok _, (Error _ as err)
-     -> err
+  | (Error l), Ok _ | Ok _, (Error l)
+     -> Error l
 \end{minted}
 
-Notons ici que nous avons défini un moyen de combiner deux valeurs spéciales : \texttt{f} et \texttt{x}. C'est en effet l'essence d'un applicatif : la combinaison de deux valeurs spéciales en une, afin de pouvoir continuer notre calcul avec les deux valeurs. En effet, nous pouvons remplacer, dans la définition d'un foncteur applicatif, la fonction \texttt{app} par la fonction \texttt{map} avec la fonction \texttt{pair} suivante:\footnote{Il faudra alors aussi adapter les contraintes de compatibilité.}
+% Notons ici que nous avons défini un moyen de combiner deux valeurs spéciales : \texttt{f} et \texttt{x}. C'est en effet l'essence d'un applicatif : la combinaison de deux valeurs spéciales en une, afin de pouvoir continuer notre calcul avec les deux valeurs. En effet, nous pouvons remplacer, dans la définition d'un foncteur applicatif, la fonction \texttt{app} par la fonction \texttt{map} avec la fonction \texttt{pair} suivante:\footnote{Il faudra alors aussi adapter les contraintes de compatibilité.}
+
+% \begin{minted}{ocaml}
+% val pair : 'a t -> 'b t -> ('a * 'b) t
+% \end{minted}
+
+\subsubsection{Support syntaxique en OCaml}
+
+De même que OCaml améliore l'utilisation de \texttt{map} via \texttt{(let+)}, il supporte un sucre syntaxique similaire via \texttt{(and+)}: \texttt{let+ <var1> = <value1> and <var2> = <value2> in <body>} est équivalent à \texttt{(let+) (fun (<var1>,<var2>) -> <body>) (pair <value1> <value2>)}. Nous pouvons donc écrire:
 
 \begin{minted}{ocaml}
-val pair : 'a t -> 'b t -> ('a * 'b) t
+let (and+) x y = pair f x
+
+let read_and_combine path1 path2 =
+  let+ content1 = read_file_and_sanitize path1
+  and+ content2 = read_file_and_sanitize path2 in
+  combine content1 content2
 \end{minted}
+
+On peut voir que la définition de \texttt{read\_and\_combine} correspond à celle que l'on
+aurait écrit si \texttt{read\_and\_sanitize} avait eu le type \texttt{string -> string}, à
+eux uniques caractères près : le \texttt{+}!
+
+\subsubsection{Limitations}
+\label{limitations2}
+
+% Cependant, si les foncteurs permettent de réifier un calcul représenté par une
+% fonction à une variable, ils sont cependant rapidement limités : leur définition
+% est trop générale pour permettre de réifier des fonctions à multiples arguments,
+% sous formes curryfiées. En effet, étant donnée une fonction \texttt{'a -> 'b ->
+%   c}, on peut grâce à \texttt{map} obtenir une fonction de la forme \texttt{'a t
+%   -> ('b -> 'c) t}, et non ce que l'on souhaiterait : \texttt{'a t -> 'b t -> 'c
+%   t}.
+
+% Concrètement, dans l'exemple précédent, nous ne pouvons pas combiner deux
+% résultats de la fonction \texttt{read\_file}.
+
+
 
 Les applicatifs comme patron de conception sont assez utiles. Ils permettent de calculer avec des valeurs ``spéciales'', tout en maintenant une connaissance statique de toutes les valeurs à partir desquelles nous calculons. Cela permet la génération de graphe de dépendance pour un système incrémental, ou de générer des documentations automatiquement pour une interface en ligne de commande.
 
-Cependant, il manque encore un ingrédient crucial pour pouvoir calculer avec des valeurs spéciales, de manière générale : la possibilité de ``réifier'' un calcul produisant une valeur spéciale. En d'autres termes, nous souhaiterions réifier un calcul de type \texttt{'a -> 'b t} en un calcul de type \texttt{'a t -> 'b t}.
+Cependant, il manque encore un ingrédient crucial pour pouvoir calculer avec des valeurs spéciales, de manière générale : la possibilité de ``réifier'' un calcul produisant une valeur spéciale. Par exemple, si nous souhaitons réfier \texttt{read\_and\_sanitize} pour l'utiliser sur une valeur pouvant être une erreur. En d'autres termes, nous souhaiterions réifier un calcul de type \texttt{'a -> 'b t} en un calcul de type \texttt{'a t -> 'b t}.
 
-\subsubsection{Enfin, les monades !}
+\subsection{Enfin, les monades !}
 
 \begin{defi}[Monades]
-  Une \emph{monade} est une structure:
+  Une \emph{monade} est un foncteur applicatif muni de la fonction additionelle suivante:
 
   \begin{minted}{ocaml}
-  type 'a t
-  val return : 'a -> 'a t
-  val bind : ('a -> 'b t) -> ('a t -> 'b t)
+  val join : 'a t t -> 'a t
   \end{minted}
 
-  Ces deux fonctions doivent satisfaire :
-  \begin{itemize}
-  \item \texttt{bind f (return x)} est \texttt{f x},
-  \item \texttt{bind unit x} est \texttt{x},
-  \item \texttt{bind (fun x -> bind g (f x)) a} est \texttt{bind g (bind f a)}
-  \end{itemize}
+  Une monade doit également satisfaire des règles additionelles :
+  l'associativité de \texttt{join}, et sa compatibilité vis à vis de
+  \texttt{pure}: \texttt{a = join (pure a) = join (map pure)}.
 \end{defi}
 
-Un concept de valeur spéciale implémenté sous la forme d'une monade assurera de pouvoir réifier un calcul dans le monde des valeurs ``normales'' et un calcul dans le monde des valeurs spéciales.
+Il n'est pas encore complètement clair comment \texttt{join} améliore nos
+possibilités de réifications. C'est via la fonction \texttt{bind : ('a -> 'b t)
+  -> 'a t -> 'b t} definie via \texttt{join} par \texttt{let bind f x = join (map f x)} qui permet cette réification. Notons que \texttt{bind} permettrait de définir \texttt{map} et \texttt{join}, et c'est d'ailleurs une définition alternative aux monades !
+
+% Un concept de valeur spéciale implémenté sous la forme d'une monade assurera de pouvoir réifier un calcul dans le monde des valeurs ``normales'' et un calcul dans le monde des valeurs spéciales.
 
 Dans notre exemple des valeurs potentiellement erreurs:
 
 \begin{minted}{ocaml}
-let bind f = function
-  | Ok x -> f x
-  | Error _ as x -> x
+let join f = function
+  | Ok (Ok x) -> Ok x
+  | Ok (Error e) | Error e -> Error e
 \end{minted}
 
 Ainsi, nous définissons un calcul pouvant échouer, et pouvons l'appliquer à une
 valeur pouvant être elle-même une erreur, comme si c'était une valeur normale.
 
-\subsection{Exemples de monades ``classiques''}
-
-L'exemple possiblement le plus simple de monade en OCaml est la monade
-\texttt{Option}. Les ``valeurs spéciales'' de cette monade sont les valeurs
-\textit{pouvant potentiellement être vide}. Nous avons vu la monade
-\texttt{Result}. D'autres exemples de monades incluent:
-\begin{itemize}
-\item La monade \texttt{Asynchrone}, dont les valeurs spéciales sont des promesses d'une valeur dans le futur.
-\item La monade \texttt{Reactive}, dont les valeurs spéciales sont des valeurs pouvant changer dans le temps.
-\end{itemize}
-
-Ces monades sont utilisées comme patron de conception dans des librairies ajoutant le support pour les types décrit ci-dessus, via une API définissant les fonctions \texttt{pure}, \texttt{map}, \texttt{app} et \texttt{bind}.
-
-\subsection{Support syntaxique pour les monades}
-
-Bien que le lambda calcul soit les fondations fonctionnelles du langage de programmation OCaml, celui-ci propose une syntaxe plus lisible, en particulier à travers les ``let-bindings''. Nous sommes en effet habitué, en OCaml, à écrire:
+En réutilisant les let-bindings d'OCaml, nous pouvons définir un calcul complet
+``comme s'il était dans des valeurs normales'', mais l'appliquer à des valeurs
+pouvant retourner des erreurs !
 
 \begin{minted}{ocaml}
-let est_majeur x y =
-  let x' = parse_json x and y' = parse_json y in
-  let age = extract_age x' y' in
-  age >= 18
+let (let*) x f = bind f x
+
+let compute path =
+  let* content1 = read_file path in
+  let* new_path = extract_path content1 in
+  let+ content2 = read_file new_path in
+  compute content2
 \end{minted}
 
-au lieu de
+% \subsection{Exemples de monades ``classiques''}
 
-\begin{minted}{ocaml}
-let est_majeur x y =
-  parse_json x, parse_json y |> fun (x,y) ->
-  extract_age x' y' |> fun age ->
-  age >= 18
-\end{minted}
+% L'exemple possiblement le plus simple de monade en OCaml est la monade
+% \texttt{Option}. Les ``valeurs spéciales'' de cette monade sont les valeurs
+% \textit{pouvant potentiellement être vide}. Nous avons vu la monade
+% \texttt{Result}. D'autres exemples de monades incluent:
+% \begin{itemize}
+% \item La monade \texttt{Asynchrone}, dont les valeurs spéciales sont des promesses d'une valeur dans le futur.
+% \item La monade \texttt{Reactive}, dont les valeurs spéciales sont des valeurs pouvant changer dans le temps.
+% \end{itemize}
 
-De même, si \texttt{parse\_json} et \texttt{extract\_age} peuvent retourner une erreur, OCaml permet d'écrire :
+% Ces monades sont utilisées comme patron de conception dans des librairies ajoutant le support pour les types décrit ci-dessus, via une API définissant les fonctions \texttt{pure}, \texttt{map}, \texttt{app} et \texttt{bind}.
 
-\begin{minted}{ocaml}
-let est_majeur x y =
-  let* x' = parse_json x and+ y' = parse_json y in
-  let+ age = extract_age x' y' in
-  age >= 18
-\end{minted}
+% \subsection{Support syntaxique pour les monades}
 
-où \texttt{let*} correspond à \texttt{bind}, \texttt{and+} à \texttt{pair} et \texttt{let+} à \texttt{map}.
+% Bien que le lambda calcul soit les fondations fonctionnelles du langage de programmation OCaml, celui-ci propose une syntaxe plus lisible, en particulier à travers les ``let-bindings''. Nous sommes en effet habitué, en OCaml, à écrire:
+
+% \begin{minted}{ocaml}
+% let est_majeur x y =
+%   let x' = parse_json x and y' = parse_json y in
+%   let age = extract_age x' y' in
+%   age >= 18
+% \end{minted}
+
+% au lieu de
+
+% \begin{minted}{ocaml}
+% let est_majeur x y =
+%   parse_json x, parse_json y |> fun (x,y) ->
+%   extract_age x' y' |> fun age ->
+%   age >= 18
+% \end{minted}
+
+% De même, si \texttt{parse\_json} et \texttt{extract\_age} peuvent retourner une erreur, OCaml permet d'écrire :
+
+% \begin{minted}{ocaml}
+% let est_majeur x y =
+%   let* x' = parse_json x and+ y' = parse_json y in
+%   let+ age = extract_age x' y' in
+%   age >= 18
+% \end{minted}
+
+% où \texttt{let*} correspond à \texttt{bind}, \texttt{and+} à \texttt{pair} et \texttt{let+} à \texttt{map}.
 
 
 % \subsection{Inconvénients de la programmation monadique}
 
-\section{La monade \texttt{Annulation} pour résoudre le retour en arrière}
+Ceci conclut notre brève introduction des monades. Il existe de nombreuses monades ``classiques'', très utilisées telle la monade \texttt{Result} pour les valeurs pouvant être une erreur, la monade \texttt{Option} pour les valeurs potentiellement absente, mais aussi des monades pour la programmation fonctionnelle réactive (FRP), pour la monade \texttt{IO} pour encoder les effets de bords, la monade \texttt{State} pour propager un état dans un calcul, ... et d'autres encore, comme la monade \texttt{List}.
+
+Cependant, la monade que nous allons présenter dans la section suivante est une monade moins connue, et pourtant particulièrement utile dans son cas d'usage. Cette monade apporte dans ce contexte un poids supplémentaire au fait que ce patron de conception est applicable avec succès à de nombreuses situations.
+
+\section{La monade \texttt{Annulation} pour le retour en arrière}
 
 Revenons à notre problème initial. Dans le logiciel de présentations Slipshow, le passage à une étape supérieure demande l'exécution de multiples actions, dont l'annulation n'est pas évidente. Avant de considérer le choix technique de Slipshow, regardons certaines des options qui s'offrent à nous.
 
@@ -422,22 +494,22 @@ Revenons à notre problème initial. Dans le logiciel de présentations Slipshow
 
 \subsubsection{Instantanés du DOM}
 
-Dans les premières versions de Slipshow, le retour en arrière était fait en prenant régulièrement un instantané du DOM (Document Object Model, l'état du document HTML), ainsi qu'en rétablissant l'état du moteur de rendu de manière ad-hoc. Cela était générateur d'erreur, un gâchis de ressources difficile à étendre. De plus, les scripts définis par un utilisateur ne pouvaient fonctionner avec le retour en arrière s'ils avaient un état hors du DOM.
+Dans les premières versions de Slipshow, le retour en arrière était fait en prenant régulièrement un instantané du DOM (Document Object Model, l'état du document HTML), ainsi qu'en rétablissant l'état du moteur de rendu de manière ad-hoc. Cela était générateur d'erreur, un gâchis de ressources, et difficile à étendre. De plus, les scripts définis par un utilisateur ne pouvaient fonctionner avec le retour en arrière s'ils avaient un état hors du DOM.
 
 \subsubsection{État fonctionel}
 
 La solution précédente ``clone'' un état mutable (le DOM). Une autre possibilité, souvent utilisée dans les programmes fonctionnels, est de maintenir l'état courant dans une valeur purement fonctionelle. L'exécution d'une étape serait alors une fonction \texttt{step : state -> state}.
 
-Avec une telle fonction, il est facile de charger les anciens état dans une pile. Revenir en arrière, c'est alors simplement dépiler le dernier état dans la pile, et le considérer comme le nouvel état courant. Il faut alors bien une fonction \texttt{render : state -> unit} qui fasse correspondre l'état visible de la présentation (le DOM) et l'état donné en argument, et appeler cette fonction suffisement souvent.
+Avec une telle fonction, il est facile d'empiler les anciens état dans une pile. Revenir en arrière, c'est alors simplement dépiler le dernier état, et le considérer comme le nouvel état courant. Il faut alors bien une fonction \texttt{render : state -> unit} qui fasse correspondre l'état visible de la présentation (le DOM) et l'état donné en argument, et appeler cette fonction suffisement souvent.
 
-Cependant, bien que plus adaptée que la précédente, cette solution nécessite de définir à priori quelles pouront être les valeurs définies dans l'état, comment elles s'afficheront. Slipshow souhaite ne contraindre le moins possible les auteurs de présentations, en particulier via l'éxecution de scripts arbitraires avec l'action \texttt{exec}.
+Cependant, bien que plus adaptée que la précédente, cette solution nécessite de définir à priori quelles pouront être les valeurs définies dans l'état, comment elles s'afficheront. Slipshow souhaite ne contraindre le moins possible les auteurs de présentations, en particulier via l'éxecution de scripts arbitraires avec l'action \texttt{exec}. Cela permet par exemple l'utilisation de librairies JavaScript arbitraire, ce qui peut être utile pour les animations (par exemple, la simulation d'une Machine de Turing à Temps Infini TODO).
 
 \subsection{La monade}
 
-La solution retenue par Slipshow, qui a largement prouvé sa valeur, est l'utilisation d'une monade dont les ``valeurs spéciales'' sont des valeurs dont le calcul a produit des effets de bord, mais qui possèdent une fonction pour annuler ces effets de bord:
+La solution retenue par Slipshow, qui s'est depuis révélé largement satisfaisante, est l'utilisation d'une monade dont les ``valeurs spéciales'' sont des valeurs dont le calcul a produit des effets de bord, mais qui possèdent une fonction pour annuler ces effets de bord:
 
 \begin{minted}[bgcolor=bg]{ocaml}
-  type 'a t = { value : 'a ; undo : unit -> unit }
+type 'a undoable = { value : 'a ; undo : unit -> unit }
 \end{minted}
 
 Par exemple, voila comment mettre changer une référence mutable, tout en donnant la possibilité d'annuler ce changement:
