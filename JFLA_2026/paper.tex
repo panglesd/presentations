@@ -332,8 +332,7 @@ pouvions transformer \texttt{'a -> 'b -> 'c} en \texttt{'a t -> 'b t -> 'c
   t}.\footnote{La limitation à appliquer \texttt{map} deux fois était qu'il en fallait une version de type \texttt{('a -> 'b) t -> 'a t -> 'b t}. C'est en réalité une définition équivalente à celle donnée dans cet article.} Grâce à \texttt{pair}, c'est maintenant possible :
 
 \begin{minted}{ocaml}
-let map2 f x1 x2 =
-  map (fun (x1 x2) -> f x1 x2) (pair x1 x2)
+let map2 f x1 x2 = map (fun (x1 x2) -> f x1 x2) (pair x1 x2)
 \end{minted}
 
 Reprenant notre exemple des valeurs à erreurs, nous pouvons l'étendre en un foncteur applicatif :
@@ -368,7 +367,7 @@ let read_and_combine path1 path2 =
 
 On peut voir que la définition de \texttt{read\_and\_combine} correspond à celle que l'on
 aurait écrit si \texttt{read\_and\_sanitize} avait eu le type \texttt{string -> string}, à
-eux uniques caractères près : le \texttt{+}!
+deux uniques caractères près : le \texttt{+}!
 
 \subsubsection{Limitations}
 \label{limitations2}
@@ -386,7 +385,7 @@ eux uniques caractères près : le \texttt{+}!
 
 
 
-Les applicatifs comme patron de conception sont assez utiles. Ils permettent de calculer avec des valeurs ``spéciales'', tout en maintenant une connaissance statique de toutes les valeurs à partir desquelles nous calculons. Cela permet la génération de graphe de dépendance pour un système incrémental, ou de générer des documentations automatiquement pour une interface en ligne de commande.
+Les applicatifs comme patron de conception sont déjà utiles. Ils permettent de calculer avec des valeurs ``spéciales'', tout en maintenant une connaissance statique de toutes les valeurs spéciales à partir desquelles nous calculons. Cela permet la génération de graphe de dépendance pour un système incrémental, ou de générer des documentations automatiquement pour une interface en ligne de commande.
 
 Cependant, il manque encore un ingrédient crucial pour pouvoir calculer avec des valeurs spéciales, de manière générale : la possibilité de ``réifier'' un calcul produisant une valeur spéciale. Par exemple, si nous souhaitons réfier \texttt{read\_and\_sanitize} pour l'utiliser sur une valeur pouvant être une erreur. En d'autres termes, nous souhaiterions réifier un calcul de type \texttt{'a -> 'b t} en un calcul de type \texttt{'a t -> 'b t}.
 
@@ -504,65 +503,65 @@ Avec une telle fonction, il est facile d'empiler les anciens état dans une pile
 
 Cependant, bien que plus adaptée que la précédente, cette solution nécessite de définir à priori quelles pouront être les valeurs définies dans l'état, comment elles s'afficheront. Slipshow souhaite ne contraindre le moins possible les auteurs de présentations, en particulier via l'éxecution de scripts arbitraires avec l'action \texttt{exec}. Cela permet par exemple l'utilisation de librairies JavaScript arbitraire, ce qui peut être utile pour les animations (par exemple, la simulation d'une Machine de Turing à Temps Infini TODO).
 
-\subsection{La monade}
+\subsection{La monade \texttt{Annulation}}
 
 La solution retenue par Slipshow, qui s'est depuis révélé largement satisfaisante, est l'utilisation d'une monade dont les ``valeurs spéciales'' sont des valeurs dont le calcul a produit des effets de bord, mais qui possèdent une fonction pour annuler ces effets de bord:
 
 \begin{minted}[bgcolor=bg]{ocaml}
-type 'a undoable = { value : 'a ; undo : unit -> unit }
+type 'a io = unit -> 'a
+type 'a undoable = { value : 'a ; undo : unit io }
+type 'a t = 'a undoable io
 \end{minted}
 
 Par exemple, voila comment mettre changer une référence mutable, tout en donnant la possibilité d'annuler ce changement:
 
 \begin{minted}[bgcolor=bg]{ocaml}
-let set x v =
-  let undo =
-    let old_x = !x in
-    fun () -> x := old_x
-  in
+let set x v () =
+  let undo = let old_x = !x in fun () -> x := old_x in
   let value = x := v in
   { value ; undo }
 \end{minted}
 
-Et voici comment cette monade combine des valeurs annulables, via la fonction \texttt{bind}. L'ordre d'appel de \texttt{y.undo} et \texttt{x.undo} est important !
+Afin de définir une monade, il nous faut une fonction \texttt{return} pour
+plonger nos valeurs normales, et un fonction \texttt{bind} pour séquencer des
+valeurs de valeurs annulables. L'ordre d'appel de \texttt{y.undo} et
+\texttt{x.undo} dans la fonction \texttt{bind} est important !
 
 \begin{minted}[bgcolor=bg]{ocaml}
-let bind f x =
-  let y = f x.value in
-  let undo () =
-    y.undo () ; x.undo ()
-  in
+let return x = fun () -> { value = x; undo = fun () -> () }
+
+let bind f x = fun () ->
+  let y = f (x ()).value () in
+  let undo () = y.undo () ; x.undo () in
   let value = y.value in
   { value ; undo }
 \end{minted}
 
-\subsection{Utilisation}
-
-L'intégralité des actions de Slipshow sont définies dans la monade Annulation, à partir de valeur de base telles que l'assignation de classe, style attributs. Cela permet d'écrire du code ressemblant de très près à du code ne se souciant pas de l'annulation, et de le réifier en un calcul générant une fonction d'annulation. Nous donnons ici un exemple:
+On peut maintenant calculer dans les deux sens.
 
 \begin{minted}[bgcolor=bg]{ocaml}
-let update_single elem f =
-  let n = f (get_at elem) in
-  if n <= 0 then
-    let* () = set_at "pauseAncestorMultiplicity" None elem in
-    set_class "pauseAncestor" false elem
-  else
-    let* () =
-      set_at "pauseAncestorMultiplicity" (Some (Jstr.of_int n)) elem
-    in
-    set_class "pauseAncestor" true elem
+let x = ref 0
+let compute =
+  let* () = set x 2 in
+  set x 4
 
-let do_ _window elems =
-  Undoable.List.iter elems @@ fun elem ->
-  let* () = set_class "pauseTarget" false elem in
-  update elem (fun n -> n - 1)
+let res = compute () (* x passe de 0 à 2 puis à 4 *)
+let () = res.undo () (* x passe de 4 à 2 puis à 0 *)
 \end{minted}
 
-La différence avec une version ``directe'' de cet extrait, ne se préoccupant pas de l'annulation, réside uniquement dans les \texttt{let*} en lieu de \texttt{let}, et \texttt{Undoable.List.iter} en lieu de \texttt{List.iter}.
+\subsection{ Différer pour ne pas se tirer dans le pied}
 
-\section{Quelques extensions}
+Pourquoi utiliser le type \texttt{'a t} et non le type \texttt{'a undoable} ? La fonction \texttt{bind} combine des valeurs monadiques. En quelque sorte, elle définit l'ordre d'execution. Si les effets de bords ne sont pas différés, cet ordre d'execution risque d'être différent de celui attendu par la monade :
 
-\subsection{La monade annulation et les animations}
+\begin{minted}[bgcolor=bg]{ocaml}
+let res =
+  let a = set x 2 in (* x passe de 0 à 2 *)
+  let b = set x 4 in (* x passe de 2 à 4 *)
+  let* () = b in
+  a
+
+let () = res.undo () (* x passe de 4 à 0 puis à 2 *)
+\end{minted}
 
 \subsection{L'annulation dans les scripts utilisateur}
 
@@ -570,9 +569,70 @@ Une des difficultés récurrentes provient de la possibilité pour un auteur de 
 
 Slipshow se retourne vers l'impératif pour cela : il définit une variable mutable, et donne à l'auteur du script une API pour modifier le DOM (par exemple, changer le style d'un élément). Lors de l'appel à une fonction de l'API, la variable mutable est augmentée d'une fonction d'annulation correspondant.
 
+\begin{minted}[bgcolor=bg]{ocaml}
+let undos = ref []
+
+let set_class_js el class b =
+  let compute = set_class el class b in
+  undos := (compute ()).undo :: !undos
+\end{minted}
+
 L'auteur du script définit donc, s'il utilise l'API, une fonction d'annulation sans le savoir. S'il ne souhaite ou ne peux utiliser l'API de modification de Slipshow, il peut aussi définir sa propre fonction d'annulation, pour le script entier, et la retourner.
 
+
+
+\subsection{La monade \texttt{Annulation} et les animations}
+
+Une dernière subtilité de la monade \texttt{Annulation} est son intéraction avec
+la monade \texttt{Fut} représentant la programmation concurrente. En effet, en
+particulier dans le contexte d'une présentation, l'orateur voudra définir des
+animations pour illustrer ses concepts. On peut donc modifier le type de la monade en :
+
+\begin{minted}[bgcolor=bg]{ocaml}
+type 'a undoable = { value : 'a ; undo : unit Fut.t io }
+type 'a t = 'a undoable Fut.t io
+\end{minted}
+
+Notons que le type du champs \texttt{undo} est aussi modifié : annuler une
+animation pourrait être une animation aussi !
+
+De la à définir un transformateur de monade, il n'y a qu'un pas, que nous ne
+franchirons pas dans cet article.
+
+% \subsection{Utilisation}
+
+% L'intégralité des actions de Slipshow sont définies dans la monade \texttt{Annulation}, à partir de valeur de base telles que l'assignation de classe, style attributs. Cela permet d'écrire du code ressemblant de très près à du code ne se souciant pas de l'annulation, et de le réifier en un calcul générant une fonction d'annulation. Nous donnons ici un exemple:
+
+% \begin{minted}[bgcolor=bg]{ocaml}
+% let update_single elem f =
+%   let n = f (get_at elem) in
+%   if n <= 0 then
+%     let* () = set_at "pauseAncestorMultiplicity" None elem in
+%     set_class "pauseAncestor" false elem
+%   else
+%     let* () =
+%       set_at "pauseAncestorMultiplicity" (Some (Jstr.of_int n)) elem
+%     in
+%     set_class "pauseAncestor" true elem
+
+% let do_ _window elems =
+%   Undoable.List.iter elems @@ fun elem ->
+%   let* () = set_class "pauseTarget" false elem in
+%   update elem (fun n -> n - 1)
+% \end{minted}
+
+% La différence avec une version ``directe'' de cet extrait, ne se préoccupant pas de l'annulation, réside uniquement dans les \texttt{let*} en lieu de \texttt{let}, et \texttt{Undoable.List.iter} en lieu de \texttt{List.iter}.
+
 \section{Conclusion}
+
+Nous sommes partis d'un cas concret, la programmation d'un support de
+présentation généraliste. Cela nous a mené dans des concepts abstraits de
+théorie des catégories, appliqués comme patrons de conception. Ces patrons de
+conception on finalement pu être appliqués à notre cas d'étude, nous permettant de programmer presque normalement, tout en obtenant gratuitement une fonction pour annuler nos effets de bord.
+
+De plus, ce patron de conception a tenu bon face aux différentes contraintes et
+extensions que nous avions : les scripts utilisateurs en JavaScript, les
+animations. Il reste d'autres défis à venir, comme celui d'arrêter, annuler une animation en cours, puis la reprendre avant qu'elle ait entièrement fini... cas particuliers pouvant bien arriver dans le cadre de Slipshow !
 
 % \section{Consignes générales}
 
