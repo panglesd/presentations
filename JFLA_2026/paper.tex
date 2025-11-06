@@ -9,9 +9,9 @@
 % Numéro et année des JFLAs visées par l'article, obligatoire.
 \jfla{37}{2026}
 
-\title{La programmation monadique dans le système de présentation Slipshow}
+\title{Effets de bord réversibles et monades, dans le système de présentation Slipshow}
 % Un titre plus court, optionnel.
-%\titlerunning{Du bon usage de~\texttt{jflart.cls}}
+\titlerunning{La monade \texttt{Annulation}}
 
 % Auteurs, liste non abrégée.
 \author{Paul-Elliot Anglès d'Auriac}
@@ -35,7 +35,7 @@
   Slipshow est un logiciel de présentation, qui se focalise sur un style de
   discours plus «~continu~» que les diapositives. Très versatile, il permet à
   l'auteur de la présentation de déclencher de nombreuses actions à chaque
-  étape, voire même d'en définir soi-même. Cela pose un défi d'ingénierie :
+  étape, voire même d'en définir lui-même. Cela pose un défi d'ingénierie :
   comment «~inverser~» l'exécution d'une étape, quand le présentateur souhaite
   revenir en arrière, tout en gardant un code simple, maintenable et extensible
   ? Dans cet article, nous verrons la solution utilisée par Slipshow, basée sur
@@ -45,7 +45,7 @@
 
 \section{Introduction}
 
-Slipshow\cite{slipshow} est un logiciel de présentation, à l'instar de Beamer, LibreOffice
+Slipshow~\cite{slipshow} est un logiciel de présentation, à l'instar de Beamer, LibreOffice
 Impress ou Reveal.js. Il diffère cependant fondamentalement de ces
 exemples, en ce qu'il s'éloigne du concept de diapositives (ou «~slides~» en
 anglais).
@@ -55,7 +55,7 @@ cours au tableau, il n'est pas rare de séparer le tableau en deux, et de
 n'effacer qu'une moitié à la fois. Cela assure qu'au moins une moitié du contenu
 passé sera accessible pour le public, en cas de distraction momentanée.
 
-Au contraire, si une distraction intempestive survient peu avant le passage à la
+Au contraire, si une déconcentration intempestive survient peu avant le passage à la
 diapositive suivante, le spectateur distrait manquera irréversiblement la fin de
 la diapositive, l'empêchant potentiellement de comprendre la suite de l'exposé.
 
@@ -79,7 +79,7 @@ navigateur permettant le déroulement d'une page web.
 
 Bien que les slips forment la genèse du projet Slipshow, celui-ci s'est bien
 agrandi et supporte des présentations par diapositives, du style de Prezi, voire
-même utilisant des animations tels que celles souvent utilisées dans les vidéos
+même utilisant des animations telles que celles souvent utilisées dans les vidéos
 de vulgarisation scientifique. Une présentation Slipshow consiste en
 deux parties entrelacées dans le fichier source: une description du contenu statique ; et une description de la dynamique de la présentation:
 
@@ -94,14 +94,14 @@ Ceci est un théorème
 \end{minted}
 
 
-Le \emph{contenu statique} est sous la forme de texte, utilisant une syntaxe spéciale pour étiqueter des blocs d'une sémantique particulière (énumération à points, théorème, ...) ; le système s'occupant de la mise en page à partir de ces étiquettes. Par exemple, l'environnement \verb|theorem| sera affiché différemment d'une énumération à tirets.
+Le \emph{contenu statique} est sous la forme de texte, utilisant une syntaxe spéciale pour étiqueter des blocs d'une sémantique particulière (énumération à points, théorème, ...), le système s'occupant de la mise en page à partir de ces étiquettes.
 
 Le \emph{contenu dynamique} d'une présentation est ici défini dans le corps du texte, à nouveau à l'aide d'une syntaxe spéciale. Nous avons deux actions \texttt{pause}, qui à leur activation révèlent le contenu qui suit.
 
-Cependant, contrairement à \LaTeX/Beamer, l'ensemble des actions possibles pour Slipshow est très riche. En voici un petit aperçu:
+Contrairement à la plupart des systèmes de présentation de diapositives, l'ensemble des actions possibles pour Slipshow est très riche. En voici un petit aperçu:
 
 \begin{itemize}
-\item \verb|scroll-to=ID| déroule le slip courant jusqu'à ce que l'élément désigné soit entièrement visible.
+\item \verb|scroll-to=ID| déroule l'écran jusqu'à ce que l'élément désigné soit entièrement visible.
 \item \texttt{focus=ID} zoome sur l'élément désigné.
 \item \verb|static=ID| insère un élément caché à sa position originelle.
 \item \verb|play-media=ID| joue le fichier audio ou vidéo désigné.
@@ -116,7 +116,7 @@ Cependant, contrairement à \LaTeX/Beamer, l'ensemble des actions possibles pour
 
 La complexité du système d'actions de Slipshow pose un défi en terme de programmation : comment gérer le retour en arrière? Lors d'une présentation, il est fréquent que l'orateur souhaite revenir à une étape précédente, par exemple pour clarifier un point ou répondre à une question.
 
-Dans le cas de présentations classiques, le peu d'actions possibles (changer de slide, dissiper une pause) rend la définition d'un retour en arrière relativement simple. En effet, chaque action modifie la présentation de manière très prédictible, et facile à inverser: avancer d'un slide s'inverse en reculant d'un slide, dissiper une pause s'inverse en réappliquant la pause.
+Dans le cas de présentations classiques, le peu d'actions possibles (changer de slide, afficher du contenu caché) rend la définition d'un retour en arrière relativement simple. En effet, chaque action modifie la présentation de manière très prédictible, et facile à inverser: avancer d'un slide s'inverse en reculant d'un slide, afficher du content s'inverse en le cachant.
 
 Dans le cas de Slipshow, la multiplicité des actions possibles, ainsi que leurs interactions, rend la définition d'un retour en arrière plus ardue. Par exemple, l'action \texttt{scroll-to=ID} n'a pas d'action inverse évidente: il faut se souvenir de la position de départ pour pouvoir y revenir. L'exécution d'un script utilisateur peut modifier l'état de la présentation de manière arbitraire, rendant à priori impossible la définition d'une action inverse générique. Finalement, inverser de multiples actions exécutées successivement doit se faire dans un ordre précis, au risque de ne pas retrouver l'état initial.
 
@@ -132,11 +132,11 @@ L'introduction aux monades rend le papier autonome, mais sa présentation reste 
 
 \section{Monades et programmation}
 
-Une monade, en programmation, est un patron de conception, une manière
+Une monade, en programmation, est un patron de conception~\cite{Wadler1993}, une manière
 d'organiser son code pour obtenir certains bénéfices. Nous allons présenter ce
 patron de conception en passant par deux étapes intermédiaires : les
 \emph{foncteurs} et les \emph{foncteurs applicatifs}. Cette terminologie, et les
-définitions qui suivront sont inspirés de la théorie des catégories, bien qu'il ne
+définitions qui suivront sont inspirées de la théorie des catégories, bien qu'il ne
 soit pas nécessaire de connaître cette théorie pour profiter des bienfaits de ce
 patron de conception.
 
@@ -144,7 +144,7 @@ Les monades permettent de faire des calculs avec, non des valeurs, mais des
 \emph{valeurs spéciales}, tout en faisant «~comme si~» c'étaient des valeurs
 normales. La notion de «~spéciale~» dépendra du problème que l'on souhaite
 résoudre, mais nous prendrons dans cette section l'exemple de valeurs dont le
-calcul a produit une, ou plusieurs, erreurs.
+calcul a pu produire une, ou plusieurs, erreurs.
 
 \begin{minted}{ocaml}
 type 'a t = Ok of 'a | Error of string list
@@ -179,10 +179,8 @@ fonctions de type \texttt{'a t -> 'b t}).
   \end{itemize}
 \end{defi}
 
-La fonction \texttt{map} «~réifie~» un calcul de valeur normales, en un calcul
-de valeurs spéciales. La condition supplémentaire assure que les réifications
-sont sensées : elles sont au moins compatible avec la composition de
-fonction. Dans notre exemple de «~valeurs qui peuvent être des erreurs~», nous
+La fonction \texttt{map} réifie un calcul de valeurs normales, en un calcul
+de valeurs spéciales. Dans notre exemple de «~valeurs qui peuvent être des erreurs~», nous
 pouvons définir une telle fonction de réification comme suit :
 
 \begin{minted}{ocaml}
@@ -191,7 +189,7 @@ let map f = function
   | Error _ as x -> x
 \end{minted}
 
-En voici un exemple d'utilisation de \texttt{map}, dans le cas où l'on utilise une fonction \texttt{read\_file : string -> string t} (\texttt{'a t} représente nos «~valeurs avec erreurs~» ici) :
+En voici un exemple d'utilisation de \texttt{map}, dans le cas où l'on utilise une fonction \texttt{read\_file : string -> string t} (où \texttt{'a t} représente nos «~valeurs avec erreurs~» ici) :
 
 \begin{minted}{ocaml}
 let read_and_sanitize path =
@@ -200,15 +198,14 @@ let read_and_sanitize path =
   map mouline content
 \end{minted}
 
-Nous avons défini notre calcul \texttt{mouline} dans l'espace des valeurs
+Nous avons défini notre calcul, \texttt{mouline}, dans l'espace des valeurs
 normales, mais nous l'appliquons à une valeur pouvant être une erreur à l'aide
-de \texttt{map}. Cependant, cela complique le code, en nécessitant de définir
-une fonction contenant le calcul. Heureusement, la syntaxe OCaml permet de faire
+de \texttt{map}. Cependant, cela complique le code, par rapport à une «~inlinée~» de \texttt{mouline}. Heureusement, la syntaxe OCaml permet de faire
 mieux.
 
 \subsubsection{Support syntaxique en OCaml}
 
-Si on définit en OCaml une fonction nommée \texttt{(let+)} va traiter
+Si on définit fonction nommée \texttt{(let+)}, en OCaml va traiter
 \texttt{let+ <var> = <value> in <body>} comme étant du sucre syntaxique pour
 \texttt{(let+) <value> (fun <var> -> <body>)}. Ce sucre syntaxique permet d'améliorer
 l'exemple précédent:
@@ -229,7 +226,7 @@ un unique caractère près : le \texttt{+}!
 \label{limitations1}
 
 Cependant, si les foncteurs permettent de réifier un calcul représenté par une
-fonction à une variable, ils sont cependant rapidement limités : leur définition
+fonction à une variable, ils sont rapidement limités : leur définition
 est trop générale pour permettre de réifier des fonctions à multiples arguments,
 sous formes curryfiées. En effet, étant donnée une fonction \texttt{'a -> 'b ->
   c}, on peut grâce à \texttt{map} obtenir une fonction de la forme \texttt{'a t
@@ -240,16 +237,16 @@ Concrètement, dans l'exemple précédent, nous ne pouvons pas combiner deux
 résultats de la fonction \texttt{read\_file}.
 
 \subsection{Les applicatifs}
-\begin{defi}[Applicatif]
-  Un \emph{foncteur applicatif} est un foncteur avec les fonctions additionelles suivantes:
+\begin{defi}[Applicatif~\cite{MCBRIDE2008}]
+  Un \emph{foncteur applicatif} est un foncteur avec les fonctions additionnelles suivantes:
 
   \begin{minted}{ocaml}
   val pure : 'a -> 'a t
   val pair : 'a t -> 'b t -> ('a * 'b) t
   \end{minted}
 
-  De même que \texttt{map} dans la définition des foncteur, ces deux fonctions
-  doivent satisfaire à des propriétés supplémentaire pour correspondre à ce
+  De même que \texttt{map} dans la définition des foncteurs, ces deux fonctions
+  doivent satisfaire des propriétés supplémentaires pour correspondre à ce
   qu'on attend d'elles :
   \begin{itemize}
   \item \texttt{map (fun (x, y) -> f x, g y) (pair u v)} et \texttt{pair (map f u) (map g v)} sont équivalents à observation près.
@@ -262,7 +259,7 @@ résultats de la fonction \texttt{read\_file}.
 Dans la sous-section~\ref{limitations1}, nous avions vu que nous ne pouvions
 réifier un calcul sous la forme d'une fonction à deux variables : nous ne
 pouvions transformer \texttt{'a -> 'b -> 'c} en \texttt{'a t -> 'b t -> 'c
-  t}.\footnote{La limitation à appliquer \texttt{map} deux fois était qu'il en fallait une version de type \texttt{('a -> 'b) t -> 'a t -> 'b t}. C'est en réalité une définition équivalente à celle donnée dans cet article.} Grâce à \texttt{pair}, c'est maintenant possible :
+  t}.\footnote{La limitation à appliquer \texttt{map} deux fois était qu'il fallait une version de \texttt{map} de type \texttt{('a -> 'b) t -> 'a t -> 'b t}. C'est en réalité une définition équivalente à celle donnée dans cet article.} Grâce à \texttt{pair}, c'est maintenant possible :
 
 \begin{minted}{ocaml}
 let map2 f x1 x2 = map (fun (x1, x2) -> f x1 x2) (pair x1 x2)
@@ -280,7 +277,7 @@ let pair x y = match x, y with
 
 \subsubsection{Support syntaxique en OCaml}
 
-De même que OCaml améliore l'utilisation de \texttt{map} via \texttt{(let+)}, il supporte un sucre syntaxique similaire via \texttt{(and+)}: \texttt{let+ <var1> = <value1> and <var2> = <value2> in <body>} est équivalent à \texttt{(let+) (fun (<var1>,<var2>) -> <body>) (pair <value1> <value2>)}. Nous pouvons donc écrire:
+De même que OCaml améliore l'utilisation de \texttt{map} via \texttt{(let+)}, il supporte un sucre syntaxique similaire via \texttt{(and+)}: \texttt{let+ <var1> = <e1> and <var2> = <e2> in <body>} est équivalent à \texttt{(let+) (fun (<var1>,<var2>) -> <body>) (pair <e1> <e2>)}. Nous pouvons donc écrire:
 
 \begin{minted}{ocaml}
 let (and+) x y = pair x y
@@ -288,17 +285,17 @@ let (and+) x y = pair x y
 let read_and_combine path1 path2 =
   let+ content1 = read_file_and_sanitize path1
   and+ content2 = read_file_and_sanitize path2 in
-  combine content1 content2
+  String.concat content1 content2
 \end{minted}
 
 On peut voir que la définition de \texttt{read\_and\_combine} correspond à celle que l'on
 aurait écrit si \texttt{read\_and\_sanitize} avait eu le type \texttt{string -> string}, à
-deux uniques caractères près : le \texttt{+}!
+deux uniques caractères près : les deux \texttt{+}!
 
 \subsubsection{Limitations}
 \label{limitations2}
 
-Les applicatifs comme patron de conception sont déjà utiles. Ils permettent de calculer avec des valeurs «~spéciales~», tout en maintenant une connaissance statique de toutes les valeurs spéciales à partir desquelles nous calculons. Cela permet la génération de graphe de dépendance pour un système incrémental, ou de générer des documentations automatiquement pour une interface en ligne de commande.
+Les applicatifs comme patron de conception sont déjà utiles. Ils permettent de calculer avec des valeurs «~spéciales~», tout en maintenant une connaissance statique de toutes les valeurs spéciales à partir desquelles nous calculons. Ce patron de conception permet par exemple la génération de «~man pages~» automatique pour une interface en ligne de commande définie déclarativement~\cite{cmdliner}.
 
 Cependant, il manque encore un ingrédient crucial pour pouvoir calculer avec des valeurs spéciales, de manière générale : la possibilité de «~réifier~» un calcul produisant une valeur spéciale. Par exemple, si nous souhaitons réifier \texttt{read\_and\_sanitize} pour l'utiliser sur une valeur pouvant être une erreur. En d'autres termes, nous souhaiterions réifier un calcul de type \texttt{'a -> 'b t} en un calcul de type \texttt{'a t -> 'b t}.
 
@@ -311,7 +308,7 @@ Cependant, il manque encore un ingrédient crucial pour pouvoir calculer avec de
   val join : 'a t t -> 'a t
   \end{minted}
 
-  Une monade doit également satisfaire des règles additionelles :
+  Une monade doit également satisfaire des règles additionnelles :
   l'associativité de \texttt{join}, et sa compatibilité vis à vis de
   \texttt{pure}: \texttt{a = join (pure a) = join (map pure)}.
 \end{defi}
@@ -345,7 +342,7 @@ let compute path =
   compute content2
 \end{minted}
 
-Ceci conclut notre brève introduction des monades. Il existe de nombreuses monades «~classiques~», très utilisées telle la monade \texttt{Result} pour les valeurs pouvant être une erreur, la monade \texttt{Option} pour les valeurs potentiellement absente, mais aussi des monades pour la programmation fonctionnelle réactive (FRP), pour la monade \texttt{IO} pour encoder les effets de bords, la monade \texttt{State} pour propager un état dans un calcul, ... et d'autres encore, comme la monade \texttt{List}.
+Ceci conclut notre brève introduction des monades. Il existe de nombreuses monades «~classiques~», très utilisées telle la monade \texttt{Result} pour les valeurs dont le calcul a pu échouer avec une erreur~\cite{monads}, la monade \texttt{Option} pour les valeurs dont le calcul s'est arrêté~\cite{monads}, mais aussi des monades pour la programmation fonctionnelle réactive~\cite{lwd,incremental}, la monade \texttt{IO} pour encoder les effets de bord~\cite{haskellIO}, la monade \texttt{State} pour propager un état dans un calcul~\cite{monads}, la monade \texttt{List} pour un calcul non-déterministe~\cite{monads}, une monade utile pour le parsing~\cite{angstrom}...
 
 Cependant, la monade que nous allons présenter dans la section suivante est une monade moins connue, et pourtant particulièrement utile dans son cas d'usage. Cette monade apporte dans ce contexte un poids supplémentaire au fait que ce patron de conception est applicable avec succès à de nombreuses situations.
 
@@ -355,13 +352,13 @@ Revenons à notre problème initial. Dans le logiciel de présentations Slipshow
 
 Dans les premières versions de Slipshow, le retour en arrière était fait en prenant régulièrement un instantané du DOM (Document Object Model, l'état du document HTML), ainsi qu'en rétablissant l'état du moteur de rendu de manière ad-hoc. Cela était générateur d'erreur, un gâchis de ressources, et difficile à étendre. De plus, les scripts définis par un utilisateur ne pouvaient fonctionner avec le retour en arrière s'ils avaient un état hors du DOM.
 
-La solution précédente «~clone~» un état mutable (le DOM). Une autre possibilité, souvent utilisée dans les programmes fonctionnels, est de maintenir l'état courant dans une valeur purement fonctionnelle. L'exécution d'une étape serait alors une fonction \texttt{step : state -> state}. Avec une telle fonction, il est facile d'empiler les anciens état dans une pile. Revenir en arrière, c'est dépiler le dernier état, et le considérer comme le nouvel état courant. Il faut alors une fonction \texttt{render : state -> unit} qui fasse correspondre l'état visible de la présentation et l'état donné en argument, et appeler cette fonction suffisamment souvent.
+La solution précédente «~clone~» un état mutable (le DOM). Une autre possibilité, souvent utilisée dans les programmes fonctionnels, est de maintenir l'état courant dans une valeur purement fonctionnelle. L'exécution d'une étape est alors une fonction \texttt{step : state -> state}. Avec une telle fonction, il est facile d'empiler les anciens états dans une pile. Revenir en arrière, c'est dépiler le dernier état, et le considérer comme le nouvel état courant. Il faut alors une fonction \texttt{render : state -> unit} qui fasse correspondre l'état visible de la présentation et l'état donné en argument, et appeler cette fonction aux changements d'états.
 
-Cette solution nécessite de définir à priori quelles pourront être les valeurs définies dans l'état, comment elles s'afficheront. Slipshow souhaite ne contraindre le moins possible les auteurs de présentations, en particulier via l'exécution de scripts arbitraires avec l'action \texttt{exec}. Cela permet par exemple l'utilisation de librairies JavaScript arbitraire, ce qui peut être utile pour les animations.
+Cette solution nécessite de définir à priori quelles pourront être les valeurs définies dans l'état, comment elles s'afficheront. Slipshow souhaite contraindre le moins possible les auteurs de présentations, en particulier via l'exécution de scripts arbitraires avec l'action \texttt{exec} ; afin par exemple de permettre l'utilisation de librairies JavaScript arbitraires, ce qui peut être utile pour les animations~\cite{ittms}.
 
 \subsection{La monade \texttt{Annulation}}
 
-La solution retenue par Slipshow, qui s'est depuis révélé largement satisfaisante, est l'utilisation d'une monade dont les «~valeurs spéciales~» sont des valeurs dont le calcul a produit des effets de bord, mais qui possèdent une fonction pour annuler ces effets de bord:
+La solution retenue par Slipshow, qui s'est depuis révélée largement satisfaisante, est l'utilisation d'une monade dont les «~valeurs spéciales~» sont des valeurs dont le calcul a produit des effets de bord, mais qui possèdent une fonction pour annuler ces effets de bord:
 
 \begin{minted}{ocaml}
 type 'a io = unit -> 'a
@@ -369,7 +366,7 @@ type 'a undoable = { value : 'a ; undo : unit io }
 type 'a t = 'a undoable io
 \end{minted}
 
-Par exemple, voila comment mettre changer une référence mutable, tout en donnant la possibilité d'annuler ce changement:
+Par exemple, voilà comment mettre changer une référence mutable, tout en donnant la possibilité d'annuler ce changement:
 
 \begin{minted}{ocaml}
 let set (x : 'a ref) (v : 'a) : unit t = fun () ->
@@ -382,8 +379,8 @@ let set (x : 'a ref) (v : 'a) : unit t = fun () ->
 \end{minted}
 
 Afin de définir une monade, il nous faut une fonction \texttt{return} pour
-plonger nos valeurs normales, et un fonction \texttt{bind} pour séquencer des
-valeurs de valeurs annulables.
+plonger nos valeurs normales, et une fonction \texttt{bind} pour séquencer des
+valeurs de valeurs annulables ; satisfaisant les règles monadiques.
 
 \begin{minted}{ocaml}
 let return x = fun () -> { value = x; undo = fun () -> () }
@@ -397,7 +394,7 @@ let bind f x = fun () ->
 \end{minted}
 
 L'ordre d'appel de \texttt{y.undo} et \texttt{x.undo} dans la fonction
-\texttt{bind} est le point crucial de cette monade. En effet, les effets de bords du calcul de \texttt{y} se passant après ceux de \texttt{x}, il faut les annuler dans l'ordre inverse, comme l'illustre la figure suivante:
+\texttt{bind} est le point crucial de cette monade. En effet, les effets de bord du calcul de \texttt{y} se passant après ceux de \texttt{x}, il faut les annuler dans l'ordre inverse, comme l'illustre la figure suivante:
 
 %   +-----------+            +-----------+             +-----------+
 %   | État 1    | -- x () -> | État 2    | -- y () --> | État 2    |
@@ -426,7 +423,7 @@ L'ordre d'appel de \texttt{y.undo} et \texttt{x.undo} dans la fonction
 \end{tikzpicture}  
 \end{center}
 
-Nous laissons la vérification des lois des monadiques comme exercice. On peut maintenant exprimer naturellement un calcul avec effets de bords, l'effectuer, puis inverser ces effets de bord.
+On peut maintenant exprimer naturellement un calcul avec effets de bord, l'effectuer, puis inverser ces effets de bord.
 
 \begin{minted}{ocaml}
 let x = ref 0
@@ -440,21 +437,21 @@ let () = res.undo () (* x passe de 4 à 2 puis à 0 *)
 
 \subsection{ Différer pour ne pas se tirer dans le pied}
 
-Pourquoi utiliser le type \texttt{'a t} et non le type \texttt{'a undoable} ? La fonction \texttt{bind} combine des valeurs monadiques. En quelque sorte, elle définit l'ordre d'exécution. Si les effets de bords ne sont pas différés, cet ordre d'exécution risque d'être différent de celui attendu par la monade :
+Pourquoi utiliser le type \texttt{'a t} et non le type \texttt{'a undoable} ? La fonction \texttt{bind} combine des valeurs monadiques. En quelque sorte, elle définit l'ordre d'exécution. Si les effets de bord ne sont pas différés, cet ordre d'exécution risque d'être différent de celui attendu par la monade. En supposant qu'on applique les effets de bord immédiatement :
 
 \begin{minted}{ocaml}
 let res =
-  let a = set x 2 in (* x passe de 0 à 2 *)
-  let b = set x 4 in (* x passe de 2 à 4 *)
+  let a = set x 2 in (* x passerait de 0 à 2 *)
+  let b = set x 4 in (* x passerait de 2 à 4 *)
   let* () = b in
   a
 
-let () = res.undo () (* x passe de 4 à 0 puis à 2 *)
+let () = res.undo () (* x passerait de 4 à 0 puis à 2 *)
 \end{minted}
 
 \subsection{L'annulation dans le code source de Slipshow}
 
-La monde \texttt{Annulation} est omniprésente dans le code source de Slipshow. Un certains nombre de «~primitives~» annulables sont définies : pour changer la classe d'un élément, définir son style, déplacer la vision courante de la présentation...
+La monade \texttt{Annulation} est omniprésente dans le code source de Slipshow. Un certain nombre de «~primitives~» annulables sont définies : pour changer la classe d'un élément, définir son style, déplacer la vision courante de la présentation...
 
 Slipshow combine ensuite séquentiellement ces valeurs, en utilisant \texttt{let*} pour garder une lisibilité similaire à celle qu'on aurait en l'absence de monade.
 
@@ -464,31 +461,31 @@ Cette organisation a permis de corriger de nombreux bugs, ainsi que d'ajouter de
 
 Une des difficultés récurrentes provient de la possibilité pour un auteur de présentation de définir ses propres scripts, à exécuter à une étape de la présentation, via l'action \texttt{exec}. Comment la fonction d'annulation de cette action peut-elle être définie ?
 
-Slipshow se retourne vers l'impératif pour cela : il définit une variable mutable, et donne à l'auteur du script une API pour modifier le DOM (par exemple, changer le style d'un élément). Lors de l'appel à une fonction de l'API, la variable mutable est augmentée d'une fonction d'annulation correspondant.
+Slipshow se retourne vers l'impératif pour cela : il définit une variable mutable, et donne à l'auteur du script une API JavaScript pour modifier le DOM (par exemple, changer le style d'un élément). Lors de l'appel à une fonction de l'API, la variable mutable est augmentée d'une fonction d'annulation correspondant.
 
 \begin{minted}{ocaml}
 let undos = ref []
 
-let set_class_js el class b =
-  let compute = set_class el class b in
+let set_class_js el class b =              (* Appelable en JavaScript, *)
+  let compute = set_class el class b in    (* via slip.set_class       *)
   undos := (compute ()).undo :: !undos
 \end{minted}
 
-L'auteur du script définit donc, s'il utilise l'API, une fonction d'annulation sans le savoir.
+L'auteur du script définit donc, s'il utilise l'API \texttt{slip}, une fonction d'annulation de manière transparente.
 
 \begin{minted}{javascript}
-document.querySelector("#myid").children.forEach(el => {
+my_elements.forEach(el => {
   slip.set_class(el, "highlight", true);
 });
 \end{minted}
 
-Dans le script utilisateur ci-dessus (définit dans la source d'une présentation et exécuté avec l'action \texttt{exec}), les différents appels à \texttt{slip.set\_class} ajoutent chacun une entrée à la liste de fonctions \texttt{undos}.
+Dans le script utilisateur ci-dessus (défini dans la source d'une présentation et exécuté avec l'action \texttt{exec}), les différents appels à \texttt{slip.set\_class} ajoutent chacun une entrée à la liste de fonctions \texttt{undos}.
 
 
 
 \subsection{La monade \texttt{Annulation} et les animations}
 
-Une dernière subtilité de la monade \texttt{Annulation} est son interaction avec
+Une subtilité de la monade \texttt{Annulation} est son interaction avec
 la monade \texttt{Fut} représentant la programmation concurrente. En effet, en
 particulier dans le contexte d'une présentation, l'orateur voudra définir des
 animations pour illustrer ses concepts. On peut donc modifier le type de la monade en :
@@ -498,9 +495,9 @@ type 'a undoable = { value : 'a ; undo : unit Fut.t io }
 type 'a t = 'a undoable Fut.t io
 \end{minted}
 
-Notons que le type du champs \texttt{undo} est aussi modifié : annuler une
+Notons que le type du champ \texttt{undo} est aussi modifié : annuler une
 animation pourrait être une animation aussi !
-De là à définir un transformateur de monade, il n'y a qu'un pas, que nous ne
+De là à définir un transformateur de monade~\cite{Liang1995}, il n'y a qu'un pas, que nous ne
 franchirons pas dans cet article.
 
 
@@ -513,14 +510,14 @@ type 'a undoable = { value : 'a ; undo : unit result io }
 type 'a t = 'a undoable result io
 \end{minted}
 
-Lors d'une modification d'une base de donnée, il n'est pas rare de mettre la base à jour en utilisant de multiples étapes. Si un de ces étapes échoue, il y a un risque d'obtenir une base dans un état incohérent. La monade \texttt{Annulation} permet de s'assurer que l'on aura accès à une fonction permettant (si elle n'échoue pas) de rétablir la base dans son état cohérent initial.
+Illustrons son intérêt dans un contexte différent de celui de Slipshow. Lors d'une modification d'une base de données, il n'est pas rare de mettre la base à jour en utilisant de multiples étapes. Si une de ces étapes échoue, il y a un risque d'obtenir une base dans un état incohérent. La monade \texttt{Annulation} permet de s'assurer que l'on aura accès à une fonction permettant (si elle n'échoue pas) de rétablir la base dans son état cohérent initial. Cette utilisation s'apparente à la notion de saga définie dans~\cite{GarciaMolina1987}.
 
 \section{Conclusion}
 
 Nous sommes partis d'un cas concret, la programmation d'un support de
-présentation généraliste. Cela nous a mené dans des concepts abstraits de
+présentation généraliste. Cela nous a mené à des concepts abstraits de
 théorie des catégories, appliqués comme patrons de conception. Ces patrons de
-conception on finalement pu être appliqués à notre cas d'étude, nous permettant de programmer presque normalement, tout en obtenant gratuitement une fonction pour annuler nos effets de bord.
+conception ont finalement pu être appliqués à notre cas d'étude, nous permettant de programmer presque normalement, tout en obtenant gratuitement une fonction pour annuler nos effets de bord.
 
 De plus, ce patron de conception a tenu bon face aux différentes contraintes et
 extensions que nous avions : les scripts utilisateurs en JavaScript, les
