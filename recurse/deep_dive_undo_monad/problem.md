@@ -1,5 +1,7 @@
 # Bidirectional computing
 
+![](compile.draw){#compiledraw}
+
 {#cmf-addons .block}
 > ```txt
 > ## Title
@@ -16,9 +18,19 @@
 >
 > Wait for it...
 >
+> {draw=compiledraw}
+>
+> {draw=compiledraw}
+>
 > {pause}
 >
+> {draw=compiledraw}
+>
 > Surprise!{emph}
+
+{draw=compiledraw}
+
+{draw=compiledraw}
 
 <style>
 #cmf-addons {
