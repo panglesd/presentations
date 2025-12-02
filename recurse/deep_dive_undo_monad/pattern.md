@@ -104,3 +104,28 @@ if <expr> then <expr> else <expr>
   let x := computation1;
   computation2(x)
   ```
+
+{draw=ooe}
+
+{draw=ooe}
+
+{draw=ooe}
+
+{draw=ooe}
+
+{draw=ooe}
+
+{draw=ooe}
+
+{draw=ooe}
+
+{style=margin-top:150px pause}
+## If you define `t`, `return` and `;`, you can represent{style=color:red} all computations
+
+- ```
+  val run : 'a t -> 'a
+  ```
+
+<style>
+code { background-color:#f3f3f3; color:#444}
+</style>

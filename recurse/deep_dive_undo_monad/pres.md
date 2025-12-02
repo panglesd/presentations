@@ -22,6 +22,8 @@ dimension: 16:9
 >
 > {slip include src=undo.md}
 
+{up=main-container}
+
 <style>
 #main-container {
   display:flex;
