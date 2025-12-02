@@ -82,3 +82,25 @@ if <expr> then <expr> else <expr>
 
 {draw=ooe}
 
+{draw=ooe}
+
+{draw=ooe}
+
+{pause up style="margin-top:600px"}
+## Encoding computations: the Monad design pattern
+
+- Type for computations:
+  ```
+  type 'a t
+  ```
+
+- Trivial computation:
+  ```
+  return x
+  ```
+
+- Chaining computations
+  ```
+  let x := computation1;
+  computation2(x)
+  ```
