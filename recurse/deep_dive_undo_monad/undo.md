@@ -15,6 +15,7 @@ type 'a t = {
 }
 ```
 
+{draw=undomonaddraw}
 
 {draw=undomonaddraw}
 
@@ -23,7 +24,7 @@ type 'a t = {
 let return undo value = {undo; value}
 ```
 
-{pause down}
+{pause down #binddef}
 ```ocaml
 let bind computation1 f =
   let computation2 = f computation1.value in
@@ -37,3 +38,15 @@ let bind computation1 f =
 
 {draw=undomonaddraw}
 
+{up=binddef}
+```javascript
+let next = () => 
+  let x = document.querySelector("[pause]")
+  set_style(x, "display:none");
+  let y = document.querySelectorAll(".action")
+  List.map((e) => remove_class(e, "action"));
+
+let result = next ()
+
+computation.undo ()
+```
