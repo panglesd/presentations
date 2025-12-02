@@ -24,7 +24,7 @@ type 'a t = {
 let return undo value = {undo; value}
 ```
 
-{pause down #binddef}
+{pause #binddef}
 ```ocaml
 let bind computation1 f =
   let computation2 = f computation1.value in
@@ -38,15 +38,28 @@ let bind computation1 f =
 
 {draw=undomonaddraw}
 
-{up=binddef}
-```javascript
-let next = () => 
-  let x = document.querySelector("[pause]")
-  set_style(x, "display:none");
-  let y = document.querySelectorAll(".action")
-  List.map((e) => remove_class(e, "action"));
+{up=binddef pause}
+```ocaml
+let next () =
+  let x = querySelector "[pause]" in
+  let* () = set_style x "display:none" in
+  let y = document.querySelectorAll(".action") in
+  Undo_monad.List.map (fun e -> remove_class e "action") y
 
 let result = next ()
 
 computation.undo ()
 ```
+
+{pause down}
+```ocaml
+let remove_class e c =
+  let had_class = get_class e c in
+  let undo () = set_class e c had_class in
+  {
+    value = remove_class e c;
+    undo = undo
+  }
+```
+
+{draw=undomonaddraw}
