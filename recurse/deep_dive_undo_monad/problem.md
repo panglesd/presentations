@@ -55,6 +55,18 @@
 >
 > - I want fine control over transitions
 
+![](good_sol.draw){#good_sol draw}
+
+{draw=good_sol}
+
+{draw=good_sol}
+
+{draw=good_sol}
+
+{draw=good_sol}
+
+{draw=good_sol}
+
 <style>
 #limitations {
   margin-top:1500px;
