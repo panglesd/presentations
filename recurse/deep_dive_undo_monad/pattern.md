@@ -35,7 +35,7 @@
 > <expr> ? <expr> : <expr>
 > ```
 
-![](ooe.draw){draw}
+![](ooe.draw){draw #ooe}
 
 {up=batman}
 
@@ -49,6 +49,8 @@ with_effect(false) || with_effect(true)
 
 ```
 
+{draw=ooe}
+
 {pause}
 ```javascript
 
@@ -58,3 +60,21 @@ function or (a, b) {
 
 or(with_effect(false), with_effect(true))
 ```
+
+{draw=ooe}
+
+{up pause}
+## Functional Programming language only have expressions
+
+```ocaml
+if <expr> then <expr> else <expr>
+
+<expr> ; <expr>
+
+"hello"
+
+(fun n -> n + 1)
+```
+
+{draw=ooe}
+
