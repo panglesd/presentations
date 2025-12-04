@@ -41,15 +41,20 @@ More abstract!
   top :2100px;
 }
 #moreabstract2 {
-  top :2800px;
+  top :3150px;
+  height: 150px;
+  font-family: "myFont";
+}
+#moreabstract3 {
+  top :3200px;
   height: 150px;
   font-family: "myFont";
 }
 </style>
 
-{up reveal-at-unpause=moreabstract style="margin-top:450px;border:1px solid transparent"}
+{up reveal=moreabstract style="margin-top:450px;border:1px solid transparent"}
 
-{draw=composition unreveal=moreabstract}
+{draw=composition up=moreabstract}
 
 {#moreabstract2 .abstract .block .unrevealed}
 Even more abstract!
@@ -58,4 +63,10 @@ Even more abstract!
 
 {up reveal=moreabstract2 style="margin-top:680px;border:1px solid transparent"}
 
-{unreveal=moreabstract2}
+![](composition2.draw){#compo2 draw up=moreabstract2}
+
+{draw=compo2}
+
+{#moreabstract3 .abstract .block .unrevealed unreveal}
+MORE. ABSTRACT.
+
