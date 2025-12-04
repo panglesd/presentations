@@ -116,4 +116,15 @@ Can we really encode this proof by combining basic logic?
 >
 >
 
-![](lotsof.draw){draw}
+![](lotsof.draw){draw #lotsof}
+
+{draw=lotsof}
+
+{draw=lotsof}
+
+{draw=lotsof}
+
+{draw=lotsof}
+
+{down style="margin-top:950px;border:1px solid transparent"}
+
