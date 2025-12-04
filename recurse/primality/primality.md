@@ -46,9 +46,13 @@ More abstract!
   font-family: "myFont";
 }
 #moreabstract3 {
-  top :3200px;
+  top :4050px;
   height: 150px;
   font-family: "myFont";
+}
+#moreabstract4 {
+  top :5100px;
+  font-size: 2em
 }
 </style>
 
@@ -60,13 +64,26 @@ More abstract!
 Even more abstract!
 
 
-
 {up reveal=moreabstract2 style="margin-top:680px;border:1px solid transparent"}
 
 ![](composition2.draw){#compo2 draw up=moreabstract2}
 
 {draw=compo2}
 
-{#moreabstract3 .abstract .block .unrevealed unreveal}
+{#moreabstract3 .abstract .block .unrevealed reveal down}
 MORE. ABSTRACT.
 
+{style="margin-top:10000px;border:1px solid transparent"}
+
+![](numbers.draw){up=moreabstract3 draw #numbers}
+
+{draw=numbers}
+
+{draw=numbers}
+
+{draw=numbers}
+
+{draw=numbers}
+
+{#moreabstract4 .abstract .block .unrevealed reveal up}
+There are infinitely many prime numbers
