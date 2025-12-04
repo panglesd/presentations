@@ -54,6 +54,10 @@ More abstract!
   top :5100px;
   font-size: 2em
 }
+#moreabstract5 {
+  top :6200px;
+  font-size: 1.9em
+}
 </style>
 
 {up reveal=moreabstract style="margin-top:450px;border:1px solid transparent"}
@@ -73,8 +77,6 @@ Even more abstract!
 {#moreabstract3 .abstract .block .unrevealed reveal down}
 MORE. ABSTRACT.
 
-{style="margin-top:10000px;border:1px solid transparent"}
-
 ![](numbers.draw){up=moreabstract3 draw #numbers}
 
 {draw=numbers}
@@ -87,3 +89,31 @@ MORE. ABSTRACT.
 
 {#moreabstract4 .abstract .block .unrevealed reveal up}
 There are infinitely many prime numbers
+
+![](proof.draw){#proofd draw}
+
+{draw=proofd}
+
+{draw=proofd}
+
+{draw=proofd}
+
+{#moreabstract5 .abstract .block .unrevealed reveal down}
+Can we really encode this proof by combining basic logic?
+
+{up=moreabstract5 style=margin-top:4000px;font-size:2.9em;}
+# L∃∀N
+
+{style=margin-top:-50px;display:flex;justify-content:space-around children:style=width:47%;white-space:normal}
+>
+> ```txt
+> Tetris is a game where blocks fall from the top. When you create a line, it is removed.
+> ```
+>
+> ```txt
+> Suppose you have finitely many primes. Any prime divisor of the product plus one is a new prime.
+> ```
+>
+>
+
+![](lotsof.draw){draw}
