@@ -64,6 +64,8 @@ More abstract!
 
 {draw=composition up=moreabstract}
 
+{draw=composition}
+
 {#moreabstract2 .abstract .block .unrevealed}
 Even more abstract!
 
