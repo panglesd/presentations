@@ -368,17 +368,13 @@ Cependant, la monade que nous allons présenter dans la section suivante est une
 
 \section{La monade \texttt{Annulation} pour le retour en arrière}
 
-Revenons à notre problème initial. Dans le logiciel de présentations Slipshow, le passage à une étape supérieure demande l'exécution de multiples actions, dont l'annulation n'est pas évidente. Avant de considérer le choix technique de Slipshow, regardons certaines des options qui s'offrent à nous.
+Revenons à notre problème initial. Nous avons vu dans la section TODO la façon dont slipshow passe d'une étape à la suivante : en appelant une fonction \texttt{next}, qui en sus de ses effets de bords nécessaires à l'avancée de la présentation, retourne une fonction permettant d'annuler ces effets de bords.
 
-Dans les premières versions de Slipshow, le retour en arrière était fait en prenant régulièrement un instantané du DOM (Document Object Model, l'état du document HTML), ainsi qu'en rétablissant l'état du moteur de rendu de manière ad-hoc. Cela était générateur d'erreur, un gâchis de ressources, et difficile à étendre. De plus, les scripts définis par un utilisateur ne pouvaient fonctionner avec le retour en arrière s'ils avaient un état hors du DOM.
-
-La solution précédente «~clone~» un état mutable (le DOM). Une autre possibilité, souvent utilisée dans les programmes fonctionnels, est de maintenir l'état courant dans une valeur purement fonctionnelle. L'exécution d'une étape est alors une fonction \texttt{step : state -> state}. Avec une telle fonction, il est facile d'empiler les anciens états dans une pile. Revenir en arrière, c'est dépiler le dernier état, et le considérer comme le nouvel état courant. Il faut alors une fonction \texttt{render : state -> unit} qui fasse correspondre l'état visible de la présentation et l'état donné en argument, et appeler cette fonction aux changements d'états.
-
-Cette solution nécessite de définir à priori quelles pourront être les valeurs définies dans l'état, comment elles s'afficheront. Slipshow souhaite contraindre le moins possible les auteurs de présentations, en particulier via l'exécution de scripts arbitraires avec l'action \texttt{exec} ; afin par exemple de permettre l'utilisation de librairies JavaScript arbitraires, ce qui peut être utile pour les animations~\cite{ittms}.
+Nous en étions donc à voir comment définir \texttt{next} sans introduire un excès de complexité, malgré les nombreuses actions offertes par Slipshow. Pour cela, nous allons utiliser le patron de conception des monades, que nous venons de définir.
 
 \subsection{La monade \texttt{Annulation}}
 
-La solution retenue par Slipshow, qui s'est depuis révélée largement satisfaisante, est l'utilisation d'une monade dont les «~valeurs spéciales~» sont des valeurs dont le calcul a produit des effets de bord, mais qui possèdent une fonction pour annuler ces effets de bord:
+La fonction \texttt{next} est définie à l'aide d'une monade dont les «~valeurs spéciales~» sont des valeurs dont le calcul a produit des effets de bord, mais qui possèdent une fonction pour annuler ces effets de bord:
 
 \begin{minted}{ocaml}
 type 'a io = unit -> 'a
@@ -386,17 +382,17 @@ type 'a undoable = { value : 'a ; undo : unit io }
 type 'a t = 'a undoable io
 \end{minted}
 
-% Par exemple, voilà comment changer une référence mutable, tout en donnant la possibilité d'annuler ce changement:
+Par exemple, voilà comment changer une référence mutable, tout en donnant la possibilité d'annuler ce changement:
 
-% \begin{minted}{ocaml}
-% let set (x : 'a ref) (v : 'a) : unit t = fun () ->
-%   let undo =
-%     let old_x = !x in
-%     fun () -> x := old_x
-%   in
-%   let value = x := v in
-%   { value ; undo }
-% \end{minted}
+\begin{minted}{ocaml}
+let set (x : 'a ref) (v : 'a) : unit t = fun () ->
+  let undo =
+    let old_x = !x in
+    fun () -> x := old_x
+  in
+  let value = x := v in
+  { value ; undo }
+\end{minted}
 
 Afin de définir une monade, il nous faut une fonction \texttt{return} pour
 plonger nos valeurs normales, et une fonction \texttt{bind} pour séquencer des
@@ -443,17 +439,17 @@ L'ordre d'appel de \texttt{y.undo} et \texttt{x.undo} dans la fonction
 \end{tikzpicture}  
 \end{center}
 
-% On peut maintenant exprimer naturellement un calcul avec effets de bord, l'effectuer, puis inverser ces effets de bord.
+On peut maintenant exprimer naturellement un calcul avec effets de bord, l'effectuer, puis inverser ces effets de bord.
 
-% \begin{minted}{ocaml}
-% let x = ref 0
-% let compute =
-%   let* () = set x 2 in
-%   set x 4
+\begin{minted}{ocaml}
+let x = ref 0
+let compute =
+  let* () = set x 2 in
+  set x 4
 
-% let res = compute () (* x passe de 0 à 2 puis à 4 *)
-% let () = res.undo () (* x passe de 4 à 2 puis à 0 *)
-% \end{minted}
+let res = compute () (* x passe de 0 à 2 puis à 4 *)
+let () = res.undo () (* x passe de 4 à 2 puis à 0 *)
+\end{minted}
 
 % \subsection{ Différer pour ne pas se tirer dans le pied}
 
@@ -481,7 +477,7 @@ Cette organisation a permis de corriger de nombreux bugs, ainsi que d'ajouter de
 
 Une des difficultés récurrentes provient de la possibilité pour un auteur de présentation de définir ses propres scripts, à exécuter à une étape de la présentation, via l'action \texttt{exec}. Comment la fonction d'annulation de cette action peut-elle être définie ?
 
-Slipshow se retourne vers l'impératif pour cela : il définit une variable mutable, et donne à l'auteur du script une API JavaScript pour modifier le DOM (par exemple, changer le style d'un élément). Lors de l'appel à une fonction de l'API, la variable mutable est augmentée d'une fonction d'annulation correspondant.
+Slipshow se retourne vers l'impératif pour cela : il définit une variable mutable, initialisée à la liste vide. Via l'espace de nom \texttt{slip}, il donne ensuite à l'auteur du script une API JavaScript pour modifier le DOM (par exemple, changer le style d'un élément). Lors de l'appel à une fonction de l'API, la variable mutable est augmentée d'une fonction d'annulation correspondante.
 
 \begin{minted}{ocaml}
 let undos = ref []
@@ -491,7 +487,7 @@ let set_class_js el class b =              (* Appelable en JavaScript, *)
   undos := (compute ()).undo :: !undos
 \end{minted}
 
-L'auteur du script définit donc, s'il utilise l'API \texttt{slip}, une fonction d'annulation de manière transparente.
+L'auteur du script définit donc, s'il utilise convenablement l'API, une fonction d'annulation de manière transparente.
 
 \begin{minted}{javascript}
 my_elements.forEach(el => {
