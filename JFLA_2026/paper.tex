@@ -136,7 +136,7 @@ Cette complexité est principalement en terme de lisibilité et maintenabilité 
 
 Par exemple, lors de l'intégration au code de Slipshow d'une action supplémentaire, il faudrait penser à intégrer son action inverse dans la fonction de retour en arrière. De plus, si une action est modifiée, il faudrait penser à modifier son action inverse en conséquence. Un système d'analyse statique serait difficile à mettre en place, on ne pourrait donc compter que sur la vigilance du développeur.
 
-\subsection{La slipsolution}
+\subsection{Calculer sa propre annulation}
 
 La version \texttt{0.1.0} de Slipshow a constitué en une réécriture complète du logiciel, dans le langage OCaml. Cette réécriture a été l'occasion de repenser le système de gestion du retour en arrière. Plusieurs versions et de nombreuses fonctionnalités plus tard, cette approche a prouvé son efficacité.
 
