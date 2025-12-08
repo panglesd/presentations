@@ -105,26 +105,46 @@ Contrairement à la plupart des systèmes de présentation de diapositives, l'en
 \item \texttt{focus=ID} zoome sur l'élément désigné.
 \item \verb|static=ID| insère un élément caché à sa position originelle.
 \item \verb|play-media=ID| joue le fichier audio ou vidéo désigné.
+\item \verb|draw=ID| dessine une annotation préalablement enregistrée.
 \item \verb|speaker-notes| affiche des notes de présentateur dans la vue
   présentateur\footnote{Une fenêtre séparée, visible seulement par l'orateur,
     contenant un chronomètre et des notes.}.
 \item \texttt{exec} exécute un script défini par l'utilisateur.
 \end{itemize}
 
+Une volonté assumée de Slipshow est de conserver cette richesse, au prix d'un dévelopement plus contraint. Cette dernière action, \texttt{exec}, offre de nombreuses possibilités à l'orateur, mais enlève du contrôle à Slipshow sur ce qui peut se passer lors d'une présentation. Un exemple typique est la gestion du retour en arrière.
 
-\subsection{Slipshow et le retour en arrière}
+\subsection{Le retour en arrière}
 
 La complexité du système d'actions de Slipshow pose un défi en terme de programmation : comment gérer le retour en arrière? Lors d'une présentation, il est fréquent que l'orateur souhaite revenir à une étape précédente, par exemple pour clarifier un point ou répondre à une question.
 
-Dans le cas de présentations classiques, le peu d'actions possibles (changer de slide, afficher du contenu caché) rend la définition d'un retour en arrière relativement simple. En effet, chaque action modifie la présentation de manière très prédictible, et facile à inverser: avancer d'un slide s'inverse en reculant d'un slide, afficher du content s'inverse en le cachant.
+Dans le cas de présentations classiques, une manière classique de résoudre le problème est la suivante. Nous représentons l'``état'' d'une étape d'une présentation : par exemple le numéro de diapositive courante et l'ensemble des éléments affichés dans la diapositive. Nous définissons aussi une fonction \texttt{render}, qui synchronise la vue de l'utilisateur et la valeur de l'état, ainsi qu'une fonction \texttt{next} qui passe à l'état suivant. La fonction \texttt{render} est appelée à chaque changement d'état courant.
 
-Dans le cas de Slipshow, la multiplicité des actions possibles, ainsi que leurs interactions, rend la définition d'un retour en arrière plus ardue. Par exemple, l'action \texttt{scroll-to=ID} n'a pas d'action inverse évidente: il faut se souvenir de la position de départ pour pouvoir y revenir. L'exécution d'un script utilisateur peut modifier l'état de la présentation de manière arbitraire, rendant à priori impossible la définition d'une action inverse générique. Finalement, inverser de multiples actions exécutées successivement doit se faire dans un ordre précis, au risque de ne pas retrouver l'état initial.
+Pour avancer dans une présentation tout en permettant le retour en arrière, il suffita lors de stocker dans une pile les anciens états. Si la présentation a débuté par l'état $S_0$, et que l'on passe à l'état suivant $S_1=\texttt{next}(S_0)$, on empile l'état $S_0$ dans la pile. Revenir en arrière consiste simplement à remplacer l'état courant par l'état en tête de pile (et de le dépiler).
+
+Cependant, cette approche pose plusieurs problèmes pour Slipshow. Le premier problème est que la notion d'état est limitante à un type prédéfini, et non extensible. La quantité de donnée à inclure dans l'état d'une étape d'une présentation Slipshow n'est pas fermé : outre les nombreux états des actions autorisées, et l'état du document HTML, l'orateur peut être amené à définir son propre état via l'exécution de script.
+
+Le second problème est que, dans le modèle décrit ci-dessus, la fonction \texttt{render} ne permet pas de controller les transitions. Or, dans le cas d'un présentation, les transitions sont importantes, et il est naturel de pouvoir programmer que le passage de l'état $S_0$ à l'état $S_1$ soit différent du passage de $S_2$ à $S_1$, correspondant à un retour en arrière.
+
+\subsection{Des états aux transitions}
+
+Pour les raisons énoncés ci-dessus, Slipshow n'empile pas les états précédents pour pouvoir revenir en arrière. Il donne la part belle, non aux états, mais aux transitions entre états.
+
+On pourrait donc imaginer avoir deux fonction, \texttt{next} mais aussi \texttt{previous} : l'une pour avancer d'une étape, l'autre pour reculer. Cependant, la multiplicité des actions possibles, ainsi que leurs interactions, rend la définition de \texttt{previous} ardue. Par exemple, l'action \texttt{scroll-to=ID} n'a pas d'action inverse évidente: il faut se souvenir de la position de départ pour pouvoir y revenir. L'exécution d'un script utilisateur peut modifier l'état de la présentation de manière arbitraire, rendant à priori impossible la définition d'une action inverse générique. Finalement, inverser de multiples actions exécutées successivement doit se faire dans un ordre précis, au risque de ne pas retrouver l'état initial.
 
 Cette complexité est principalement en terme de lisibilité et maintenabilité du code, et non algorithmique. Il est facile de se rendre compte que théoriquement, l'on peut définir une fonction pour aller en avant dans la présentation, et une fonction pour retourner en arrière. Cependant, une manière naïve de procéder risquerait d'être difficile à maintenir et à appréhender, avec une logique dupliquée et des risques d'incohérences.
 
 Par exemple, lors de l'intégration au code de Slipshow d'une action supplémentaire, il faudrait penser à intégrer son action inverse dans la fonction de retour en arrière. De plus, si une action est modifiée, il faudrait penser à modifier son action inverse en conséquence. Un système d'analyse statique serait difficile à mettre en place, on ne pourrait donc compter que sur la vigilance du développeur.
 
-La version 0.1.0 de Slipshow a constitué en une réécriture complète du logiciel, dans le langage OCaml. Cette réécriture a été l'occasion de repenser le système de gestion du retour en arrière, et d'adopter une approche radicalement différente, basée sur la programmation monadique. Plusieurs versions et de nombreuses fonctionnalités plus tard, cette approche a prouvé son efficacité.
+\subsection{La slipsolution}
+
+La version \texttt{0.1.0} de Slipshow a constitué en une réécriture complète du logiciel, dans le langage OCaml. Cette réécriture a été l'occasion de repenser le système de gestion du retour en arrière. Plusieurs versions et de nombreuses fonctionnalités plus tard, cette approche a prouvé son efficacité.
+
+Au lieu de définir une fonction \texttt{next} ainsi qu'une fonction \texttt{previous}, on définit uniquement \texttt{next}, mais celle-ci, en plus de modifier l'état courant, retourne la fonction pour annuler les modifications. Ces fonctions d'annulations seront mises dans une pile au fur et à mesure de l'avancée de la présentation.
+
+Ainsi, à chaque étape, si l'on veut progresser on définira $\texttt{previous := next()}$ que l'on empilera dans la pile. Si l'on veut revenir à l'étape précédente, il suffira de dépiler et exécuter la fonction en tête de pile.
+
+Il ne reste donc plus qu'à définir la fonction \texttt{next}, ce qui est un problème de taille! Mais non allons nous armer d'un patron de conception qui s'avèrera très utile, et permettra de définir la fonction \texttt{previous} à retourner par combinaison d'annulations ``atomiques''.
 
 Dans cet article, nous commençons par introduire le patron de conception des «~monades~». Les différents concepts aboutissant à celui de monades sont exemplifiés en utilisant le langage de programmation OCaml.
 
@@ -153,7 +173,7 @@ type 'a t = Ok of 'a | Error of string list
 % Les monades promettent de pouvoir calculer avec ces valeurs «~spéciales~», comme
 % si elles étaient de valeurs normales. Pour cela, 
 Nous allons voir comment
-«~réifier~» des calculs sur des valeurs (c'est à dire, des fonctions de type
+«~passer~» de calculs sur des valeurs (c'est à dire, des fonctions de type
 \texttt{'a -> 'b}) en des calculs sur des valeurs spéciales (c'est à dire, des
 fonctions de type \texttt{'a t -> 'b t}).
 
@@ -179,9 +199,9 @@ fonctions de type \texttt{'a t -> 'b t}).
   \end{itemize}
 \end{defi}
 
-La fonction \texttt{map} réifie un calcul de valeurs normales, en un calcul
+La fonction \texttt{map} passe d'un calcul de valeurs normales, à un calcul
 de valeurs spéciales. Dans notre exemple de «~valeurs qui peuvent être des erreurs~», nous
-pouvons définir une telle fonction de réification comme suit :
+pouvons définir une telle fonction comme suit :
 
 \begin{minted}{ocaml}
 let map f = function
@@ -277,7 +297,7 @@ let pair x y = match x, y with
 
 \subsubsection{Support syntaxique en OCaml}
 
-De même que OCaml améliore l'utilisation de \texttt{map} via \texttt{(let+)}, il supporte un sucre syntaxique similaire via \texttt{(and+)}: \texttt{let+ <var1> = <e1> and <var2> = <e2> in <body>} est équivalent à \texttt{(let+) (fun (<var1>,<var2>) -> <body>) (pair <e1> <e2>)}. Nous pouvons donc écrire:
+De même que OCaml améliore l'utilisation de \texttt{map} via \texttt{(let+)}, il supporte un sucre syntaxique similaire via \texttt{(and+)}: \texttt{let+ <var1> = <e1> and+ <var2> = <e2> in <body>} est équivalent à \texttt{(let+) (fun (<var1>,<var2>) -> <body>) ((and+) <e1> <e2>)}. Nous pouvons donc écrire:
 
 \begin{minted}{ocaml}
 let (and+) x y = pair x y
@@ -290,7 +310,7 @@ let read_and_combine path1 path2 =
 
 On peut voir que la définition de \texttt{read\_and\_combine} correspond à celle que l'on
 aurait écrit si \texttt{read\_and\_sanitize} avait eu le type \texttt{string -> string}, à
-deux uniques caractères près : les deux \texttt{+}!
+deux uniques caractères près : les deux \texttt{+} accolés aux \texttt{let} et \texttt{and}!
 
 \subsubsection{Limitations}
 \label{limitations2}
@@ -344,7 +364,7 @@ let compute path =
 
 Ceci conclut notre brève introduction des monades. Il existe de nombreuses monades «~classiques~», très utilisées telle la monade \texttt{Result} pour les valeurs dont le calcul a pu échouer avec une erreur~\cite{monads}, la monade \texttt{Option} pour les valeurs dont le calcul s'est arrêté~\cite{monads}, mais aussi des monades pour la programmation fonctionnelle réactive~\cite{lwd,incremental}, la monade \texttt{IO} pour encoder les effets de bord~\cite{haskellIO}, la monade \texttt{State} pour propager un état dans un calcul~\cite{monads}, la monade \texttt{List} pour un calcul non-déterministe~\cite{monads}, une monade utile pour le parsing~\cite{angstrom}...
 
-Cependant, la monade que nous allons présenter dans la section suivante est une monade moins connue, et pourtant particulièrement utile dans son cas d'usage. Cette monade apporte dans ce contexte un poids supplémentaire au fait que ce patron de conception est applicable avec succès à de nombreuses situations.
+Cependant, la monade que nous allons présenter dans la section suivante est une monade moins connue, et pourtant particulièrement utile dans son cas d'usage.
 
 \section{La monade \texttt{Annulation} pour le retour en arrière}
 
@@ -366,17 +386,17 @@ type 'a undoable = { value : 'a ; undo : unit io }
 type 'a t = 'a undoable io
 \end{minted}
 
-Par exemple, voilà comment mettre changer une référence mutable, tout en donnant la possibilité d'annuler ce changement:
+% Par exemple, voilà comment changer une référence mutable, tout en donnant la possibilité d'annuler ce changement:
 
-\begin{minted}{ocaml}
-let set (x : 'a ref) (v : 'a) : unit t = fun () ->
-  let undo =
-    let old_x = !x in
-    fun () -> x := old_x
-  in
-  let value = x := v in
-  { value ; undo }
-\end{minted}
+% \begin{minted}{ocaml}
+% let set (x : 'a ref) (v : 'a) : unit t = fun () ->
+%   let undo =
+%     let old_x = !x in
+%     fun () -> x := old_x
+%   in
+%   let value = x := v in
+%   { value ; undo }
+% \end{minted}
 
 Afin de définir une monade, il nous faut une fonction \texttt{return} pour
 plonger nos valeurs normales, et une fonction \texttt{bind} pour séquencer des
@@ -423,31 +443,31 @@ L'ordre d'appel de \texttt{y.undo} et \texttt{x.undo} dans la fonction
 \end{tikzpicture}  
 \end{center}
 
-On peut maintenant exprimer naturellement un calcul avec effets de bord, l'effectuer, puis inverser ces effets de bord.
+% On peut maintenant exprimer naturellement un calcul avec effets de bord, l'effectuer, puis inverser ces effets de bord.
 
-\begin{minted}{ocaml}
-let x = ref 0
-let compute =
-  let* () = set x 2 in
-  set x 4
+% \begin{minted}{ocaml}
+% let x = ref 0
+% let compute =
+%   let* () = set x 2 in
+%   set x 4
 
-let res = compute () (* x passe de 0 à 2 puis à 4 *)
-let () = res.undo () (* x passe de 4 à 2 puis à 0 *)
-\end{minted}
+% let res = compute () (* x passe de 0 à 2 puis à 4 *)
+% let () = res.undo () (* x passe de 4 à 2 puis à 0 *)
+% \end{minted}
 
-\subsection{ Différer pour ne pas se tirer dans le pied}
+% \subsection{ Différer pour ne pas se tirer dans le pied}
 
-Pourquoi utiliser le type \texttt{'a t} et non le type \texttt{'a undoable} ? La fonction \texttt{bind} combine des valeurs monadiques. En quelque sorte, elle définit l'ordre d'exécution. Si les effets de bord ne sont pas différés, cet ordre d'exécution risque d'être différent de celui attendu par la monade. En supposant qu'on applique les effets de bord immédiatement :
+% Pourquoi utiliser le type \texttt{'a t} et non le type \texttt{'a undoable} ? La fonction \texttt{bind} combine des valeurs monadiques. En quelque sorte, elle définit l'ordre d'exécution. Si les effets de bord ne sont pas différés, cet ordre d'exécution risque d'être différent de celui attendu par la monade. En supposant qu'on applique les effets de bord immédiatement :
 
-\begin{minted}{ocaml}
-let res =
-  let a = set x 2 in (* x passerait de 0 à 2 *)
-  let b = set x 4 in (* x passerait de 2 à 4 *)
-  let* () = b in
-  a
+% \begin{minted}{ocaml}
+% let res =
+%   let a = set x 2 in (* x passerait de 0 à 2 *)
+%   let b = set x 4 in (* x passerait de 2 à 4 *)
+%   let* () = b in
+%   a
 
-let () = res.undo () (* x passerait de 4 à 0 puis à 2 *)
-\end{minted}
+% let () = res.undo () (* x passerait de 4 à 0 puis à 2 *)
+% \end{minted}
 
 \subsection{L'annulation dans le code source de Slipshow}
 
