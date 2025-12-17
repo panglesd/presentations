@@ -10,7 +10,8 @@ type point = float * float
 type ball_state = {
   ball : ball;
   mutable position : point;
-  offset : point;
+  offset : point; (* Centering offset (e.g. 10,10) *)
+  (* Trajectory *)
   mutable catch_pos : point;
   mutable throw_pos : point;
   mutable target_pos : point;
@@ -72,6 +73,9 @@ type state = {
 let gravity = 0.00045
 let step_time = 600.
 
+(* Helper: Give the first ball some air-time so it doesn't vanish instantly *)
+let startup_delay = step_time
+
 type action = Throw | Catch
 
 let hand_position hand mode =
@@ -85,11 +89,10 @@ let hand_position hand mode =
   in
   (x_base +. offset, 300.)
 
-(* --- UPDATED PHYSICS: BÉZIER SCOOP --- *)
+(* --- PHYSICS --- *)
 let dwell_ratio = 0.3
-let scoop_depth = 80. (* How far down the hand dips in pixels *)
+let scoop_depth = 80.
 
-(* Quadratic Bézier formula: B(t) = (1-t)^2 * P0 + 2(1-t)t * P1 + t^2 * P2 *)
 let bezier p0 p1 p2 t =
   let x0, y0 = p0 and x1, y1 = p1 and x2, y2 = p2 in
   let mt = 1. -. t in
@@ -104,27 +107,21 @@ let interpolate_pos b time_remaining =
   let elapsed = total -. time_remaining in
   let dwell_duration = step_time *. dwell_ratio in
 
+  let elapsed = max 0. elapsed in
+
   if elapsed < dwell_duration then
-    (* --- DWELL PHASE: Curved scoop using Bézier --- *)
+    (* Dwell Scoop *)
     let t = elapsed /. dwell_duration in
-    (* Normalized time 0.0 -> 1.0 *)
     let p0 = b.catch_pos in
-    (* Start *)
     let p2 = b.throw_pos in
-    (* End *)
-
-    (* Calculate Control Point (P1) *)
-    (* X is midpoint between catch and throw *)
     let p1_x = (fst p0 +. fst p2) /. 2. in
-    (* Y is below the lowest point of catch/throw to create the dip *)
     let base_y = max (snd p0) (snd p2) in
-    let p1_y = base_y +. scoop_depth in
-    let p1 = (p1_x, p1_y) in
-
+    let p1 = (p1_x, base_y +. scoop_depth) in
     bezier p0 p1 p2 t
   else
-    (* --- FLIGHT PHASE: Standard Parabola --- *)
+    (* Parabolic Flight *)
     let flight_duration = total -. dwell_duration in
+    let flight_duration = max 1. flight_duration in
     let flight_elapsed = elapsed -. dwell_duration in
     let t = flight_elapsed /. flight_duration in
 
@@ -133,12 +130,10 @@ let interpolate_pos b time_remaining =
 
     let cur_x = sx +. ((ex -. sx) *. t) in
     let base_y = sy +. ((ey -. sy) *. t) in
-
     let h_offset =
       0.5 *. gravity *. flight_elapsed *. (flight_duration -. flight_elapsed)
     in
     (cur_x, base_y -. h_offset)
-(* ------------------------------------- *)
 
 let update_view state delta_time =
   Ring.foldi
@@ -178,53 +173,77 @@ let next state time_spent =
 
   update_view state time_spent
 
-let siteswap = Ring.create [| 5; 3; 1 |]
+let siteswap = Ring.create [| 4; 4; 1 |]
+
+(* --- INITIALIZATION WITH EXPLICIT COORDINATES --- *)
+let timing () =
+  let dummy_center = (10., 10.) in
+  (* Keeps the ball centered in its div *)
+
+  (* id: CSS Selector
+     index: 0, 1, 2...
+     initial_pos: The (x,y) screen coordinate where the ball starts 
+  *)
+  let create_intro_ball id index initial_pos =
+    let el =
+      match El.find_first_by_selector (Jstr.v id) with
+      | Some e -> e
+      | None ->
+          let e = El.div [] in
+          El.set_inline_style (Jstr.v "position") (Jstr.v "absolute") e;
+          El.set_inline_style (Jstr.v "width") (Jstr.v "20px") e;
+          El.set_inline_style (Jstr.v "height") (Jstr.v "20px") e;
+          El.set_inline_style (Jstr.v "background") (Jstr.v "red") e;
+          El.set_inline_style (Jstr.v "border-radius") (Jstr.v "50%") e;
+          El.append_children
+            (El.find_first_by_selector (Jstr.v "body") |> Option.get)
+            [ e ];
+          e
+    in
+
+    (* Logic: Fly from Initial Position -> Target Hand *)
+    let target_hand = if index mod 2 = 0 then Left else Right in
+    let target_pos = hand_position target_hand Catch in
+
+    (* Time until this ball needs to land *)
+    let flight_time = (float_of_int index *. step_time) +. startup_delay in
+
+    Ball
+      {
+        ball = el;
+        position = initial_pos;
+        offset = dummy_center;
+        (* Setting throw_pos to initial_pos ensures the flight starts THERE *)
+        catch_pos = initial_pos;
+        (* Ignored because we start in flight phase *)
+        throw_pos = initial_pos;
+        target_pos;
+        total_time = flight_time;
+      }
+  in
+
+  Ring.create
+    [|
+      (* PROVIDE YOUR COORDINATES HERE *)
+      create_intro_ball "#id249847994" 0 (1000., 00.);
+      create_intro_ball "#id409218438" 1 (200., 00.);
+      create_intro_ball "#id256822448" 2 (100., 400.);
+      Empty;
+      Empty;
+    |]
+(* ---------------------------------------------- *)
+
 let now () = Performance.now_ms G.performance
 
 let loop () =
-  let timing =
-    let dummy_pos = (0., 0.) in
-    let create_ball ?(offset = (0., 0.)) id =
-      let el =
-        match El.find_first_by_selector (Jstr.v id) with
-        | Some e -> e
-        | None ->
-            Brr.Console.(log [ "ARGH" ]);
-            let e = El.div [] in
-            El.set_inline_style (Jstr.v "position") (Jstr.v "absolute") e;
-            El.set_inline_style (Jstr.v "width") (Jstr.v "20px") e;
-            El.set_inline_style (Jstr.v "height") (Jstr.v "20px") e;
-            El.set_inline_style (Jstr.v "background") (Jstr.v "red") e;
-            El.set_inline_style (Jstr.v "border-radius") (Jstr.v "50%") e;
-            El.append_children
-              (El.find_first_by_selector (Jstr.v "body") |> Option.get)
-              [ e ];
-            e
-      in
-      Ball
-        {
-          ball = el;
-          position = offset;
-          offset;
-          catch_pos = dummy_pos;
-          throw_pos = dummy_pos;
-          target_pos = dummy_pos;
-          total_time = 1.;
-        }
-    in
-    Ring.create
-      [|
-        create_ball ~offset:(-200., 0.) "#id249847994";
-        create_ball ~offset:(200., 0.) "#id409218438";
-        create_ball ~offset:(100., 400.) "#id256822448";
-        Empty;
-        Empty;
-      |]
+  (* Initialize timer with startup delay so Ball 0 travels for 1 beat *)
+  let state =
+    { timer = startup_delay; beat_count = 0; state = timing (); siteswap }
   in
-  let state = { timer = 0.; beat_count = 0; state = timing; siteswap } in
 
   let rec update old_now now =
     let dt = min (now -. old_now) 100. in
+    let dt = dt *. 0.5 in
     next state dt;
     let _ = G.request_animation_frame (update now) in
     ()
