@@ -1,4 +1,4 @@
-\documentclass{jflart}
+\documentclass[final]{jflart}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{minted}
@@ -43,7 +43,7 @@
   langage de programmation OCaml.
 \end{abstract}
 
-\section{Introduction}
+\section{Slipshow et le retour en arrière}
 
 Slipshow~\cite{slipshow} est un logiciel de présentation, à l'instar de Beamer, LibreOffice
 Impress ou Reveal.js. Il diffère cependant fondamentalement de ces
@@ -245,9 +245,9 @@ un unique caractère près : le \texttt{+}!
 \subsubsection{Limitations}
 \label{limitations1}
 
-Cependant, si les foncteurs permettent de réifier un calcul représenté par une
-fonction à une variable, ils sont rapidement limités : leur définition
-est trop générale pour permettre de réifier des fonctions à multiples arguments,
+Cependant, si les foncteurs permettent de «~transposer~» un calcul (représenté par une
+fonction à une variable) au contexte \texttt{'a t}, ils sont rapidement limités : leur définition
+est trop générale pour transposer des fonctions à multiples arguments,
 sous formes curryfiées. En effet, étant donnée une fonction \texttt{'a -> 'b ->
   c}, on peut grâce à \texttt{map} obtenir une fonction de la forme \texttt{'a t
   -> ('b -> 'c) t}, et non ce que l'on souhaiterait : \texttt{'a t -> 'b t -> 'c
@@ -277,7 +277,7 @@ résultats de la fonction \texttt{read\_file}.
 \end{defi}
 
 Dans la sous-section~\ref{limitations1}, nous avions vu que nous ne pouvions
-réifier un calcul sous la forme d'une fonction à deux variables : nous ne
+transposer un calcul sous la forme d'une fonction à deux variables : nous ne
 pouvions transformer \texttt{'a -> 'b -> 'c} en \texttt{'a t -> 'b t -> 'c
   t}.\footnote{La limitation à appliquer \texttt{map} deux fois était qu'il fallait une version de \texttt{map} de type \texttt{('a -> 'b) t -> 'a t -> 'b t}. C'est en réalité une définition équivalente à celle donnée dans cet article.} Grâce à \texttt{pair}, c'est maintenant possible :
 
@@ -317,7 +317,7 @@ deux uniques caractères près : les deux \texttt{+} accolés aux \texttt{let} e
 
 Les applicatifs comme patron de conception sont déjà utiles. Ils permettent de calculer avec des valeurs «~spéciales~», tout en maintenant une connaissance statique de toutes les valeurs spéciales à partir desquelles nous calculons. Ce patron de conception permet par exemple la génération de «~man pages~» automatique pour une interface en ligne de commande définie déclarativement~\cite{cmdliner}.
 
-Cependant, il manque encore un ingrédient crucial pour pouvoir calculer avec des valeurs spéciales, de manière générale : la possibilité de «~réifier~» un calcul produisant une valeur spéciale. Par exemple, si nous souhaitons réifier \texttt{read\_and\_sanitize} pour l'utiliser sur une valeur pouvant être une erreur. En d'autres termes, nous souhaiterions réifier un calcul de type \texttt{'a -> 'b t} en un calcul de type \texttt{'a t -> 'b t}.
+Cependant, il manque encore un ingrédient crucial pour pouvoir calculer avec des valeurs spéciales, de manière générale : la possibilité de «~transposer~» un calcul produisant une valeur spéciale. Par exemple, si nous souhaitons transposer \texttt{read\_and\_sanitize} pour l'utiliser sur une valeur pouvant être une erreur. En d'autres termes, nous souhaiterions transposer un calcul de type \texttt{'a -> 'b t} en un calcul de type \texttt{'a t -> 'b t}.
 
 \subsection{Des applicatifs au monades}
 
@@ -334,8 +334,8 @@ Cependant, il manque encore un ingrédient crucial pour pouvoir calculer avec de
 \end{defi}
 
 Il n'est pas encore complètement clair comment \texttt{join} améliore nos
-possibilités de réifications. C'est via la fonction \texttt{bind : ('a -> 'b t)
-  -> 'a t -> 'b t} définie via \texttt{join} par \texttt{let bind f x = join (map f x)} qui permet cette réification. Notons que \texttt{bind} permettrait de définir \texttt{map} et \texttt{join}, et c'est d'ailleurs une définition alternative aux monades !
+possibilités de transposition. C'est via la fonction \texttt{bind : ('a -> 'b t)
+  -> 'a t -> 'b t} définie via \texttt{join} par \texttt{let bind f x = join (map f x)} qui permet cette transposition. Notons que \texttt{bind} permettrait de définir \texttt{map} et \texttt{join}, et c'est d'ailleurs une définition alternative aux monades !
 
 Dans notre exemple des valeurs potentiellement erreurs:
 
