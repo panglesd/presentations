@@ -7,6 +7,7 @@ let other_hand = function Left -> Right | Right -> Left
 
 type point = float * float
 
+(* --- UPDATED STATE --- *)
 type ball_state = {
   ball : ball;
   mutable position : point;
@@ -15,6 +16,8 @@ type ball_state = {
   mutable throw_pos : point;
   mutable target_pos : point;
   mutable total_time : float;
+  (* New flag to bypass the "catch" phase for the intro *)
+  mutable skip_dwell : bool;
 }
 
 let set_position (ball_state : ball_state) position =
@@ -102,11 +105,14 @@ let bezier p0 p1 p2 t =
 let interpolate_pos b time_remaining =
   let total = b.total_time in
   let elapsed = total -. time_remaining in
-  let dwell_duration = step_time *. dwell_ratio in
+
+  (* IF skip_dwell is true, dwell_duration becomes 0.0 *)
+  let dwell_duration = if b.skip_dwell then 0. else step_time *. dwell_ratio in
 
   let elapsed = max 0. elapsed in
 
   if elapsed < dwell_duration then
+    (* DWELL PHASE *)
     let t = elapsed /. dwell_duration in
     let p0 = b.catch_pos in
     let p2 = b.throw_pos in
@@ -115,11 +121,14 @@ let interpolate_pos b time_remaining =
     let p1 = (p1_x, base_y +. scoop_depth) in
     bezier p0 p1 p2 t
   else
+    (* FLIGHT PHASE *)
     let flight_duration = total -. dwell_duration in
+    (* Prevent division by zero if duration is 0 *)
     let flight_duration = max 1. flight_duration in
     let flight_elapsed = elapsed -. dwell_duration in
     let t = flight_elapsed /. flight_duration in
 
+    (* When skip_dwell is true, sx is throw_pos (which we set to initial_pos) *)
     let sx, sy = b.throw_pos in
     let ex, ey = b.target_pos in
 
@@ -154,7 +163,6 @@ let next state time_spent =
     match (ball_opt, throw_height) with
     | Empty, _ -> ()
     | Ball b, n ->
-        (* Loop Logic: Beat 1 is Right, Beat 2 is Left... *)
         let current_hand = if state.beat_count mod 2 = 1 then Right else Left in
         let target_hand_idx = state.beat_count + n in
         let target_hand = if target_hand_idx mod 2 = 1 then Right else Left in
@@ -163,6 +171,9 @@ let next state time_spent =
         b.throw_pos <- hand_position current_hand Throw;
         b.target_pos <- hand_position target_hand Catch;
         b.total_time <- float_of_int n *. step_time;
+
+        (* IMPORTANT: Re-enable dwell for subsequent throws *)
+        b.skip_dwell <- false;
 
         if n > 0 then Ring.set state.state (n - 1) (Ball b))
   else ();
@@ -173,7 +184,7 @@ let siteswap = Ring.create [| 4; 4; 1 |]
 
 (* --- INITIALIZATION --- *)
 let timing () =
-  let dummy_center = (10., 10.) in
+  let _dummy_center = (10., 10.) in
 
   let create_intro_ball id index initial_pos =
     let el =
@@ -191,11 +202,8 @@ let timing () =
             [ e ];
           e
     in
-
-    (* --- FIXED HAND PARITY --- *)
-    (* Index 0 is processed at Beat 1. Loop logic says Beat 1 is Right.
-       So Index 0 must target Right. 
-       Formula: if index is Even -> Right, Odd -> Left *)
+    let initial_pos = (-.Brr.El.bound_x el, -.Brr.El.bound_y el) in
+    (* Target Hand Logic *)
     let target_hand = if index mod 2 = 0 then Right else Left in
     let target_pos = hand_position target_hand Catch in
 
@@ -205,19 +213,23 @@ let timing () =
       {
         ball = el;
         position = initial_pos;
-        offset = dummy_center;
+        offset = initial_pos;
         catch_pos = initial_pos;
+        (* throw_pos becomes the start point of the FLIGHT because skip_dwell=true *)
         throw_pos = initial_pos;
         target_pos;
         total_time = flight_time;
+        (* FORCE FLIGHT MODE *)
+        skip_dwell = true;
       }
   in
 
   Ring.create
     [|
-      create_intro_ball "#id249847994" 0 (1000., 00.);
+      (* COORDINATES *)
+      create_intro_ball "#id249847994" 0 (100., 00.);
       create_intro_ball "#id409218438" 1 (200., 00.);
-      create_intro_ball "#id256822448" 2 (100., 400.);
+      create_intro_ball "#id256822448" 2 (100., 1400.);
       Empty;
       Empty;
     |]
@@ -232,7 +244,6 @@ let loop () =
 
   let rec update old_now now =
     let dt = min (now -. old_now) 100. in
-    let dt = dt *. 0.5 in
     next state dt;
     let _ = G.request_animation_frame (update now) in
     ()
