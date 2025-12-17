@@ -10,8 +10,7 @@ type point = float * float
 type ball_state = {
   ball : ball;
   mutable position : point;
-  offset : point; (* Centering offset (e.g. 10,10) *)
-  (* Trajectory *)
+  offset : point;
   mutable catch_pos : point;
   mutable throw_pos : point;
   mutable target_pos : point;
@@ -72,8 +71,6 @@ type state = {
 
 let gravity = 0.00045
 let step_time = 600.
-
-(* Helper: Give the first ball some air-time so it doesn't vanish instantly *)
 let startup_delay = step_time
 
 type action = Throw | Catch
@@ -110,7 +107,6 @@ let interpolate_pos b time_remaining =
   let elapsed = max 0. elapsed in
 
   if elapsed < dwell_duration then
-    (* Dwell Scoop *)
     let t = elapsed /. dwell_duration in
     let p0 = b.catch_pos in
     let p2 = b.throw_pos in
@@ -119,7 +115,6 @@ let interpolate_pos b time_remaining =
     let p1 = (p1_x, base_y +. scoop_depth) in
     bezier p0 p1 p2 t
   else
-    (* Parabolic Flight *)
     let flight_duration = total -. dwell_duration in
     let flight_duration = max 1. flight_duration in
     let flight_elapsed = elapsed -. dwell_duration in
@@ -159,6 +154,7 @@ let next state time_spent =
     match (ball_opt, throw_height) with
     | Empty, _ -> ()
     | Ball b, n ->
+        (* Loop Logic: Beat 1 is Right, Beat 2 is Left... *)
         let current_hand = if state.beat_count mod 2 = 1 then Right else Left in
         let target_hand_idx = state.beat_count + n in
         let target_hand = if target_hand_idx mod 2 = 1 then Right else Left in
@@ -175,15 +171,10 @@ let next state time_spent =
 
 let siteswap = Ring.create [| 4; 4; 1 |]
 
-(* --- INITIALIZATION WITH EXPLICIT COORDINATES --- *)
+(* --- INITIALIZATION --- *)
 let timing () =
   let dummy_center = (10., 10.) in
-  (* Keeps the ball centered in its div *)
 
-  (* id: CSS Selector
-     index: 0, 1, 2...
-     initial_pos: The (x,y) screen coordinate where the ball starts 
-  *)
   let create_intro_ball id index initial_pos =
     let el =
       match El.find_first_by_selector (Jstr.v id) with
@@ -201,11 +192,13 @@ let timing () =
           e
     in
 
-    (* Logic: Fly from Initial Position -> Target Hand *)
-    let target_hand = if index mod 2 = 0 then Left else Right in
+    (* --- FIXED HAND PARITY --- *)
+    (* Index 0 is processed at Beat 1. Loop logic says Beat 1 is Right.
+       So Index 0 must target Right. 
+       Formula: if index is Even -> Right, Odd -> Left *)
+    let target_hand = if index mod 2 = 0 then Right else Left in
     let target_pos = hand_position target_hand Catch in
 
-    (* Time until this ball needs to land *)
     let flight_time = (float_of_int index *. step_time) +. startup_delay in
 
     Ball
@@ -213,9 +206,7 @@ let timing () =
         ball = el;
         position = initial_pos;
         offset = dummy_center;
-        (* Setting throw_pos to initial_pos ensures the flight starts THERE *)
         catch_pos = initial_pos;
-        (* Ignored because we start in flight phase *)
         throw_pos = initial_pos;
         target_pos;
         total_time = flight_time;
@@ -224,19 +215,17 @@ let timing () =
 
   Ring.create
     [|
-      (* PROVIDE YOUR COORDINATES HERE *)
       create_intro_ball "#id249847994" 0 (1000., 00.);
       create_intro_ball "#id409218438" 1 (200., 00.);
       create_intro_ball "#id256822448" 2 (100., 400.);
       Empty;
       Empty;
     |]
-(* ---------------------------------------------- *)
+(* ---------------------- *)
 
 let now () = Performance.now_ms G.performance
 
 let loop () =
-  (* Initialize timer with startup delay so Ball 0 travels for 1 beat *)
   let state =
     { timer = startup_delay; beat_count = 0; state = timing (); siteswap }
   in
