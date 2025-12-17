@@ -29,7 +29,6 @@ let set_position (ball_state : ball_state) position =
 
 type timing = Empty | Ball of ball_state
 
-(* --- FIXED RING MODULE --- *)
 module Ring = struct
   type 'a t = { array : 'a Array.t; mutable index : int; length : int }
 
@@ -39,16 +38,14 @@ module Ring = struct
 
   let get x n = x.array.((x.index + n) mod x.length)
 
-  (* Standard pop: just returns the value and advances. 
-     Used for Siteswap (which loops forever). *)
+  (* Standard pop for cycling patterns (Siteswap) *)
   let pop x =
     let index = x.index in
     let head = x.array.(index) in
     x.index <- (index + 1) mod x.length;
     head
 
-  (* Pop and Reset: Returns value, overwrites slot with [default], and advances.
-     Used for Timing (to clear the slot after a ball leaves). *)
+  (* Pop and clear for object slots (Balls) *)
   let pop_reset x default =
     let index = x.index in
     let head = x.array.(index) in
@@ -65,7 +62,6 @@ module Ring = struct
     done;
     !acc
 end
-(* ------------------------- *)
 
 type state = {
   mutable timer : float;
@@ -76,7 +72,23 @@ type state = {
 
 let gravity = 0.00025
 let step_time = 600.
-let hand_position = function Left -> (-150., 300.) | Right -> (150., 300.)
+
+(* --- CHANGED: Separate Throw and Catch coordinates --- *)
+type action = Throw | Catch
+
+let hand_position hand mode =
+  let x_base = match hand with Left -> -150. | Right -> 150. in
+  let offset =
+    match (hand, mode) with
+    (* Throws happen "inside" (closer to screen center) *)
+    | Left, Throw -> 30.
+    | Right, Throw -> -30.
+    (* Catches happen "outside" (further from screen center) *)
+    | Left, Catch -> -30.
+    | Right, Catch -> 30.
+  in
+  (x_base +. offset, 300.)
+(* --------------------------------------------------- *)
 
 let interpolate_pos start_pt end_pt progress total_dur =
   let sx, sy = start_pt in
@@ -101,7 +113,6 @@ let update_view state delta_time =
           set_position b new_pos)
     () state.state
 
-(* --- FIXED NEXT FUNCTION --- *)
 let next state time_spent =
   state.timer <- state.timer -. time_spent;
 
@@ -109,9 +120,7 @@ let next state time_spent =
     state.timer <- state.timer +. step_time;
     state.beat_count <- state.beat_count + 1;
 
-    (* Use pop_reset for balls (to clear the buffer) *)
     let ball_opt = Ring.pop_reset state.state Empty in
-    (* Use standard pop for siteswap (integers just loop) *)
     let throw_height = Ring.pop state.siteswap in
 
     match (ball_opt, throw_height) with
@@ -121,15 +130,17 @@ let next state time_spent =
         let target_hand_idx = state.beat_count + n in
         let target_hand = if target_hand_idx mod 2 = 1 then Right else Left in
 
-        b.origin <- hand_position current_hand;
-        b.target <- hand_position target_hand;
+        (* --- CHANGED: Use distinct start/end points --- *)
+        b.origin <- hand_position current_hand Throw;
+        b.target <- hand_position target_hand Catch;
+
+        (* ---------------------------------------------- *)
         b.total_time <- float_of_int n *. step_time;
 
         if n > 0 then Ring.set state.state (n - 1) (Ball b))
   else ();
 
   update_view state time_spent
-(* --------------------------- *)
 
 let siteswap = Ring.create [| 4; 4; 1 |]
 
