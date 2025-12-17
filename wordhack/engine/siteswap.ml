@@ -1,29 +1,35 @@
-type ball = Brr.El.t
+open Brr
+
+type ball = El.t
 type hand = Left | Right
 
 let other_hand = function Left -> Right | Right -> Left
 
-(* type landing = { hand : hand; time : float } *)
+type point = float * float
+
 type ball_state = {
   ball : ball;
-  mutable position : float * float (* ; landing : landing *);
-  offset : float * float;
+  mutable position : point;
+  offset : point;
+  mutable origin : point;
+  mutable target : point;
+  mutable total_time : float;
 }
 
 let set_position (ball_state : ball_state) position =
-  let { ball; position = _; offset } = ball_state in
+  let { ball; offset; _ } = ball_state in
   let x = fst position -. fst offset in
   let y = snd position -. snd offset in
   let style =
     let open Jstr in
-    v "translate(" + Jstr.of_float x + v "px," + Jstr.of_float y + v "px)"
+    v "translate(" + of_float x + v "px," + of_float y + v "px)"
   in
-  Brr.Console.(log [ style ]);
-  Brr.El.set_inline_style (Jstr.v "transform") style ball;
-  ball_state.position <- (x, y)
+  El.set_inline_style (Jstr.v "transform") style ball;
+  ball_state.position <- position
 
 type timing = Empty | Ball of ball_state
 
+(* --- FIXED RING MODULE --- *)
 module Ring = struct
   type 'a t = { array : 'a Array.t; mutable index : int; length : int }
 
@@ -33,9 +39,20 @@ module Ring = struct
 
   let get x n = x.array.((x.index + n) mod x.length)
 
+  (* Standard pop: just returns the value and advances. 
+     Used for Siteswap (which loops forever). *)
   let pop x =
     let index = x.index in
     let head = x.array.(index) in
+    x.index <- (index + 1) mod x.length;
+    head
+
+  (* Pop and Reset: Returns value, overwrites slot with [default], and advances.
+     Used for Timing (to clear the slot after a ball leaves). *)
+  let pop_reset x default =
+    let index = x.index in
+    let head = x.array.(index) in
+    x.array.(index) <- default;
     x.index <- (index + 1) mod x.length;
     head
 
@@ -48,118 +65,119 @@ module Ring = struct
     done;
     !acc
 end
+(* ------------------------- *)
 
 type state = {
   mutable timer : float;
+  mutable beat_count : int;
   state : timing Ring.t;
   siteswap : int Ring.t;
 }
 
-(* acc = -g
-   v = -gt
-   p = -(g/2)t^2
+let gravity = 0.00025
+let step_time = 600.
+let hand_position = function Left -> (-150., 300.) | Right -> (150., 300.)
 
-   At time 0, y = current_y
-   At time t, y = target_y
-   y = -g*t^2 + X t + current_y = target_y
-   =>
-   X = (target_y - current_y + gt^2) / t
-
-   y = -g*delta_t^2 + (target_y - current_y + gt^2) / t delta_t + current_y
-   
-*)
-
-let linear_interpolate current_x target_x time delta_time =
-  current_x +. ((target_x -. current_x) *. delta_time /. time)
-
-let g = 10.
-
-let square_interpolate current_y target_y t delta_t =
-  ((0. -. g) *. (delta_t *. delta_t))
-  +. ((target_y -. current_y +. (g *. t *. t)) /. t *. delta_t)
-  +. current_y
-
-let hand_position = function
-  | Left -> ((500., 500.) : float * float)
-  | Right -> ((500., 500.) : float * float)
-
-let place hand n time delta_time (current_x, current_y) =
-  let hand = if n mod 2 = 0 then hand else other_hand hand in
-  let target_x, target_y = hand_position hand in
-  let x = linear_interpolate current_x target_x time delta_time in
-  let y = square_interpolate current_y target_y time delta_time in
-  (x, y)
-
-let step_time = 1000.
+let interpolate_pos start_pt end_pt progress total_dur =
+  let sx, sy = start_pt in
+  let ex, ey = end_pt in
+  let cur_x = sx +. ((ex -. sx) *. progress) in
+  let base_y = sy +. ((ey -. sy) *. progress) in
+  let t = progress *. total_dur in
+  let height_offset = 0.5 *. gravity *. t *. (total_dur -. t) in
+  (cur_x, base_y -. height_offset)
 
 let update_view state delta_time =
-  let () =
-    Ring.foldi
-      (fun i () ball ->
-        match ball with
-        | Empty -> ()
-        | Ball ball_state ->
-            let new_position =
-              let ( !! ) = float_of_int in
-              place Left 0
-                ((!!i *. step_time) +. state.timer)
-                delta_time ball_state.position
-            in
-            set_position ball_state new_position)
-      () state.state
-  in
-  ()
+  Ring.foldi
+    (fun i () slot ->
+      match slot with
+      | Empty -> ()
+      | Ball b ->
+          let time_remaining = state.timer +. (float_of_int i *. step_time) in
+          let progress = 1.0 -. (time_remaining /. b.total_time) in
+          let new_pos =
+            interpolate_pos b.origin b.target progress b.total_time
+          in
+          set_position b new_pos)
+    () state.state
 
+(* --- FIXED NEXT FUNCTION --- *)
 let next state time_spent =
   state.timer <- state.timer -. time_spent;
+
   if state.timer < 0. then (
-    Brr.Console.(log [ "Activated step" ]);
     state.timer <- state.timer +. step_time;
-    let ball = Ring.pop state.state in
-    let number = Ring.pop state.siteswap in
-    match (ball, number) with
-    | Empty, 0 -> ()
-    | (Ball _ as b), n when n > 0 -> Ring.set state.state n b
-    | _ -> assert false)
+    state.beat_count <- state.beat_count + 1;
+
+    (* Use pop_reset for balls (to clear the buffer) *)
+    let ball_opt = Ring.pop_reset state.state Empty in
+    (* Use standard pop for siteswap (integers just loop) *)
+    let throw_height = Ring.pop state.siteswap in
+
+    match (ball_opt, throw_height) with
+    | Empty, _ -> ()
+    | Ball b, n ->
+        let current_hand = if state.beat_count mod 2 = 1 then Right else Left in
+        let target_hand_idx = state.beat_count + n in
+        let target_hand = if target_hand_idx mod 2 = 1 then Right else Left in
+
+        b.origin <- hand_position current_hand;
+        b.target <- hand_position target_hand;
+        b.total_time <- float_of_int n *. step_time;
+
+        if n > 0 then Ring.set state.state (n - 1) (Ball b))
   else ();
+
   update_view state time_spent
+(* --------------------------- *)
 
 let siteswap = Ring.create [| 4; 4; 1 |]
 
 let timing =
+  let dummy_pos = (0., 0.) in
+  let create_ball id =
+    let el =
+      match El.find_first_by_selector (Jstr.v id) with
+      | Some e -> e
+      | None ->
+          let e = El.div [] in
+          El.set_inline_style (Jstr.v "position") (Jstr.v "absolute") e;
+          El.set_inline_style (Jstr.v "width") (Jstr.v "20px") e;
+          El.set_inline_style (Jstr.v "height") (Jstr.v "20px") e;
+          El.set_inline_style (Jstr.v "background") (Jstr.v "red") e;
+          El.set_inline_style (Jstr.v "border-radius") (Jstr.v "50%") e;
+          El.append_children
+            (El.find_first_by_selector (Jstr.v "body") |> Option.get)
+            [ e ];
+          e
+    in
+    Ball
+      {
+        ball = el;
+        position = dummy_pos;
+        offset = (10., 10.);
+        origin = dummy_pos;
+        target = dummy_pos;
+        total_time = 1.;
+      }
+  in
   Ring.create
     [|
-      Ball
-        {
-          position = (10., 10.);
-          ball = Brr.El.find_first_by_selector (Jstr.v "#id1") |> Option.get;
-          offset = (100., 100.);
-        };
-      Ball
-        {
-          position = (100., 100.);
-          ball = Brr.El.find_first_by_selector (Jstr.v "#id2") |> Option.get;
-          offset = (100., 100.);
-        };
-      Ball
-        {
-          position = (100., 100.);
-          ball = Brr.El.find_first_by_selector (Jstr.v "#id3") |> Option.get;
-          offset = (100., 100.);
-        };
+      create_ball "#id1"; create_ball "#id2"; create_ball "#id3"; Empty; Empty;
     |]
 
-let now () = Brr.Performance.now_ms Brr.G.performance
+let now () = Performance.now_ms G.performance
 
 let loop () =
-  let state = { timer = 0.; state = timing; siteswap } in
+  let state = { timer = 0.; beat_count = 0; state = timing; siteswap } in
 
   let rec update old_now now =
-    next state (now -. old_now);
-    let _ = Brr.G.request_animation_frame (update now) in
+    let dt = min (now -. old_now) 100. in
+    next state dt;
+    let _ = G.request_animation_frame (update now) in
     ()
   in
-  let _ = Brr.G.request_animation_frame (update (now ())) in
+  let _ = G.request_animation_frame (update (now ())) in
   ()
 
 let () = loop ()
