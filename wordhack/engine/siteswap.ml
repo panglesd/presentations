@@ -7,14 +7,13 @@ let other_hand = function Left -> Right | Right -> Left
 
 type point = float * float
 
-(* --- UPDATED STATE RECORD --- *)
 type ball_state = {
   ball : ball;
   mutable position : point;
   offset : point;
-  mutable catch_pos : point; (* Where we caught it *)
-  mutable throw_pos : point; (* Where we release it *)
-  mutable target_pos : point; (* Where it lands next *)
+  mutable catch_pos : point;
+  mutable throw_pos : point;
+  mutable target_pos : point;
   mutable total_time : float;
 }
 
@@ -70,7 +69,7 @@ type state = {
   siteswap : int Ring.t;
 }
 
-let gravity = 0.00025
+let gravity = 0.00045
 let step_time = 600.
 
 type action = Throw | Catch
@@ -86,8 +85,19 @@ let hand_position hand mode =
   in
   (x_base +. offset, 300.)
 
-(* --- UPDATED PHYSICS: DWELL + FLIGHT --- *)
-let dwell_ratio = 0.3 (* 30% of a beat is spent holding the ball *)
+(* --- UPDATED PHYSICS: BÉZIER SCOOP --- *)
+let dwell_ratio = 0.3
+let scoop_depth = 80. (* How far down the hand dips in pixels *)
+
+(* Quadratic Bézier formula: B(t) = (1-t)^2 * P0 + 2(1-t)t * P1 + t^2 * P2 *)
+let bezier p0 p1 p2 t =
+  let x0, y0 = p0 and x1, y1 = p1 and x2, y2 = p2 in
+  let mt = 1. -. t in
+  let mt2 = mt *. mt in
+  let t2 = t *. t in
+  let x = (mt2 *. x0) +. (2. *. mt *. t *. x1) +. (t2 *. x2) in
+  let y = (mt2 *. y0) +. (2. *. mt *. t *. y1) +. (t2 *. y2) in
+  (x, y)
 
 let interpolate_pos b time_remaining =
   let total = b.total_time in
@@ -95,13 +105,25 @@ let interpolate_pos b time_remaining =
   let dwell_duration = step_time *. dwell_ratio in
 
   if elapsed < dwell_duration then
-    (* DWELL PHASE: Linear scoop from Catch -> Throw *)
+    (* --- DWELL PHASE: Curved scoop using Bézier --- *)
     let t = elapsed /. dwell_duration in
-    let sx, sy = b.catch_pos in
-    let ex, ey = b.throw_pos in
-    (sx +. ((ex -. sx) *. t), sy +. ((ey -. sy) *. t))
+    (* Normalized time 0.0 -> 1.0 *)
+    let p0 = b.catch_pos in
+    (* Start *)
+    let p2 = b.throw_pos in
+    (* End *)
+
+    (* Calculate Control Point (P1) *)
+    (* X is midpoint between catch and throw *)
+    let p1_x = (fst p0 +. fst p2) /. 2. in
+    (* Y is below the lowest point of catch/throw to create the dip *)
+    let base_y = max (snd p0) (snd p2) in
+    let p1_y = base_y +. scoop_depth in
+    let p1 = (p1_x, p1_y) in
+
+    bezier p0 p1 p2 t
   else
-    (* FLIGHT PHASE: Parabola from Throw -> Target *)
+    (* --- FLIGHT PHASE: Standard Parabola --- *)
     let flight_duration = total -. dwell_duration in
     let flight_elapsed = elapsed -. dwell_duration in
     let t = flight_elapsed /. flight_duration in
@@ -116,7 +138,7 @@ let interpolate_pos b time_remaining =
       0.5 *. gravity *. flight_elapsed *. (flight_duration -. flight_elapsed)
     in
     (cur_x, base_y -. h_offset)
-(* --------------------------------------- *)
+(* ------------------------------------- *)
 
 let update_view state delta_time =
   Ring.foldi
@@ -125,7 +147,6 @@ let update_view state delta_time =
       | Empty -> ()
       | Ball b ->
           let time_remaining = state.timer +. (float_of_int i *. step_time) in
-          (* We now pass the raw time_remaining to the interpolator logic *)
           let new_pos = interpolate_pos b time_remaining in
           set_position b new_pos)
     () state.state
@@ -147,57 +168,59 @@ let next state time_spent =
         let target_hand_idx = state.beat_count + n in
         let target_hand = if target_hand_idx mod 2 = 1 then Right else Left in
 
-        (* --- UPDATED ASSIGNMENT --- *)
         b.catch_pos <- hand_position current_hand Catch;
         b.throw_pos <- hand_position current_hand Throw;
         b.target_pos <- hand_position target_hand Catch;
         b.total_time <- float_of_int n *. step_time;
 
-        (* -------------------------- *)
         if n > 0 then Ring.set state.state (n - 1) (Ball b))
   else ();
 
   update_view state time_spent
 
-let siteswap = Ring.create [| 4; 4; 1 |]
-
-let timing =
-  let dummy_pos = (0., 0.) in
-  let create_ball id =
-    let el =
-      match El.find_first_by_selector (Jstr.v id) with
-      | Some e -> e
-      | None ->
-          let e = El.div [] in
-          El.set_inline_style (Jstr.v "position") (Jstr.v "absolute") e;
-          El.set_inline_style (Jstr.v "width") (Jstr.v "20px") e;
-          El.set_inline_style (Jstr.v "height") (Jstr.v "20px") e;
-          El.set_inline_style (Jstr.v "background") (Jstr.v "red") e;
-          El.set_inline_style (Jstr.v "border-radius") (Jstr.v "50%") e;
-          El.append_children
-            (El.find_first_by_selector (Jstr.v "body") |> Option.get)
-            [ e ];
-          e
-    in
-    Ball
-      {
-        ball = el;
-        position = dummy_pos;
-        offset = (10., 10.);
-        catch_pos = dummy_pos;
-        throw_pos = dummy_pos;
-        target_pos = dummy_pos;
-        total_time = 1.;
-      }
-  in
-  Ring.create
-    [|
-      create_ball "#id1"; create_ball "#id2"; create_ball "#id3"; Empty; Empty;
-    |]
-
+let siteswap = Ring.create [| 5; 3; 1 |]
 let now () = Performance.now_ms G.performance
 
 let loop () =
+  let timing =
+    let dummy_pos = (0., 0.) in
+    let create_ball ?(offset = (0., 0.)) id =
+      let el =
+        match El.find_first_by_selector (Jstr.v id) with
+        | Some e -> e
+        | None ->
+            Brr.Console.(log [ "ARGH" ]);
+            let e = El.div [] in
+            El.set_inline_style (Jstr.v "position") (Jstr.v "absolute") e;
+            El.set_inline_style (Jstr.v "width") (Jstr.v "20px") e;
+            El.set_inline_style (Jstr.v "height") (Jstr.v "20px") e;
+            El.set_inline_style (Jstr.v "background") (Jstr.v "red") e;
+            El.set_inline_style (Jstr.v "border-radius") (Jstr.v "50%") e;
+            El.append_children
+              (El.find_first_by_selector (Jstr.v "body") |> Option.get)
+              [ e ];
+            e
+      in
+      Ball
+        {
+          ball = el;
+          position = dummy_pos;
+          offset;
+          catch_pos = dummy_pos;
+          throw_pos = dummy_pos;
+          target_pos = dummy_pos;
+          total_time = 1.;
+        }
+    in
+    Ring.create
+      [|
+        create_ball ~offset:(-200., 0.) "#id249847994";
+        create_ball ~offset:(200., 0.) "#id409218438";
+        create_ball ~offset:(100., 400.) "#id256822448";
+        Empty;
+        Empty;
+      |]
+  in
   let state = { timer = 0.; beat_count = 0; state = timing; siteswap } in
 
   let rec update old_now now =
@@ -209,4 +232,6 @@ let loop () =
   let _ = G.request_animation_frame (update (now ())) in
   ()
 
-let () = loop ()
+let () =
+  let start _ = loop () in
+  Jv.set Jv.global "startLoop" (Jv.callback ~arity:1 start)
