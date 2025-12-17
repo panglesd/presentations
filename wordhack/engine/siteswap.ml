@@ -204,7 +204,7 @@ let loop () =
       Ball
         {
           ball = el;
-          position = dummy_pos;
+          position = offset;
           offset;
           catch_pos = dummy_pos;
           throw_pos = dummy_pos;
