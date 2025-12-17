@@ -7,12 +7,14 @@ let other_hand = function Left -> Right | Right -> Left
 
 type point = float * float
 
+(* --- UPDATED STATE RECORD --- *)
 type ball_state = {
   ball : ball;
   mutable position : point;
   offset : point;
-  mutable origin : point;
-  mutable target : point;
+  mutable catch_pos : point; (* Where we caught it *)
+  mutable throw_pos : point; (* Where we release it *)
+  mutable target_pos : point; (* Where it lands next *)
   mutable total_time : float;
 }
 
@@ -38,14 +40,12 @@ module Ring = struct
 
   let get x n = x.array.((x.index + n) mod x.length)
 
-  (* Standard pop for cycling patterns (Siteswap) *)
   let pop x =
     let index = x.index in
     let head = x.array.(index) in
     x.index <- (index + 1) mod x.length;
     head
 
-  (* Pop and clear for object slots (Balls) *)
   let pop_reset x default =
     let index = x.index in
     let head = x.array.(index) in
@@ -73,31 +73,50 @@ type state = {
 let gravity = 0.00025
 let step_time = 600.
 
-(* --- CHANGED: Separate Throw and Catch coordinates --- *)
 type action = Throw | Catch
 
 let hand_position hand mode =
   let x_base = match hand with Left -> -150. | Right -> 150. in
   let offset =
     match (hand, mode) with
-    (* Throws happen "inside" (closer to screen center) *)
     | Left, Throw -> 30.
     | Right, Throw -> -30.
-    (* Catches happen "outside" (further from screen center) *)
     | Left, Catch -> -30.
     | Right, Catch -> 30.
   in
   (x_base +. offset, 300.)
-(* --------------------------------------------------- *)
 
-let interpolate_pos start_pt end_pt progress total_dur =
-  let sx, sy = start_pt in
-  let ex, ey = end_pt in
-  let cur_x = sx +. ((ex -. sx) *. progress) in
-  let base_y = sy +. ((ey -. sy) *. progress) in
-  let t = progress *. total_dur in
-  let height_offset = 0.5 *. gravity *. t *. (total_dur -. t) in
-  (cur_x, base_y -. height_offset)
+(* --- UPDATED PHYSICS: DWELL + FLIGHT --- *)
+let dwell_ratio = 0.3 (* 30% of a beat is spent holding the ball *)
+
+let interpolate_pos b time_remaining =
+  let total = b.total_time in
+  let elapsed = total -. time_remaining in
+  let dwell_duration = step_time *. dwell_ratio in
+
+  if elapsed < dwell_duration then
+    (* DWELL PHASE: Linear scoop from Catch -> Throw *)
+    let t = elapsed /. dwell_duration in
+    let sx, sy = b.catch_pos in
+    let ex, ey = b.throw_pos in
+    (sx +. ((ex -. sx) *. t), sy +. ((ey -. sy) *. t))
+  else
+    (* FLIGHT PHASE: Parabola from Throw -> Target *)
+    let flight_duration = total -. dwell_duration in
+    let flight_elapsed = elapsed -. dwell_duration in
+    let t = flight_elapsed /. flight_duration in
+
+    let sx, sy = b.throw_pos in
+    let ex, ey = b.target_pos in
+
+    let cur_x = sx +. ((ex -. sx) *. t) in
+    let base_y = sy +. ((ey -. sy) *. t) in
+
+    let h_offset =
+      0.5 *. gravity *. flight_elapsed *. (flight_duration -. flight_elapsed)
+    in
+    (cur_x, base_y -. h_offset)
+(* --------------------------------------- *)
 
 let update_view state delta_time =
   Ring.foldi
@@ -106,10 +125,8 @@ let update_view state delta_time =
       | Empty -> ()
       | Ball b ->
           let time_remaining = state.timer +. (float_of_int i *. step_time) in
-          let progress = 1.0 -. (time_remaining /. b.total_time) in
-          let new_pos =
-            interpolate_pos b.origin b.target progress b.total_time
-          in
+          (* We now pass the raw time_remaining to the interpolator logic *)
+          let new_pos = interpolate_pos b time_remaining in
           set_position b new_pos)
     () state.state
 
@@ -130,13 +147,13 @@ let next state time_spent =
         let target_hand_idx = state.beat_count + n in
         let target_hand = if target_hand_idx mod 2 = 1 then Right else Left in
 
-        (* --- CHANGED: Use distinct start/end points --- *)
-        b.origin <- hand_position current_hand Throw;
-        b.target <- hand_position target_hand Catch;
-
-        (* ---------------------------------------------- *)
+        (* --- UPDATED ASSIGNMENT --- *)
+        b.catch_pos <- hand_position current_hand Catch;
+        b.throw_pos <- hand_position current_hand Throw;
+        b.target_pos <- hand_position target_hand Catch;
         b.total_time <- float_of_int n *. step_time;
 
+        (* -------------------------- *)
         if n > 0 then Ring.set state.state (n - 1) (Ball b))
   else ();
 
@@ -167,8 +184,9 @@ let timing =
         ball = el;
         position = dummy_pos;
         offset = (10., 10.);
-        origin = dummy_pos;
-        target = dummy_pos;
+        catch_pos = dummy_pos;
+        throw_pos = dummy_pos;
+        target_pos = dummy_pos;
         total_time = 1.;
       }
   in
