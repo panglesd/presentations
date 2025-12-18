@@ -7,6 +7,16 @@ let other_hand = function Left -> Right | Right -> Left
 
 type point = float * float
 
+(* --- HAND CONFIGURATION --- *)
+(* Adjust these values to change hand positions *)
+let hand_y_level = 100. (* Vertical position (pixels down from center) *)
+
+let hand_x_spacing =
+  350. (* Horizontal distance from center (e.g. -150 and 150) *)
+
+let hand_scoop_width =
+  160. (* Distance between Catch (outer) and Throw (inner) points *)
+
 type ball_state = {
   ball : ball;
   mutable position : point;
@@ -82,22 +92,27 @@ type state = {
   siteswap : int Ring.t;
 }
 
-let gravity = 0.00045
+let gravity = 0.00085
 let step_time = 600.
 let startup_delay = step_time
 
 type action = Throw | Catch
 
 let hand_position hand mode =
-  let x_base = match hand with Left -> -150. | Right -> 150. in
+  (* Use the configuration variables defined at the top *)
+  let x_base =
+    match hand with Left -> -.hand_x_spacing | Right -> hand_x_spacing
+  in
   let offset =
     match (hand, mode) with
-    | Left, Throw -> 30.
-    | Right, Throw -> -30.
-    | Left, Catch -> -30.
-    | Right, Catch -> 30.
+    (* Throws are closer to the center (inner) *)
+    | Left, Throw -> hand_scoop_width
+    | Right, Throw -> -.hand_scoop_width
+    (* Catches are further from the center (outer) *)
+    | Left, Catch -> -.hand_scoop_width
+    | Right, Catch -> hand_scoop_width
   in
-  (x_base +. offset, 300.)
+  (x_base +. offset, hand_y_level)
 
 (* --- PHYSICS --- *)
 let dwell_ratio = 0.3
@@ -179,13 +194,13 @@ let next state time_spent =
 
   update_view state time_spent
 
-let siteswap = Ring.create [| 4; 4; 1 |]
+let siteswap = Ring.create [| 5; 3; 1 |]
 
 (* --- INITIALIZATION & ORIGIN CALCULATION --- *)
 let timing () =
   let dummy_center = (10., 10.) in
 
-  let create_intro_ball id index initial_pos =
+  let create_intro_ball id index =
     let el =
       match El.find_first_by_selector (Jstr.v id) with
       | Some e -> e
@@ -212,8 +227,8 @@ let timing () =
           let b_rect_x, b_rect_y = (El.bound_x el, El.bound_y el) in
 
           (* 2. Determine Scale Factor 
-             Screen Width / CSS Width = Scale
-             Prevent divide by zero if element is hidden
+             Scale = Rendered Width / Layout Width
+             We use El.offset_w for layout width (CSS pixels)
           *)
           let p_width_css = max 1. (El.bound_w parent) in
           let scale = El.bound_w parent /. p_width_css in
@@ -257,29 +272,43 @@ let timing () =
   Ring.create
     [|
       (* COORDINATES *)
-      create_intro_ball "#id249847994" 0 (100., 00.);
-      create_intro_ball "#id409218438" 1 (200., 00.);
-      create_intro_ball "#id256822448" 2 (100., 1400.);
+      create_intro_ball "#id249847994" 0;
+      create_intro_ball "#id409218438" 1;
+      create_intro_ball "#id256822448" 2;
       Empty;
       Empty;
     |]
 
 let now () = Performance.now_ms G.performance
+let current_id = ref 0
 
-let loop () =
+let loop id siteswap =
   let state =
     { timer = startup_delay; beat_count = 0; state = timing (); siteswap }
   in
 
   let rec update old_now now =
-    let dt = min (now -. old_now) 100. in
-    next state dt;
-    let _ = G.request_animation_frame (update now) in
-    ()
+    if id != !current_id then Brr.Console.(log [ "Yoooo"; id; !current_id ])
+    else
+      let dt = min (now -. old_now) 100. in
+      next state dt;
+      let _ = G.request_animation_frame (update now) in
+      ()
   in
   let _ = G.request_animation_frame (update (now ())) in
   ()
 
 let () =
-  let start _ = loop () in
-  Jv.set Jv.global "startLoop" (Jv.callback ~arity:1 start)
+  let siteswap = Ring.create [| 3; 3; 3 |] in
+  let start _ = loop 0 siteswap in
+  Jv.set Jv.global "startLoop1" (Jv.callback ~arity:1 start)
+
+let () =
+  let siteswap = Ring.create [| 5; 3; 1 |] in
+  let id = 1 in
+
+  let start _ =
+    current_id := id;
+    loop id siteswap
+  in
+  Jv.set Jv.global "startLoop2" (Jv.callback ~arity:1 start)

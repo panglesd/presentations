@@ -8,5 +8,10 @@ dimension: 16:9
 
 {exec}
 ```slip-script
-startLoop(1)
+startLoop1(1)
+```
+
+{exec}
+```slip-script
+startLoop2(1)
 ```
