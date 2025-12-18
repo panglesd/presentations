@@ -7,23 +7,27 @@ let other_hand = function Left -> Right | Right -> Left
 
 type point = float * float
 
-(* --- UPDATED STATE --- *)
 type ball_state = {
   ball : ball;
   mutable position : point;
+  (* The original (x,y) of the element in the DOM flow *)
+  layout_origin : point;
+  (* Centering offset (ball radius) *)
   offset : point;
   mutable catch_pos : point;
   mutable throw_pos : point;
   mutable target_pos : point;
   mutable total_time : float;
-  (* New flag to bypass the "catch" phase for the intro *)
   mutable skip_dwell : bool;
 }
 
 let set_position (ball_state : ball_state) position =
-  let { ball; offset; _ } = ball_state in
-  let x = fst position -. fst offset in
-  let y = snd position -. snd offset in
+  let { ball; layout_origin; offset; _ } = ball_state in
+
+  (* MATH: Target_Screen_Pos = Layout_Origin + Translation + Centering_Offset
+     Therefore: Translation = Target - Layout - Offset *)
+  let x = fst position -. fst layout_origin -. fst offset in
+  let y = snd position -. snd layout_origin -. snd offset in
   let style =
     let open Jstr in
     v "translate(" + of_float x + v "px," + of_float y + v "px)"
@@ -105,14 +109,10 @@ let bezier p0 p1 p2 t =
 let interpolate_pos b time_remaining =
   let total = b.total_time in
   let elapsed = total -. time_remaining in
-
-  (* IF skip_dwell is true, dwell_duration becomes 0.0 *)
   let dwell_duration = if b.skip_dwell then 0. else step_time *. dwell_ratio in
-
   let elapsed = max 0. elapsed in
 
   if elapsed < dwell_duration then
-    (* DWELL PHASE *)
     let t = elapsed /. dwell_duration in
     let p0 = b.catch_pos in
     let p2 = b.throw_pos in
@@ -121,17 +121,12 @@ let interpolate_pos b time_remaining =
     let p1 = (p1_x, base_y +. scoop_depth) in
     bezier p0 p1 p2 t
   else
-    (* FLIGHT PHASE *)
-    let flight_duration = total -. dwell_duration in
-    (* Prevent division by zero if duration is 0 *)
-    let flight_duration = max 1. flight_duration in
+    let flight_duration = max 1. (total -. dwell_duration) in
     let flight_elapsed = elapsed -. dwell_duration in
     let t = flight_elapsed /. flight_duration in
 
-    (* When skip_dwell is true, sx is throw_pos (which we set to initial_pos) *)
     let sx, sy = b.throw_pos in
     let ex, ey = b.target_pos in
-
     let cur_x = sx +. ((ex -. sx) *. t) in
     let base_y = sy +. ((ey -. sy) *. t) in
     let h_offset =
@@ -171,8 +166,6 @@ let next state time_spent =
         b.throw_pos <- hand_position current_hand Throw;
         b.target_pos <- hand_position target_hand Catch;
         b.total_time <- float_of_int n *. step_time;
-
-        (* IMPORTANT: Re-enable dwell for subsequent throws *)
         b.skip_dwell <- false;
 
         if n > 0 then Ring.set state.state (n - 1) (Ball b))
@@ -191,6 +184,7 @@ let timing () =
       match El.find_first_by_selector (Jstr.v id) with
       | Some e -> e
       | None ->
+          (* Fallback: create div if not found *)
           let e = El.div [] in
           El.set_inline_style (Jstr.v "position") (Jstr.v "absolute") e;
           El.set_inline_style (Jstr.v "width") (Jstr.v "20px") e;
@@ -202,38 +196,41 @@ let timing () =
             [ e ];
           e
     in
-    let initial_pos = (-.Brr.El.bound_x el, -.Brr.El.bound_y el) in
-    (* Target Hand Logic *)
+
+    (* --- NORMALIZATION FIX --- *)
+    (* Measure where the element is in the layout before we start moving it *)
+    let layout_origin = (El.bound_x el, El.bound_y el) in
+    let initial_pos = layout_origin in
+    (* ------------------------- *)
+
     let target_hand = if index mod 2 = 0 then Right else Left in
     let target_pos = hand_position target_hand Catch in
-
     let flight_time = (float_of_int index *. step_time) +. startup_delay in
 
     Ball
       {
         ball = el;
         position = initial_pos;
+        layout_origin;
+        (* New Field *)
         offset = initial_pos;
+        (* Center Correction *)
         catch_pos = initial_pos;
-        (* throw_pos becomes the start point of the FLIGHT because skip_dwell=true *)
         throw_pos = initial_pos;
         target_pos;
         total_time = flight_time;
-        (* FORCE FLIGHT MODE *)
         skip_dwell = true;
       }
   in
 
   Ring.create
     [|
-      (* COORDINATES *)
       create_intro_ball "#id249847994" 0 (100., 00.);
       create_intro_ball "#id409218438" 1 (200., 00.);
       create_intro_ball "#id256822448" 2 (100., 1400.);
       Empty;
       Empty;
     |]
-(* ---------------------- *)
 
 let now () = Performance.now_ms G.performance
 
