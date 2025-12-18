@@ -226,11 +226,18 @@ let timing () =
           let p_rect_x, p_rect_y = (El.bound_x parent, El.bound_y parent) in
           let b_rect_x, b_rect_y = (El.bound_x el, El.bound_y el) in
 
-          (* 2. Determine Scale Factor 
-             Scale = Rendered Width / Layout Width
-             We use El.offset_w for layout width (CSS pixels)
-          *)
-          let p_width_css = max 1. (El.bound_w parent) in
+          (* 2. Determine Scale Factor *)
+          (* FIXED: Use El.offset_w (CSS Width) for the denominator, 
+             not El.bound_w (Screen Width) *)
+          let p_width_css =
+            max 1. (* (float_of_int (El.offset_w parent)) *) (El.bound_w parent)
+            (* 0.9 *)
+          in
+          let p_width_css =
+            max p_width_css (* (float_of_int (El.offset_w parent)) *) 900.
+            (* 0.9 *)
+          in
+          Console.(log [ "widthcss"; p_width_css ]);
           let scale = El.bound_w parent /. p_width_css in
 
           (* 3. Determine Parent Center in Viewport Space *)
