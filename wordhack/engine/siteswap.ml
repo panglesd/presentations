@@ -10,10 +10,10 @@ type point = float * float
 type ball_state = {
   ball : ball;
   mutable position : point;
-  (* The original (x,y) of the element in the DOM flow *)
-  layout_origin : point;
-  (* Centering offset (ball radius) *)
-  offset : point;
+  (* The position of the element relative to the container center
+     in "Logical CSS Pixels" (unscaled) *)
+  layout_offset : point;
+  offset : point; (* Ball radius centering *)
   mutable catch_pos : point;
   mutable throw_pos : point;
   mutable target_pos : point;
@@ -21,19 +21,25 @@ type ball_state = {
   mutable skip_dwell : bool;
 }
 
-let set_position (ball_state : ball_state) position =
-  let { ball; layout_origin; offset; _ } = ball_state in
+(* UPDATED: Robust Position Setter *)
+let set_position (ball_state : ball_state) target_sim_pos =
+  let { ball; layout_offset; offset; _ } = ball_state in
 
-  (* MATH: Target_Screen_Pos = Layout_Origin + Translation + Centering_Offset
-     Therefore: Translation = Target - Layout - Offset *)
-  let x = fst position -. fst layout_origin -. fst offset in
-  let y = snd position -. snd layout_origin -. snd offset in
+  (* LOGIC:
+     We want the ball at [target_sim_pos] (relative to center).
+     The ball is naturally at [layout_offset] (relative to center).
+     
+     Required Translation = Target - Layout - Centering
+  *)
+  let x = fst target_sim_pos -. fst layout_offset -. fst offset in
+  let y = snd target_sim_pos -. snd layout_offset -. snd offset in
+
   let style =
     let open Jstr in
     v "translate(" + of_float x + v "px," + of_float y + v "px)"
   in
   El.set_inline_style (Jstr.v "transform") style ball;
-  ball_state.position <- position
+  ball_state.position <- target_sim_pos
 
 type timing = Empty | Ball of ball_state
 
@@ -175,16 +181,15 @@ let next state time_spent =
 
 let siteswap = Ring.create [| 4; 4; 1 |]
 
-(* --- INITIALIZATION --- *)
+(* --- INITIALIZATION & ORIGIN CALCULATION --- *)
 let timing () =
-  let _dummy_center = (10., 10.) in
+  let dummy_center = (10., 10.) in
 
   let create_intro_ball id index initial_pos =
     let el =
       match El.find_first_by_selector (Jstr.v id) with
       | Some e -> e
       | None ->
-          (* Fallback: create div if not found *)
           let e = El.div [] in
           El.set_inline_style (Jstr.v "position") (Jstr.v "absolute") e;
           El.set_inline_style (Jstr.v "width") (Jstr.v "20px") e;
@@ -197,24 +202,50 @@ let timing () =
           e
     in
 
-    (* --- NORMALIZATION FIX --- *)
-    (* Measure where the element is in the layout before we start moving it *)
-    let layout_origin = (El.bound_x el, El.bound_y el) in
-    let initial_pos = layout_origin in
-    (* ------------------------- *)
+    (* --- ROBUST LAYOUT ORIGIN CALCULATION --- *)
+    let layout_offset =
+      match El.parent el with
+      | None -> (0., 0.)
+      | Some parent ->
+          (* 1. Measure Parent and Element in Viewport Space (Screen Pixels) *)
+          let p_rect_x, p_rect_y = (El.bound_x parent, El.bound_y parent) in
+          let b_rect_x, b_rect_y = (El.bound_x el, El.bound_y el) in
+
+          (* 2. Determine Scale Factor 
+             Screen Width / CSS Width = Scale
+             Prevent divide by zero if element is hidden
+          *)
+          let p_width_css = max 1. (El.bound_w parent) in
+          let scale = El.bound_w parent /. p_width_css in
+
+          (* 3. Determine Parent Center in Viewport Space *)
+          let p_center_x = p_rect_x +. (El.bound_w parent /. 2.) in
+          let p_center_y = p_rect_y +. (El.bound_h parent /. 2.) in
+
+          (* 4. Determine Ball Position in Viewport Space *)
+          let b_x = b_rect_x in
+          let b_y = b_rect_y in
+
+          (* 5. Calculate Difference (Visual Offset from Center) *)
+          let diff_x = b_x -. p_center_x in
+          let diff_y = b_y -. p_center_y in
+
+          (* 6. Normalize by Scale to get "Logical CSS Pixels" *)
+          (diff_x /. scale, diff_y /. scale)
+    in
+    (* ----------------------------------------- *)
 
     let target_hand = if index mod 2 = 0 then Right else Left in
     let target_pos = hand_position target_hand Catch in
     let flight_time = (float_of_int index *. step_time) +. startup_delay in
-
+    let initial_pos = layout_offset in
     Ball
       {
         ball = el;
         position = initial_pos;
-        layout_origin;
-        (* New Field *)
-        offset = initial_pos;
-        (* Center Correction *)
+        layout_offset;
+        (* Stores the natural DOM position *)
+        offset = dummy_center;
         catch_pos = initial_pos;
         throw_pos = initial_pos;
         target_pos;
@@ -225,6 +256,7 @@ let timing () =
 
   Ring.create
     [|
+      (* COORDINATES *)
       create_intro_ball "#id249847994" 0 (100., 00.);
       create_intro_ball "#id409218438" 1 (200., 00.);
       create_intro_ball "#id256822448" 2 (100., 1400.);
