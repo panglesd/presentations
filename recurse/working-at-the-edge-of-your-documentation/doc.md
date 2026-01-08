@@ -4,10 +4,10 @@ dimension:16:9
 
 # Working at the edge of your documentation
 
-{.theorem}
+{.theorem pause}
 ### Writing documentation is HARD.
 
-{.proof}
+{.proof pause}
 > - Duplicated information.
 >
 > - Information can rot.
@@ -16,10 +16,10 @@ dimension:16:9
 >
 > From which the result follows.
 
-{up}
-# Tooling for documentation (SML)
+{pause #dia}
+# The Diátaxis framework
 
-![](drawing1.draw){#d draw}
+![](drawing1.draw){#d draw up=dia}
 
 {draw=d}
 
@@ -119,6 +119,8 @@ dimension:16:9
 >
 > Don't think about structure! The structure will morph in the good one when
 > you'll have your files.
+
+{draw=wd}
 
 {pause}
 # Where is the programming part?
