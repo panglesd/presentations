@@ -135,9 +135,13 @@ dimension:16:9
 {draw=wd}
 
 {pause}
+This fixed code duplication and structure.
+
+{pause}
 # Where is the programming part?
 
-
+{pause}
+Fix documentation rot with programming.
 
 {style=display:none}
 ----------
