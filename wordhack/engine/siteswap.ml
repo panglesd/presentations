@@ -9,7 +9,7 @@ type point = float * float
 
 (* --- HAND CONFIGURATION --- *)
 (* Adjust these values to change hand positions *)
-let hand_y_level = 100. (* Vertical position (pixels down from center) *)
+let hand_y_level = ref 100. (* Vertical position (pixels down from center) *)
 
 let hand_x_spacing =
   350. (* Horizontal distance from center (e.g. -150 and 150) *)
@@ -92,7 +92,7 @@ type state = {
   siteswap : int Ring.t;
 }
 
-let gravity = 0.00085
+let gravity = ref 0.00045
 let step_time = 600.
 let startup_delay = step_time
 
@@ -112,7 +112,7 @@ let hand_position hand mode =
     | Left, Catch -> -.hand_scoop_width
     | Right, Catch -> hand_scoop_width
   in
-  (x_base +. offset, hand_y_level)
+  (x_base +. offset, !hand_y_level)
 
 (* --- PHYSICS --- *)
 let dwell_ratio = 0.3
@@ -151,7 +151,7 @@ let interpolate_pos b time_remaining =
     let cur_x = sx +. ((ex -. sx) *. t) in
     let base_y = sy +. ((ey -. sy) *. t) in
     let h_offset =
-      0.5 *. gravity *. flight_elapsed *. (flight_duration -. flight_elapsed)
+      0.5 *. !gravity *. flight_elapsed *. (flight_duration -. flight_elapsed)
     in
     (cur_x, base_y -. h_offset)
 
@@ -218,49 +218,45 @@ let timing () =
     in
 
     (* --- ROBUST LAYOUT ORIGIN CALCULATION --- *)
-    let layout_offset =
+    let layout_offset, current_sim_pos =
       match El.parent el with
-      | None -> (0., 0.)
+      | None -> ((0., 0.), (0., 0.))
       | Some parent ->
-          (* 1. Measure Parent and Element in Viewport Space (Screen Pixels) *)
+          (* 1. Measure Parent Properties *)
           let p_rect_x, p_rect_y = (El.bound_x parent, El.bound_y parent) in
-          let b_rect_x, b_rect_y = (El.bound_x el, El.bound_y el) in
-
-          (* 2. Determine Scale Factor *)
-          (* FIXED: Use El.offset_w (CSS Width) for the denominator, 
-             not El.bound_w (Screen Width) *)
-          let p_width_css =
-            max 1. (* (float_of_int (El.offset_w parent)) *) (El.bound_w parent)
-            (* 0.9 *)
-          in
-          let p_width_css =
-            max p_width_css (* (float_of_int (El.offset_w parent)) *) 900.
-            (* 0.9 *)
-          in
-          Console.(log [ "widthcss"; p_width_css ]);
+          (* let p_width_css = max 1. (El.offset_w parent) in *)
+          let p_width_css = 900. in
           let scale = El.bound_w parent /. p_width_css in
-
-          (* 3. Determine Parent Center in Viewport Space *)
           let p_center_x = p_rect_x +. (El.bound_w parent /. 2.) in
           let p_center_y = p_rect_y +. (El.bound_h parent /. 2.) in
 
-          (* 4. Determine Ball Position in Viewport Space *)
-          let b_x = b_rect_x in
-          let b_y = b_rect_y in
+          (* 2. Measure Current Visual Position (with old transform) *)
+          (* We use this as the start point for the new loop so it doesn't jump *)
+          let vis_x, vis_y = (El.bound_x el, El.bound_y el) in
+          let vis_diff_x = (vis_x -. p_center_x) /. scale in
+          let vis_diff_y = (vis_y -. p_center_y) /. scale in
+          let current_pos = (vis_diff_x, vis_diff_y) in
 
-          (* 5. Calculate Difference (Visual Offset from Center) *)
-          let diff_x = b_x -. p_center_x in
-          let diff_y = b_y -. p_center_y in
+          (* 3. RESET TRANSFORM & Measure Layout Position *)
+          (* Crucial: We must clear the old animation style to find the true origin *)
+          El.set_inline_style (Jstr.v "transform") Jstr.empty el;
 
-          (* 6. Normalize by Scale to get "Logical CSS Pixels" *)
-          (diff_x /. scale, diff_y /. scale)
+          let lay_x, lay_y = (El.bound_x el, El.bound_y el) in
+          let lay_diff_x = (lay_x -. p_center_x) /. scale in
+          let lay_diff_y = (lay_y -. p_center_y) /. scale in
+          let layout_pos = (lay_diff_x, lay_diff_y) in
+
+          (layout_pos, current_pos)
     in
     (* ----------------------------------------- *)
 
     let target_hand = if index mod 2 = 0 then Right else Left in
     let target_pos = hand_position target_hand Catch in
     let flight_time = (float_of_int index *. step_time) +. startup_delay in
-    let initial_pos = layout_offset in
+
+    (* Use current_sim_pos (where the ball is NOW) as the start of the new path *)
+    let initial_pos = current_sim_pos in
+
     Ball
       {
         ball = el;
@@ -289,13 +285,13 @@ let timing () =
 let now () = Performance.now_ms G.performance
 let current_id = ref 0
 
-let loop id siteswap =
+let loop id siteswap timing =
   let state =
     { timer = startup_delay; beat_count = 0; state = timing (); siteswap }
   in
 
   let rec update old_now now =
-    if id != !current_id then Brr.Console.(log [ "Yoooo"; id; !current_id ])
+    if id != !current_id then ()
     else
       let dt = min (now -. old_now) 100. in
       next state dt;
@@ -306,16 +302,540 @@ let loop id siteswap =
   ()
 
 let () =
-  let siteswap = Ring.create [| 3; 3; 3 |] in
-  let start _ = loop 0 siteswap in
+  let siteswap =
+    Ring.create
+      [|
+        3;
+        3;
+        3;
+        3;
+        3;
+        3;
+        3;
+        3;
+        3;
+        3;
+        3;
+        3;
+        3;
+        3;
+        3;
+        3;
+        3;
+        3;
+        3;
+        3;
+        3;
+        3;
+        3;
+        4;
+        4;
+        1;
+        4;
+        4;
+        1;
+        4;
+        4;
+        1;
+        4;
+        4;
+        1;
+        4;
+        4;
+        1;
+        4;
+        4;
+        1;
+        4;
+        4;
+        1;
+        4;
+        4;
+        1;
+        4;
+        4;
+        1;
+        4;
+        4;
+        1;
+        4;
+        4;
+        1;
+        4;
+        4;
+        1;
+        4;
+        4;
+        1;
+        4;
+        4;
+        1;
+        5;
+        3;
+        1;
+        5;
+        3;
+        1;
+        5;
+        3;
+        1;
+        5;
+        3;
+        1;
+        5;
+        3;
+        1;
+        5;
+        3;
+        1;
+        5;
+        3;
+        1;
+        5;
+        3;
+        1;
+        5;
+        3;
+        1;
+        5;
+        3;
+        1;
+        5;
+        3;
+        1;
+        5;
+        3;
+        1;
+        5;
+        3;
+        1;
+        5;
+        3;
+        1;
+      |]
+  in
+  let start _ =
+    gravity := 0.00095;
+    current_id := 0;
+    loop 0 siteswap timing
+  in
   Jv.set Jv.global "startLoop1" (Jv.callback ~arity:1 start)
 
 let () =
-  let siteswap = Ring.create [| 5; 3; 1 |] in
-  let id = 1 in
-
+  let _siteswap = Ring.create [| 5; 3; 1 |] in
   let start _ =
-    current_id := id;
-    loop id siteswap
+    current_id := 1
+    (* loop 1 siteswap *)
   in
   Jv.set Jv.global "startLoop2" (Jv.callback ~arity:1 start)
+
+(* --- INITIALIZATION & ORIGIN CALCULATION --- *)
+let timing2 () =
+  let dummy_center = (10., 10.) in
+
+  let create_intro_ball id index =
+    let el =
+      match El.find_first_by_selector (Jstr.v id) with
+      | Some e -> e
+      | None ->
+          let e = El.div [] in
+          El.set_inline_style (Jstr.v "position") (Jstr.v "absolute") e;
+          El.set_inline_style (Jstr.v "width") (Jstr.v "20px") e;
+          El.set_inline_style (Jstr.v "height") (Jstr.v "20px") e;
+          El.set_inline_style (Jstr.v "background") (Jstr.v "red") e;
+          El.set_inline_style (Jstr.v "border-radius") (Jstr.v "50%") e;
+          El.append_children
+            (El.find_first_by_selector (Jstr.v "body") |> Option.get)
+            [ e ];
+          e
+    in
+
+    (* --- ROBUST LAYOUT ORIGIN CALCULATION --- *)
+    let layout_offset, current_sim_pos =
+      match El.parent el with
+      | None -> ((0., 0.), (0., 0.))
+      | Some parent ->
+          (* 1. Measure Parent Properties *)
+          let p_rect_x, p_rect_y = (El.bound_x parent, El.bound_y parent) in
+          (* let p_width_css = max 1. (El.offset_w parent) in *)
+          let p_width_css = 1900. in
+          let scale = El.bound_w parent /. p_width_css in
+          let p_center_x = p_rect_x +. (El.bound_w parent /. 2.) in
+          let p_center_y = p_rect_y +. (El.bound_h parent /. 2.) in
+
+          (* 2. Measure Current Visual Position (with old transform) *)
+          (* We use this as the start point for the new loop so it doesn't jump *)
+          let vis_x, vis_y = (El.bound_x el, El.bound_y el) in
+          let vis_diff_x = (vis_x -. p_center_x) /. scale in
+          let vis_diff_y = (vis_y -. p_center_y) /. scale in
+          let current_pos = (vis_diff_x, vis_diff_y) in
+
+          (* 3. RESET TRANSFORM & Measure Layout Position *)
+          (* Crucial: We must clear the old animation style to find the true origin *)
+          El.set_inline_style (Jstr.v "transform") Jstr.empty el;
+
+          let lay_x, lay_y = (El.bound_x el, El.bound_y el) in
+          let lay_diff_x = (lay_x -. p_center_x) /. scale in
+          let lay_diff_y = (lay_y -. p_center_y) /. scale in
+          let layout_pos = (lay_diff_x, lay_diff_y) in
+
+          (layout_pos, current_pos)
+    in
+    (* ----------------------------------------- *)
+
+    let target_hand = if index mod 2 = 0 then Right else Left in
+    let target_pos = hand_position target_hand Catch in
+    let flight_time = (float_of_int index *. step_time) +. startup_delay in
+
+    (* Use current_sim_pos (where the ball is NOW) as the start of the new path *)
+    let initial_pos = current_sim_pos in
+
+    Ball
+      {
+        ball = el;
+        position = initial_pos;
+        layout_offset;
+        (* Stores the natural DOM position *)
+        offset = dummy_center;
+        catch_pos = initial_pos;
+        throw_pos = initial_pos;
+        target_pos;
+        total_time = flight_time;
+        skip_dwell = true;
+      }
+  in
+
+  Ring.create
+    [|
+      (* COORDINATES *)
+      create_intro_ball "#id103631518" 0;
+      create_intro_ball "#id134099961" 1;
+      create_intro_ball "#id328846011" 2;
+      create_intro_ball "#id42337548" 3;
+      create_intro_ball "#id182775890" 4;
+      create_intro_ball "#id167662981" 5;
+      create_intro_ball "#id418647752" 6;
+      Empty;
+      Empty;
+      Empty;
+      Empty;
+      Empty;
+      Empty;
+      Empty;
+      Empty;
+      Empty;
+      Empty;
+      Empty;
+      Empty;
+      Empty;
+      Empty;
+      Empty;
+      Empty;
+    |]
+
+let () =
+  let siteswap =
+    Ring.create
+      [|
+        7;
+        7;
+        7;
+        7;
+        7;
+        7;
+        7;
+        7;
+        7;
+        7;
+        7;
+        7;
+        7;
+        7;
+        7;
+        7;
+        7;
+        7;
+        7;
+        7;
+        7;
+        7;
+        7;
+        7;
+        7;
+        7;
+        7;
+        7;
+        7;
+        7;
+        7;
+        7;
+        7;
+        7;
+        7;
+        7;
+        7;
+        7;
+        7;
+        7;
+        7;
+        7;
+        7;
+        7;
+        7;
+        7;
+        7;
+        7;
+        7;
+        7;
+        7;
+        7;
+        7;
+        7;
+        7;
+        7;
+        7;
+        7;
+        7;
+        7;
+        7;
+        (* 11; *)
+        (* 9; *)
+        (* 7; *)
+        (* 5; *)
+        (* 3; *)
+        (* 1; *)
+        (* 7; *)
+        (* 7; *)
+        (* 7; *)
+        (* 7; *)
+        (* 7; *)
+        (* 7; *)
+        (* 7; *)
+        (* 7; *)
+        (* 7; *)
+        (* 7; *)
+        (* 7; *)
+        (* 7; *)
+        (* 7; *)
+        (* 11; *)
+        (* 9; *)
+        (* 7; *)
+        (* 5; *)
+        (* 3; *)
+        (* 1; *)
+        9;
+        6;
+        6;
+        8;
+        8;
+        8;
+        4;
+        7;
+        9;
+        6;
+        6;
+        8;
+        8;
+        8;
+        4;
+        7;
+        9;
+        6;
+        6;
+        8;
+        8;
+        8;
+        4;
+        7;
+        9;
+        6;
+        6;
+        8;
+        8;
+        8;
+        4;
+        7;
+        9;
+        6;
+        6;
+        8;
+        8;
+        8;
+        4;
+        7;
+        9;
+        6;
+        6;
+        8;
+        8;
+        8;
+        4;
+        7;
+        9;
+        6;
+        6;
+        8;
+        8;
+        8;
+        4;
+        7;
+        9;
+        6;
+        6;
+        8;
+        8;
+        8;
+        4;
+        7;
+        9;
+        6;
+        6;
+        8;
+        8;
+        8;
+        4;
+        7;
+        9;
+        6;
+        6;
+        8;
+        8;
+        8;
+        4;
+        7;
+        9;
+        6;
+        6;
+        8;
+        8;
+        8;
+        4;
+        7;
+        9;
+        6;
+        6;
+        8;
+        8;
+        8;
+        4;
+        7;
+        9;
+        6;
+        6;
+        8;
+        8;
+        8;
+        4;
+        7;
+        9;
+        6;
+        6;
+        8;
+        8;
+        8;
+        4;
+        7;
+        9;
+        6;
+        6;
+        8;
+        8;
+        8;
+        4;
+        7;
+        9;
+        6;
+        6;
+        8;
+        8;
+        8;
+        4;
+        7;
+        9;
+        6;
+        6;
+        8;
+        8;
+        8;
+        4;
+        7;
+        9;
+        6;
+        6;
+        8;
+        8;
+        8;
+        4;
+        7;
+        9;
+        6;
+        6;
+        8;
+        8;
+        8;
+        4;
+        7;
+        9;
+        6;
+        6;
+        8;
+        8;
+        8;
+        4;
+        7;
+        9;
+        6;
+        6;
+        8;
+        8;
+        8;
+        4;
+        7;
+        9;
+        6;
+        6;
+        8;
+        8;
+        8;
+        4;
+        7;
+        9;
+        6;
+        6;
+        8;
+        8;
+        8;
+        4;
+        7;
+        9;
+        6;
+        6;
+        8;
+        8;
+        8;
+        4;
+        7;
+        9;
+        6;
+        6;
+        8;
+        8;
+        8;
+        4;
+        7;
+        9;
+        6;
+        6;
+        8;
+        8;
+        8;
+        4;
+        7;
+      |]
+  in
+  let start _ =
+    hand_y_level := 800.;
+    current_id := 1;
+    loop 1 siteswap timing2
+  in
+  Jv.set Jv.global "startLoop3" (Jv.callback ~arity:1 start)
