@@ -19,17 +19,27 @@ dimension:16:9
 {up}
 # Tooling for documentation (SML)
 
-![ss](drawing1.draw){#d draw}
+![](drawing1.draw){#d draw}
 
 {draw=d}
 
+![](drawingdetails.draw){#dd}
+
 {focus=explanations}
 
-{focus=reference}
+{draw=dd}
+
+{focus=tutorial}
+
+{draw=dd}
 
 {focus=how-to}
 
-{focus=tutorial}
+{draw=dd}
+
+{focus=reference}
+
+{draw=dd}
 
 {unfocus}
 
@@ -71,6 +81,49 @@ dimension:16:9
     left:1050px;
   }
 </style>
+
+{style=margin-top:1000px up}
+# The Workflow
+
+{.block title="What to do"}
+1. Choose something you want to improve in the doc.
+
+2. Use the compass.
+
+3. Improve the doc following the style guide for the type of documentation.
+
+4. Publish.
+
+![](the_workflow.draw){#wd}
+
+{draw=wd}
+
+{draw=wd}
+
+{draw=wd}
+
+{draw=wd}
+
+{draw=wd}
+
+{draw=wd}
+
+{draw=wd}
+
+{draw=wd}
+
+{draw=wd}
+
+{.block pause title="What not to do"}
+> Don't start from scratch!
+>
+> Don't think about structure! The structure will morph in the good one when
+> you'll have your files.
+
+{pause}
+# Where is the programming part?
+
+Do your own tooling to avoid documentation rot!
 
 {style=display:none}
 ----------
