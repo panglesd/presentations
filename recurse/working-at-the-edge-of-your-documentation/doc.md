@@ -23,9 +23,15 @@ dimension:16:9
 
 {draw=d}
 
+{draw=d}
+
+{draw=d}
+
 ![](drawingdetails.draw){#dd}
 
 {focus=explanations}
+
+{draw=dd}
 
 {draw=dd}
 
@@ -33,11 +39,17 @@ dimension:16:9
 
 {draw=dd}
 
+{draw=dd}
+
 {focus=how-to}
 
 {draw=dd}
 
+{draw=dd}
+
 {focus=reference}
+
+{draw=dd}
 
 {draw=dd}
 
@@ -82,7 +94,7 @@ dimension:16:9
   }
 </style>
 
-{style=margin-top:1000px up}
+{style=margin-top:1000px up pause}
 # The Workflow
 
 {.block title="What to do"}
@@ -125,7 +137,7 @@ dimension:16:9
 {pause}
 # Where is the programming part?
 
-Do your own tooling to avoid documentation rot!
+
 
 {style=display:none}
 ----------
