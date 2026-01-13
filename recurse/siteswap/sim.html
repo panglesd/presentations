@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>JS Siteswap Simulator</title>
+    <style>
+        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; background: #f0f0f0; }
+        canvas { background: #fff; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-radius: 4px; margin: 20px; }
+        .controls { gap: 10px; display: flex; flex-wrap: wrap; justify-content: center; }
+        button, input { padding: 8px 12px; font-size: 1rem; }
+    </style>
+</head>
+<body>
+
+    <h2>Siteswap Simulator</h2>
+    <canvas id="juggleCanvas" width="800" height="500"></canvas>
+
+    <div class="controls">
+        <input type="text" id="patternInput" value="5,3,1" placeholder="e.g. 5,3,1">
+        <button onclick="updatePattern()">Set Siteswap</button>
+        <button onclick="api.run(sim)">Run</button>
+        <button onclick="api.pause(sim)">Pause</button>
+        <label>Speed: <input type="range" min="0.1" max="2.0" step="0.1" value="1.0" oninput="api.set_speed(sim, parseFloat(this.value))"></label>
+    </div>
+
+<script>
+/**
+ * Internal Class to manage state, physics, and rendering.
+ */
+class JugglingSimulation {
+    constructor(canvas) {
+        this.canvas = canvas;
+        this.ctx = canvas.getContext('2d');
+        this.width = canvas.width;
+        this.height = canvas.height;
+
+        // Config
+        this.gravity = 2000; // Pixels per second squared
+        this.beatTime = 0.35; // Seconds per beat (base tempo)
+        this.speedScale = 1.0;
+        this.scale = 50; // Pixels per unit height
+
+        // State
+        this.siteswap = [];
+        this.isRunning = false;
+        this.balls = []; // Array of active balls in the air
+        this.startTime = 0;
+        this.pausedTime = 0;
+        this.animationFrameId = null;
+        
+        // Scheduler
+        this.nextBeatIndex = 0; // Which index of the siteswap we are on
+        this.nextThrowTime = 0; // Absolute time when next throw occurs
+        
+        // Hands (Visual positions)
+        this.handL = { x: this.width * 0.35, y: this.height * 0.8 };
+        this.handR = { x: this.width * 0.65, y: this.height * 0.8 };
+        
+        // Colors for balls
+        this.colors = ['#FF5733', '#33FF57', '#3357FF', '#F333FF', '#FFFF33'];
+    }
+
+    reset() {
+        this.balls = [];
+        this.nextBeatIndex = 0;
+        this.nextThrowTime = 0; // Will be reset on first run frame
+    }
+
+    start() {
+        if (this.isRunning) return;
+        this.isRunning = true;
+        this.lastFrameTime = performance.now();
+        this.loop();
+    }
+
+    stop() {
+        this.isRunning = false;
+        if (this.animationFrameId) cancelAnimationFrame(this.animationFrameId);
+    }
+
+    setPattern(pattern) {
+        // pattern is array of ints
+        this.siteswap = pattern;
+        
+        // Validate
+        const sum = pattern.reduce((a, b) => a + b, 0);
+        const avg = sum / pattern.length;
+        
+        if (!Number.isInteger(avg)) {
+            console.warn(`Warning: Siteswap ${pattern} is invalid (average is ${avg}, not an integer).`);
+        }
+        
+        this.reset();
+        
+        // When setting a new pattern, we reset the scheduler
+        // We set the start time to 'now' so the first ball throws immediately
+        this.nextThrowTime = -1; 
+    }
+
+    setSpeed(speed) {
+        this.speedScale = speed;
+    }
+
+    update(dt) {
+        // Convert dt to "simulation time" based on speed
+        const simDt = dt * this.speedScale;
+        
+        // 1. Move existing balls
+        // We filter out balls that have hit the ground/caught
+        this.balls.forEach(b => {
+            b.timeAlive += simDt;
+        });
+        this.balls = this.balls.filter(b => b.timeAlive < b.totalDuration);
+
+        // 2. Scheduler: Is it time to throw?
+        // If nextThrowTime is -1, it means we are just starting
+        if (this.nextThrowTime === -1) {
+            this.nextThrowTime = 0; // Start clock
+        }
+
+        // We use a local accumulator to handle high speeds or low frame rates
+        // ensuring we don't skip throws
+        this.timeAccumulator = (this.timeAccumulator || 0) + simDt;
+
+        // The beat duration acts as our metronome
+        const beatDuration = this.beatTime; 
+
+        while (this.timeAccumulator >= beatDuration) {
+            this.throwBall();
+            this.timeAccumulator -= beatDuration;
+        }
+    }
+
+    throwBall() {
+        if (this.siteswap.length === 0) return;
+
+        const throwVal = this.siteswap[this.nextBeatIndex % this.siteswap.length];
+        
+        // Even beat index = Right Hand, Odd beat index = Left Hand
+        // (Standard convention usually starts right)
+        const isRightHand = (this.nextBeatIndex % 2) === 0;
+        const startHand = isRightHand ? this.handR : this.handL;
+        
+        // Determine landing hand
+        // If throwVal is odd, it crosses. If even, it stays.
+        const landsInRight = (throwVal % 2 !== 0) ? !isRightHand : isRightHand;
+        const endHand = landsInRight ? this.handR : this.handL;
+
+        // Create Ball
+        if (throwVal !== 0) { // 0 is a rest
+            this.balls.push({
+                start: { ...startHand },
+                end: { ...endHand },
+                totalDuration: throwVal * this.beatTime,
+                timeAlive: 0,
+                val: throwVal,
+                color: this.colors[this.nextBeatIndex % this.colors.length] // Color by beat index creates nice phasing
+            });
+        }
+
+        this.nextBeatIndex++;
+    }
+
+    draw() {
+        this.ctx.clearRect(0, 0, this.width, this.height);
+
+        // Draw Hands
+        this.ctx.fillStyle = '#333';
+        this.ctx.beginPath();
+        this.ctx.arc(this.handL.x, this.handL.y, 10, 0, Math.PI * 2);
+        this.ctx.arc(this.handR.x, this.handR.y, 10, 0, Math.PI * 2);
+        this.ctx.fill();
+
+        // Draw Floor line (for reference)
+        this.ctx.strokeStyle = '#ccc';
+        this.ctx.beginPath();
+        this.ctx.moveTo(0, this.handL.y + 20);
+        this.ctx.lineTo(this.width, this.handL.y + 20);
+        this.ctx.stroke();
+
+        // Draw Balls
+        this.balls.forEach(ball => {
+            const pos = this.getBallPosition(ball);
+            
+            this.ctx.fillStyle = ball.color;
+            this.ctx.beginPath();
+            this.ctx.arc(pos.x, pos.y, 15, 0, Math.PI * 2);
+            this.ctx.fill();
+            this.ctx.strokeStyle = '#000';
+            this.ctx.stroke();
+            
+            // Draw number on ball
+            this.ctx.fillStyle = '#000';
+            this.ctx.font = '12px Arial';
+            this.ctx.textAlign = 'center';
+            this.ctx.textBaseline = 'middle';
+            this.ctx.fillText(ball.val, pos.x, pos.y);
+        });
+    }
+
+    getBallPosition(ball) {
+        // t is 0.0 to 1.0 representing percentage of flight complete
+        const t = ball.timeAlive / ball.totalDuration;
+        
+        // Linear interpolation for X
+        const x = ball.start.x + (ball.end.x - ball.start.x) * t;
+        
+        // Physics for Y: y = vy * t - 0.5 * g * t^2
+        // We need to calculate the initial velocity (vy) required to land at t=totalDuration
+        // However, it's easier to use a normalized parabola: 4 * h * x * (1-x)
+        
+        // Height calculation based on siteswap value (heuristic)
+        // Physics: Height is proportional to time squared.
+        // H = 1/8 * g * T^2
+        const maxHeight = 0.125 * this.gravity * Math.pow(ball.totalDuration, 2);
+        
+        // Parabolic arc relative to hand height
+        // y = 4 * height * t * (1-t)
+        const heightOffset = 4 * maxHeight * t * (1 - t);
+        
+        const y = ball.start.y - heightOffset;
+
+        return { x, y };
+    }
+
+    loop() {
+        if (!this.isRunning) return;
+        
+        const now = performance.now();
+        const dt = (now - this.lastFrameTime) / 1000; // seconds
+        this.lastFrameTime = now;
+
+        this.update(dt);
+        this.draw();
+
+        this.animationFrameId = requestAnimationFrame(() => this.loop());
+    }
+}
+
+// ---------------------------------------------------------
+// The Requested Public API
+// ---------------------------------------------------------
+
+const api = {
+    init_simulation: (canvas) => {
+        return new JugglingSimulation(canvas);
+    },
+
+    set_siteswap: (instance, siteswapList) => {
+        if(!Array.isArray(siteswapList)) {
+            console.error("Siteswap must be an array of integers");
+            return;
+        }
+        instance.setPattern(siteswapList);
+    },
+
+    run: (instance) => {
+        instance.start();
+    },
+
+    pause: (instance) => {
+        instance.stop();
+    },
+
+    set_speed: (instance, speed) => {
+        instance.setSpeed(speed);
+    }
+};
+
+// ---------------------------------------------------------
+// Usage / Glue Code
+// ---------------------------------------------------------
+
+const canvas = document.getElementById('juggleCanvas');
+const sim = api.init_simulation(canvas);
+
+// Initial pattern
+api.set_siteswap(sim, [5, 3, 1]);
+api.run(sim);
+
+function updatePattern() {
+    const val = document.getElementById('patternInput').value;
+    try {
+        const arr = val.split(',').map(n => parseInt(n.trim(), 10));
+        // Basic check for NaN
+        if (arr.some(isNaN)) throw new Error("Invalid number");
+        api.set_siteswap(sim, arr);
+    } catch (e) {
+        alert("Invalid input. Please use comma separated numbers like '5,3,1'");
+    }
+}
+
+</script>
+</body>
+</html>
