@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Seamless Siteswap Simulator</title>
+    <title>Siteswap Simulator</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; background: #222; color: #eee; }
         
@@ -14,7 +14,7 @@
             gap: 15px;
             margin: 30px 0;
             padding: 10px 20px;
-            min-height: 70px; /* Fixed height to prevent jumping */
+            min-height: 70px;
             align-items: center;
             justify-content: center;
         }
@@ -33,13 +33,11 @@
         }
 
         /* Hand Differentiation Styles */
-        /* Even indices (Right Hand) - shifted down */
         .throw-val.hand-right {
             transform: translateY(15px);
             border-bottom: 3px solid #555;
         }
         
-        /* Odd indices (Left Hand) - shifted up */
         .throw-val.hand-left {
             transform: translateY(-15px);
             border-top: 3px solid #555;
@@ -59,13 +57,14 @@
         .controls { gap: 15px; display: flex; flex-wrap: wrap; justify-content: center; max-width: 900px; }
         .control-group { background: #444; padding: 10px; border-radius: 8px; display: flex; align-items: center; gap: 10px; }
         
-        button, input, select { padding: 8px 12px; font-size: 0.9rem; border: none; border-radius: 4px; }
+        button, input { padding: 8px 12px; font-size: 0.9rem; border: none; border-radius: 4px; }
         button { background: #007bff; color: white; cursor: pointer; }
         button:hover { background: #0056b3; }
         button.toggle-on { background: #2ecc71; }
         
         input[type="text"] { width: 80px; text-align: center; }
         label { font-size: 0.8rem; user-select: none; color: #ccc; }
+        input[type="range"] { vertical-align: middle; }
     </style>
 </head>
 <body>
@@ -123,7 +122,7 @@ class JugglingSimulation {
         this.ballRadius = 22; 
         this.showTime = false;
         
-        // State for Simulation
+        // State
         this.siteswap = [];   
         this.props = []; 
         this.activeBalls = []; 
@@ -135,7 +134,7 @@ class JugglingSimulation {
         this.lastFrameTime = 0;
         this.isRunning = false;
         
-        this.onBeatChange = null; // Callback
+        this.onBeatChange = null; 
         this.palette = ['#e74c3c', '#2ecc71', '#3498db', '#9b59b6', '#f1c40f', '#e67e22', '#1abc9c'];
         
         // Coordinates
@@ -155,7 +154,6 @@ class JugglingSimulation {
         this.siteswap = pattern;
         this.reset();
         
-        // Logic: Avg height
         const avg = pattern.reduce((a, b) => a + b, 0) / pattern.length;
         const numBalls = Math.floor(avg);
         
@@ -168,7 +166,6 @@ class JugglingSimulation {
         }
         this.unusedProps = [...this.props];
         
-        // Initial UI trigger
         if(this.onBeatChange) this.onBeatChange(0, this.siteswap);
     }
 
@@ -211,11 +208,8 @@ class JugglingSimulation {
 
         if (this.siteswap.length === 0) return;
 
-        // Send the ABSOLUTE beat index to the UI. 
-        // The UI will decide if it needs to wrap around 3, 6, or N elements.
         if(this.onBeatChange) this.onBeatChange(currentBeat, this.siteswap);
 
-        // Core Physics Logic
         const patternIdx = currentBeat % this.siteswap.length;
         const patternVal = this.siteswap[patternIdx];
         
@@ -254,6 +248,7 @@ class JugglingSimulation {
     draw() {
         this.ctx.clearRect(0, 0, this.width, this.height);
         
+        // This represents the current continuous beat time (e.g., 5.45)
         const globalBeatTime = this.beatIndex + (this.timeAccumulator / this.beatTime) - 1; 
 
         // Draw Hands
@@ -305,9 +300,14 @@ class JugglingSimulation {
             this.ctx.lineWidth = 3;
             this.ctx.stroke();
 
+            // Text Logic
             if (this.showTime && isFlying) {
-                const beatsRemaining = flightDuration - tBeats;
-                const displayNum = Math.ceil(beatsRemaining);
+                // FIXED LOGIC:
+                // We use globalBeatTime to align changes exactly with the "tick"
+                // floor(globalBeatTime) gives us the current beat index we are simulating
+                const currentBeatInterval = Math.floor(globalBeatTime);
+                const displayNum = ball.endBeat - currentBeatInterval;
+                
                 if (displayNum > 0) {
                     this.ctx.fillStyle = '#fff';
                     this.ctx.font = 'bold 20px Arial';
@@ -342,7 +342,7 @@ const api = {
     set_gravity: (s, v) => s.setGravity(v),
     set_show_time_on_balls: (s, b) => s.setShowTime(b),
     set_beat_callback: (s, cb) => s.setBeatCallback(cb),
-    trigger_ui_update: (s) => s.triggerUIUpdate() // Helper to refresh UI immediately
+    trigger_ui_update: (s) => s.triggerUIUpdate()
 };
 
 // ---------------------------------------------------------
@@ -352,49 +352,37 @@ const sim = api.init_simulation(document.getElementById('juggleCanvas'));
 const displayDiv = document.getElementById('patternDisplay');
 
 let isTimeOn = false;
-let isHandsOn = false; // State handled in UI layer now
+let isHandsOn = false; 
 
-// Callback: receives absolute Beat Index and current raw pattern
 api.set_beat_callback(sim, (absoluteBeatIdx, pattern) => {
     
-    // 1. Determine Display Pattern (Normal vs Doubled for visual split)
     let displayPattern = pattern;
-    
-    // If Split Hands is ON, and pattern length is odd, we visually duplicate it
+    // Visual doubling if needed
     if (isHandsOn && pattern.length % 2 !== 0) {
         displayPattern = [...pattern, ...pattern];
     }
     
-    // 2. DOM Check: Do we need to rebuild the HTML?
     if (displayDiv.childElementCount !== displayPattern.length) {
         displayDiv.innerHTML = '';
         displayPattern.forEach((val, i) => {
             const span = document.createElement('span');
             span.className = 'throw-val';
-            
-            // Apply Hand Splits if ON
             if (isHandsOn) {
-                // Even = Right (Lower), Odd = Left (Upper)
                 if (i % 2 === 0) span.classList.add('hand-right');
                 else span.classList.add('hand-left');
             }
-            
             span.innerText = val;
             displayDiv.appendChild(span);
         });
     }
     
-    // 3. Highlight Calculation
-    // We use the displayPattern length to wrap the highlight index
     const activeIdx = absoluteBeatIdx % displayPattern.length;
-    
     Array.from(displayDiv.children).forEach((child, i) => {
         if(i === activeIdx) child.classList.add('active');
         else child.classList.remove('active');
     });
 });
 
-// Initial Start
 api.set_siteswap(sim, [5,3,1]);
 api.run(sim);
 
@@ -418,12 +406,8 @@ function toggleTime() {
 
 function toggleHands() {
     isHandsOn = !isHandsOn;
-    
-    // We do NOT restart simulation. We just trigger a UI refresh.
-    // The beat callback will run on next tick, or we can force it now:
     displayDiv.innerHTML = ''; // Force rebuild
     api.trigger_ui_update(sim);
-    
     const btn = document.getElementById('btnHands');
     btn.innerText = `Split Hands: ${isHandsOn ? 'ON' : 'OFF'}`;
     btn.className = isHandsOn ? 'toggle-on' : '';
