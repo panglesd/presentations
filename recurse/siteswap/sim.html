@@ -2,11 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Tall Siteswap Simulator</title>
+    <title>Siteswap Simulator</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; background: #222; color: #eee; }
         
-        /* Taller Canvas */
         canvas { background: #333; box-shadow: 0 4px 6px rgba(0,0,0,0.3); border-radius: 4px; margin-top: 20px; }
         
         /* The Siteswap Display Strip */
@@ -23,40 +22,45 @@
         .throw-val {
             font-size: 1.8rem;
             font-weight: bold;
-            color: #666; /* Dimmed by default */
+            color: #666; 
             padding: 10px 20px;
             border-radius: 8px;
             background: #3a3a3a;
-            transition: transform 0.1s, color 0.1s, background-color 0.1s;
+            transition: transform 0.1s, color 0.1s, background-color 0.1s, box-shadow 0.1s;
             position: relative;
             min-width: 30px;
             text-align: center;
             border: 2px solid transparent;
         }
 
-        /* Hand Differentiation Styles */
-        .throw-val.hand-right {
-            transform: translateY(20px);
-            border-bottom: 4px solid #444;
-        }
-        
-        .throw-val.hand-left {
-            transform: translateY(-20px);
-            border-top: 4px solid #444;
-        }
+        /* Hand Differentiation */
+        .throw-val.hand-right { transform: translateY(20px); border-bottom: 4px solid #444; }
+        .throw-val.hand-left { transform: translateY(-20px); border-top: 4px solid #444; }
 
+        /* --- ACTIVE STATE (Blue - The throw happening NOW) --- */
         .throw-val.active {
             color: #fff;
             background: #007bff;
             border-color: #5599ff;
             z-index: 10;
             box-shadow: 0 0 20px rgba(0, 123, 255, 0.6);
-            transform: scale(1.15); /* Popping effect */
+            transform: scale(1.15); 
         }
 
-        /* Keep the offset even when active/scaled */
+        /* --- PREVIEW STATE (Red - The preparation/scoop) --- */
+        .throw-val.preview {
+            color: #fff;
+            background: #3a3a3a; /* Dark background */
+            border-color: #e74c3c; /* Red Border */
+            box-shadow: 0 0 15px rgba(231, 76, 60, 0.5); /* Red Glow */
+            transform: scale(1.05);
+        }
+        
+        /* Maintain offsets when active/preview */
         .throw-val.hand-right.active { transform: translateY(20px) scale(1.15); }
         .throw-val.hand-left.active { transform: translateY(-20px) scale(1.15); }
+        .throw-val.hand-right.preview { transform: translateY(20px) scale(1.05); }
+        .throw-val.hand-left.preview { transform: translateY(-20px) scale(1.05); }
 
         .controls { gap: 15px; display: flex; flex-wrap: wrap; justify-content: center; max-width: 900px; padding-bottom: 40px;}
         .control-group { background: #444; padding: 10px; border-radius: 8px; display: flex; align-items: center; gap: 10px; }
@@ -116,33 +120,27 @@ class JugglingSimulation {
         this.width = canvas.width;
         this.height = canvas.height;
 
-        // Configuration
         this.gravity = 2000;
         this.beatTime = 0.45; 
-        this.dwellRatio = 0.5; // 50% of the beat is dwell/scoop
+        this.dwellRatio = 0.5; 
         this.speedScale = 1.0;
-        
-        // Visual Config
-        this.ballRadius = 26; // Bigger balls
+        this.ballRadius = 26; 
         this.showTime = false;
         
-        // State
         this.siteswap = [];   
         this.props = []; 
         this.activeBalls = []; 
         this.schedule = {}; 
         this.unusedProps = [];
         
-        // Scheduler
-        this.beatIndex = 0; // The index of the *next* throw
-        this.timeAccumulator = 0; // Progress through current beat (0 to beatTime)
+        this.beatIndex = 0; 
+        this.timeAccumulator = 0; 
         this.lastFrameTime = 0;
         this.isRunning = false;
         
         this.onBeatChange = null; 
         this.palette = ['#e74c3c', '#2ecc71', '#3498db', '#9b59b6', '#f1c40f', '#e67e22', '#1abc9c'];
         
-        // Coordinates (Moved down for 900px height)
         const yPos = this.height * 0.85; 
         this.hands = {
             left:  { catch: {x: this.width * 0.25, y: yPos}, throw: {x: this.width * 0.40, y: yPos} },
@@ -171,7 +169,7 @@ class JugglingSimulation {
         }
         this.unusedProps = [...this.props];
         
-        // Trigger initial UI
+        // Force highlight update immediately
         this.checkHighlight(true);
     }
 
@@ -202,41 +200,35 @@ class JugglingSimulation {
         const simDt = dt * this.speedScale;
         this.timeAccumulator += simDt;
         
-        // Physics Loop
         while (this.timeAccumulator >= this.beatTime) {
             this.processBeat();
             this.timeAccumulator -= this.beatTime;
         }
 
-        // Check Highlight logic (updates continuously)
         this.checkHighlight(false);
     }
 
-    // New helper to determine which UI index to highlight
     checkHighlight(force) {
         if(!this.onBeatChange || this.siteswap.length === 0) return;
 
-        // Dwell Calculation
-        // Dwell starts at: beatTime - (beatTime * dwellRatio)
-        // If we passed that threshold, we are conceptually "working on" the next beat (scooping).
+        // Active Index: The ball that was JUST thrown (Blue)
+        // beatIndex is always pointing to the *upcoming* beat, so current is -1.
+        let activeIdx = this.beatIndex > 0 ? this.beatIndex - 1 : 0;
+
+        // Preview Index: The ball being scooped (Red)
+        // Happens in the last portion of the beat determined by dwellRatio
         const dwellThreshold = this.beatTime * (1 - this.dwellRatio);
-        
-        let visualIndex = this.beatIndex; // Default to next beat
+        let previewIdx = null;
 
-        if (this.timeAccumulator < dwellThreshold) {
-            // We are in the flight phase of the PREVIOUS throw
-            visualIndex = this.beatIndex - 1; 
-        } 
-        // Else: We are in the dwell phase of the NEXT throw (keep beatIndex)
+        if (this.timeAccumulator >= dwellThreshold) {
+            previewIdx = this.beatIndex; // Prepare the upcoming throw
+        }
 
-        // Only fire if changed (or forced) to save DOM operations, 
-        // though typically the React/DOM diffing is fast enough for this simple case.
-        if (visualIndex !== this.lastVisualIndex || force) {
-            this.lastVisualIndex = visualIndex;
-            // Handle negative index at start
-            if(visualIndex < 0) visualIndex = 0; 
-            
-            this.onBeatChange(visualIndex, this.siteswap);
+        // Optimization: only send if changed, unless forced
+        if (force || activeIdx !== this._lastActive || previewIdx !== this._lastPreview) {
+            this._lastActive = activeIdx;
+            this._lastPreview = previewIdx;
+            this.onBeatChange(activeIdx, previewIdx, this.siteswap);
         }
     }
 
@@ -284,10 +276,9 @@ class JugglingSimulation {
     draw() {
         this.ctx.clearRect(0, 0, this.width, this.height);
         
-        // Global continuous beat time
         const globalBeatTime = this.beatIndex + (this.timeAccumulator / this.beatTime) - 1; 
 
-        // Draw Hands
+        // Hands
         this.ctx.fillStyle = '#555';
         [this.hands.left, this.hands.right].forEach(h => {
             this.ctx.beginPath(); this.ctx.ellipse(h.catch.x, h.catch.y, 20, 5, 0, 0, Math.PI*2); this.ctx.fill();
@@ -323,37 +314,30 @@ class JugglingSimulation {
                 const p0 = ball.catchPos;
                 const p2 = ball.nextThrowPos;
                 const cx = (p0.x + p2.x) / 2;
-                const cy = p0.y + 120; // Scoop depth
+                const cy = p0.y + 120; 
                 pos.x = (1-t)*(1-t)*p0.x + 2*(1-t)*t*cx + t*t*p2.x;
                 pos.y = (1-t)*(1-t)*p0.y + 2*(1-t)*t*cy + t*t*p2.y;
             }
 
-            // Draw Ball
             this.ctx.fillStyle = this.getPropColor(ball.propId);
             this.ctx.beginPath();
             this.ctx.arc(pos.x, pos.y, this.ballRadius, 0, Math.PI * 2);
             this.ctx.fill();
-            
-            // White Inner Border
             this.ctx.strokeStyle = '#fff';
             this.ctx.lineWidth = 3;
             this.ctx.stroke();
 
-            // Text Logic (Updated size and visibility)
             if (this.showTime && isFlying) {
                 const currentBeatInterval = Math.floor(globalBeatTime);
                 const displayNum = ball.endBeat - currentBeatInterval;
                 
                 if (displayNum > 0) {
-                    // Stroke (Black outline)
                     this.ctx.strokeStyle = '#000';
                     this.ctx.lineWidth = 4;
-                    this.ctx.font = 'bold 28px Arial'; // Bigger Font
+                    this.ctx.font = 'bold 28px Arial';
                     this.ctx.textAlign = 'center';
                     this.ctx.textBaseline = 'middle';
                     this.ctx.strokeText(displayNum, pos.x, pos.y + 2);
-                    
-                    // Fill (White text)
                     this.ctx.fillStyle = '#fff';
                     this.ctx.fillText(displayNum, pos.x, pos.y + 2);
                 }
@@ -373,7 +357,7 @@ class JugglingSimulation {
 }
 
 // ---------------------------------------------------------
-// API & UI Integration
+// API & UI
 // ---------------------------------------------------------
 const api = {
     init_simulation: (c) => new JugglingSimulation(c),
@@ -393,7 +377,8 @@ const displayDiv = document.getElementById('patternDisplay');
 let isTimeOn = false;
 let isHandsOn = false; 
 
-api.set_beat_callback(sim, (visualBeatIdx, pattern) => {
+// Callback now receives ActiveIdx (Blue) and PreviewIdx (Red)
+api.set_beat_callback(sim, (activeBeatIdx, previewBeatIdx, pattern) => {
     
     let displayPattern = pattern;
     if (isHandsOn && pattern.length % 2 !== 0) {
@@ -414,14 +399,34 @@ api.set_beat_callback(sim, (visualBeatIdx, pattern) => {
         });
     }
     
-    const activeIdx = visualBeatIdx % displayPattern.length;
+    const activeWrapped = activeBeatIdx % displayPattern.length;
+    
+    // Preview might be null (if not in dwell phase)
+    let previewWrapped = -1;
+    if (previewBeatIdx !== null) {
+        previewWrapped = previewBeatIdx % displayPattern.length;
+    }
+
     Array.from(displayDiv.children).forEach((child, i) => {
-        if(i === activeIdx) child.classList.add('active');
-        else child.classList.remove('active');
+        child.className = 'throw-val'; // Reset base class
+        
+        // Re-add hand classes
+        if (isHandsOn) {
+            if (i % 2 === 0) child.classList.add('hand-right');
+            else child.classList.add('hand-left');
+        }
+
+        // Add Active (Blue)
+        if(i === activeWrapped) {
+            child.classList.add('active');
+        }
+        // Add Preview (Red)
+        else if (i === previewWrapped) {
+            child.classList.add('preview');
+        }
     });
 });
 
-// Init
 api.set_siteswap(sim, [5,3,1]);
 api.run(sim);
 
