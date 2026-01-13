@@ -2,10 +2,44 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Fixed Siteswap Simulator</title>
+    <title>Siteswap Simulator with Highlight</title>
     <style>
-        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; background: #222; color: #eee; }
-        canvas { background: #333; box-shadow: 0 4px 6px rgba(0,0,0,0.3); border-radius: 4px; margin: 20px; }
+        body { font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; background: #222; color: #eee; }
+        
+        /* Canvas Styling */
+        canvas { background: #333; box-shadow: 0 4px 6px rgba(0,0,0,0.3); border-radius: 4px; margin-top: 20px; }
+        
+        /* The Siteswap Display Strip */
+        #patternDisplay {
+            display: flex;
+            gap: 15px;
+            margin: 20px 0;
+            padding: 10px 20px;
+            background: #444;
+            border-radius: 8px;
+            min-height: 40px;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .throw-val {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #888;
+            padding: 5px 15px;
+            border-radius: 4px;
+            transition: all 0.1s;
+        }
+
+        /* The Highlight State */
+        .throw-val.active {
+            color: #fff;
+            background: #007bff;
+            transform: scale(1.2);
+            box-shadow: 0 0 10px #007bff;
+        }
+
+        /* Controls */
         .controls { gap: 10px; display: flex; flex-wrap: wrap; justify-content: center; max-width: 800px; }
         .control-group { background: #444; padding: 10px; border-radius: 8px; display: flex; align-items: center; gap: 10px; }
         button, input { padding: 8px 12px; font-size: 0.9rem; border: none; border-radius: 4px; }
@@ -19,7 +53,9 @@
 <body>
 
     <h2>JS Siteswap Simulator</h2>
-    <canvas id="juggleCanvas" width="800" height="500"></canvas>
+    <canvas id="juggleCanvas" width="800" height="800"></canvas>
+
+    <div id="patternDisplay"></div>
 
     <div class="controls">
         <div class="control-group">
@@ -51,7 +87,7 @@ class JugglingSimulation {
         this.width = canvas.width;
         this.height = canvas.height;
 
-        // Configuration
+        // Config
         this.gravity = 2000;
         this.beatTime = 0.45; 
         this.dwellRatio = 0.5; 
@@ -76,6 +112,9 @@ class JugglingSimulation {
         this.timeAccumulator = 0;
         this.lastFrameTime = 0;
         
+        // Callback for UI
+        this.onBeatChange = null;
+
         this.palette = ['#e74c3c', '#2ecc71', '#3498db', '#9b59b6', '#f1c40f', '#e67e22', '#1abc9c'];
     }
 
@@ -93,12 +132,15 @@ class JugglingSimulation {
                 color: this.palette[i % this.palette.length]
             });
         }
+        this.unusedProps = [...this.props];
         
-        this.unusedProps = [...this.props]; 
+        // Trigger initial UI update
+        if(this.onBeatChange) this.onBeatChange(0, this.siteswap);
     }
 
     setGravity(g) { this.gravity = g; }
     setSpeed(s) { this.speedScale = s; }
+    setBeatCallback(cb) { this.onBeatChange = cb; }
 
     reset() {
         this.activeBalls = [];
@@ -123,6 +165,7 @@ class JugglingSimulation {
         const simDt = dt * this.speedScale;
         this.timeAccumulator += simDt;
         
+        // Process as many beats as have passed in this frame
         while (this.timeAccumulator >= this.beatTime) {
             this.processBeat();
             this.timeAccumulator -= this.beatTime;
@@ -131,33 +174,32 @@ class JugglingSimulation {
 
     processBeat() {
         const currentBeat = this.beatIndex;
-        
-        // --- 1. CLEANUP ---
-        // Crucial Fix: Remove balls that finished their journey EXACTLY at this beat.
-        // If a ball had endBeat == currentBeat, it has finished dwelling and is being re-thrown now.
+
+        // Cleanup finished balls
         this.activeBalls = this.activeBalls.filter(b => b.endBeat > currentBeat);
 
         if (this.siteswap.length === 0) return;
 
-        const patternVal = this.siteswap[currentBeat % this.siteswap.length];
+        const patternIdx = currentBeat % this.siteswap.length;
+        const patternVal = this.siteswap[patternIdx];
         
-        // --- 2. DETERMINE BALL ---
+        // --- UI TRIGGER ---
+        // Notify the UI which index we are currently throwing
+        if(this.onBeatChange) this.onBeatChange(patternIdx, this.siteswap);
+
+        // --- SCHEDULING ---
         let propId = this.schedule[currentBeat];
         
-        // Startup: Grab unused balls
         if (propId === undefined && this.unusedProps.length > 0) {
             propId = this.unusedProps.shift().id;
         }
 
-        // --- 3. CREATE THROW ---
         if (propId !== undefined && patternVal !== 0) {
             const landBeat = currentBeat + patternVal;
             this.schedule[landBeat] = propId;
 
             const isRightHand = (currentBeat % 2) === 0;
             const throwHand = isRightHand ? this.hands.right : this.hands.left;
-            
-            // Crossing logic: Odd = cross, Even = stay
             const landsInRight = (patternVal % 2 !== 0) ? !isRightHand : isRightHand;
             const catchHand = landsInRight ? this.hands.right : this.hands.left;
 
@@ -183,24 +225,20 @@ class JugglingSimulation {
     draw() {
         this.ctx.clearRect(0, 0, this.width, this.height);
         
-        // Calculate smooth time
         const globalBeatTime = this.beatIndex + (this.timeAccumulator / this.beatTime) - 1; 
 
-        // Draw Hands
+        // Hands
         this.ctx.fillStyle = '#666';
         [this.hands.left, this.hands.right].forEach(h => {
-            // Catch Pos
             this.ctx.beginPath(); this.ctx.arc(h.catch.x, h.catch.y, 4, 0, Math.PI*2); this.ctx.fill();
-            // Throw Pos
             this.ctx.beginPath(); this.ctx.arc(h.throw.x, h.throw.y, 4, 0, Math.PI*2); this.ctx.fill();
         });
 
-        // Draw Balls
+        // Balls
         this.activeBalls.forEach(ball => {
             const durationBeats = ball.endBeat - ball.startBeat;
             const tBeats = globalBeatTime - ball.startBeat; 
             
-            // Safety: if slight calc error puts tBeats < 0, clamp to 0
             if (tBeats < 0) return; 
             
             const flightDuration = Math.max(0.1, durationBeats - this.dwellRatio);
@@ -208,36 +246,23 @@ class JugglingSimulation {
             let pos = {x:0, y:0};
 
             if (tBeats <= flightDuration) {
-                // --- FLIGHT ---
+                // Flight
                 const t = tBeats / flightDuration;
-                
-                // Horizontal Interpolation
                 pos.x = ball.throwPos.x + (ball.catchPos.x - ball.throwPos.x) * t;
-                
-                // Vertical Physics
                 const T_flight_sec = flightDuration * this.beatTime;
                 const t_sec = t * T_flight_sec;
-                
-                // vy = 0.5 * g * T
                 const vy = 0.5 * this.gravity * T_flight_sec;
                 const dy = (vy * t_sec) - (0.5 * this.gravity * t_sec * t_sec);
-                
                 pos.y = ball.throwPos.y - dy;
-
             } else {
-                // --- DWELL / SCOOP ---
-                // Time spent in dwell so far
+                // Dwell / Scoop
                 const dwellTime = tBeats - flightDuration;
-                const dwellTotal = durationBeats - flightDuration; // Should match this.dwellRatio roughly
-                
+                const dwellTotal = durationBeats - flightDuration; 
                 let t = dwellTime / dwellTotal;
-                if(t > 1) t = 1; // Clamp end
+                if(t > 1) t = 1; 
 
-                // Quadratic Bezier from Catch -> Next Throw
                 const p0 = ball.catchPos;
                 const p2 = ball.nextThrowPos;
-                
-                // Control point dips down
                 const cx = (p0.x + p2.x) / 2;
                 const cy = p0.y + 100; 
                 
@@ -245,7 +270,6 @@ class JugglingSimulation {
                 pos.y = (1-t)*(1-t)*p0.y + 2*(1-t)*t*cy + t*t*p2.y;
             }
 
-            // Render
             this.ctx.fillStyle = this.getPropColor(ball.propId);
             this.ctx.beginPath();
             this.ctx.arc(pos.x, pos.y, 14, 0, Math.PI * 2);
@@ -253,12 +277,6 @@ class JugglingSimulation {
             this.ctx.strokeStyle = '#fff';
             this.ctx.lineWidth = 2;
             this.ctx.stroke();
-            
-            // Optional: Draw Number
-            // this.ctx.fillStyle = '#000';
-            // this.ctx.font = '10px Arial';
-            // this.ctx.textAlign = 'center';
-            // this.ctx.fillText(ball.propId, pos.x, pos.y+4);
         });
     }
 
@@ -282,13 +300,37 @@ const api = {
     run: (sim) => sim.start(),
     pause: (sim) => sim.stop(),
     set_speed: (sim, speed) => sim.setSpeed(speed),
-    set_gravity: (sim, g) => sim.setGravity(g)
+    set_gravity: (sim, g) => sim.setGravity(g),
+    // New API method to hook UI
+    set_beat_callback: (sim, cb) => sim.setBeatCallback(cb)
 };
 
 // ---------------------------------------------------------
-// Init
+// Logic to handle the DOM updates
 // ---------------------------------------------------------
 const sim = api.init_simulation(document.getElementById('juggleCanvas'));
+const displayDiv = document.getElementById('patternDisplay');
+
+// Connect the simulation heartbeat to the UI
+api.set_beat_callback(sim, (idx, pattern) => {
+    // If the DOM is empty (first run or pattern change), build it
+    if (displayDiv.childElementCount !== pattern.length) {
+        displayDiv.innerHTML = '';
+        pattern.forEach(val => {
+            const span = document.createElement('span');
+            span.className = 'throw-val';
+            span.innerText = val;
+            displayDiv.appendChild(span);
+        });
+    }
+    
+    // Highlight the active index
+    Array.from(displayDiv.children).forEach((child, i) => {
+        if(i === idx) child.classList.add('active');
+        else child.classList.remove('active');
+    });
+});
+
 api.set_siteswap(sim, [5,3,1]);
 api.run(sim);
 
@@ -297,6 +339,8 @@ function updatePattern() {
     try {
         const arr = val.split(',').map(n => parseInt(n.trim(), 10));
         if (arr.some(isNaN)) throw new Error("NaN");
+        // Clear display so it rebuilds on next tick
+        displayDiv.innerHTML = ''; 
         api.set_siteswap(sim, arr);
     } catch(e) { alert("Invalid Pattern"); }
 }
