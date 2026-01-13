@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Advanced Siteswap Simulator</title>
+    <title>Fixed Siteswap Simulator</title>
     <style>
         body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; background: #222; color: #eee; }
         canvas { background: #333; box-shadow: 0 4px 6px rgba(0,0,0,0.3); border-radius: 4px; margin: 20px; }
@@ -13,6 +13,7 @@
         button:hover { background: #0056b3; }
         input[type="text"] { width: 80px; text-align: center; }
         label { font-size: 0.8rem; }
+        input[type="range"] { vertical-align: middle; }
     </style>
 </head>
 <body>
@@ -52,11 +53,11 @@ class JugglingSimulation {
 
         // Configuration
         this.gravity = 2000;
-        this.beatTime = 0.45; // Time between beats (seconds)
-        this.dwellRatio = 0.5; // How much of a "beat" is spent in hand (0.0 to 1.0)
+        this.beatTime = 0.45; 
+        this.dwellRatio = 0.5; 
         this.speedScale = 1.0;
         
-        // Coordinates (Inner=Throw, Outer=Catch)
+        // Coordinates
         const yPos = this.height * 0.75;
         this.hands = {
             left:  { catch: {x: this.width * 0.25, y: yPos}, throw: {x: this.width * 0.40, y: yPos} },
@@ -65,15 +66,16 @@ class JugglingSimulation {
 
         // State
         this.siteswap = [];
-        this.props = []; // Pool of objects { id, color }
-        this.activeBalls = []; // Objects currently moving { propId, startBeat, endBeat, ... }
-        this.schedule = {}; // Map beatIndex -> propId (Who lands when?)
+        this.props = []; 
+        this.activeBalls = []; 
+        this.schedule = {}; 
+        this.unusedProps = [];
         
         this.isRunning = false;
         this.beatIndex = 0;
         this.timeAccumulator = 0;
+        this.lastFrameTime = 0;
         
-        // Fixed Colors for Props (recycled)
         this.palette = ['#e74c3c', '#2ecc71', '#3498db', '#9b59b6', '#f1c40f', '#e67e22', '#1abc9c'];
     }
 
@@ -81,11 +83,9 @@ class JugglingSimulation {
         this.siteswap = pattern;
         this.reset();
         
-        // Calculate number of balls needed
         const avg = pattern.reduce((a, b) => a + b, 0) / pattern.length;
-        const numBalls = Math.floor(avg); // Should be integer for valid siteswaps
+        const numBalls = Math.floor(avg);
         
-        // Initialize Props Pool
         this.props = [];
         for(let i=0; i<numBalls; i++) {
             this.props.push({
@@ -94,10 +94,6 @@ class JugglingSimulation {
             });
         }
         
-        // Prime the schedule
-        // We need to figure out which ball is where at beat 0.
-        // Simplest strategy: Assign balls to the first available slots in the schedule
-        // or just keep them in a "unused" pool and pull them out as needed for the first N throws.
         this.unusedProps = [...this.props]; 
     }
 
@@ -125,71 +121,58 @@ class JugglingSimulation {
 
     update(dt) {
         const simDt = dt * this.speedScale;
-        
-        // Advance time
         this.timeAccumulator += simDt;
         
-        // Process Beats
         while (this.timeAccumulator >= this.beatTime) {
             this.processBeat();
             this.timeAccumulator -= this.beatTime;
         }
-
-        // Clean up finished balls
-        // We keep balls until they are fully caught and ready to be thrown again?
-        // Actually, the visuals are derived from the schedule, so we just filter strictly old events
-        // However, for smooth visuals, we calculate positions based on current absolute beat time.
     }
 
     processBeat() {
+        const currentBeat = this.beatIndex;
+        
+        // --- 1. CLEANUP ---
+        // Crucial Fix: Remove balls that finished their journey EXACTLY at this beat.
+        // If a ball had endBeat == currentBeat, it has finished dwelling and is being re-thrown now.
+        this.activeBalls = this.activeBalls.filter(b => b.endBeat > currentBeat);
+
         if (this.siteswap.length === 0) return;
 
-        const currentBeat = this.beatIndex;
         const patternVal = this.siteswap[currentBeat % this.siteswap.length];
         
-        // Determine which ball to throw
+        // --- 2. DETERMINE BALL ---
         let propId = this.schedule[currentBeat];
         
-        // If no ball is scheduled (startup phase), grab one from the unused pool
+        // Startup: Grab unused balls
         if (propId === undefined && this.unusedProps.length > 0) {
             propId = this.unusedProps.shift().id;
         }
 
+        // --- 3. CREATE THROW ---
         if (propId !== undefined && patternVal !== 0) {
-            // Schedule the landing
             const landBeat = currentBeat + patternVal;
             this.schedule[landBeat] = propId;
 
-            // Create Animation Object
-            // A throw consists of: 
-            // 1. Flight (throw -> catch)
-            // 2. Dwell (catch -> throw_next)
-            
-            // Logic: The ball we just threw at 'currentBeat' will land at 'landBeat'.
-            // Visuals: We are animating the flight that STARTS now.
-            
             const isRightHand = (currentBeat % 2) === 0;
             const throwHand = isRightHand ? this.hands.right : this.hands.left;
             
-            // It lands in the other hand if odd, same hand if even
+            // Crossing logic: Odd = cross, Even = stay
             const landsInRight = (patternVal % 2 !== 0) ? !isRightHand : isRightHand;
             const catchHand = landsInRight ? this.hands.right : this.hands.left;
 
             this.activeBalls.push({
                 propId: propId,
                 startBeat: currentBeat,
-                endBeat: landBeat, // This is when it is THROWN again
+                endBeat: landBeat, 
                 throwPos: throwHand.throw,
                 catchPos: catchHand.catch,
-                nextThrowPos: catchHand.throw // Where it ends up after dwelling
+                nextThrowPos: catchHand.throw
             });
         }
 
         this.beatIndex++;
-        
-        // Cleanup old history from schedule to save memory
         delete this.schedule[currentBeat]; 
-        this.activeBalls = this.activeBalls.filter(b => b.endBeat > currentBeat - 1); 
     }
 
     getPropColor(id) {
@@ -200,86 +183,69 @@ class JugglingSimulation {
     draw() {
         this.ctx.clearRect(0, 0, this.width, this.height);
         
-        // Calculated "Current Beat Time" (e.g., 5.45 beats have passed)
-        const globalBeatTime = this.beatIndex + (this.timeAccumulator / this.beatTime) - 1; // -1 because beatIndex was incremented at start of interval
+        // Calculate smooth time
+        const globalBeatTime = this.beatIndex + (this.timeAccumulator / this.beatTime) - 1; 
 
-        // Draw Hands (Visual markers)
+        // Draw Hands
         this.ctx.fillStyle = '#666';
         [this.hands.left, this.hands.right].forEach(h => {
-            this.ctx.beginPath(); this.ctx.arc(h.catch.x, h.catch.y, 5, 0, Math.PI*2); this.ctx.fill();
-            this.ctx.beginPath(); this.ctx.arc(h.throw.x, h.throw.y, 5, 0, Math.PI*2); this.ctx.fill();
+            // Catch Pos
+            this.ctx.beginPath(); this.ctx.arc(h.catch.x, h.catch.y, 4, 0, Math.PI*2); this.ctx.fill();
+            // Throw Pos
+            this.ctx.beginPath(); this.ctx.arc(h.throw.x, h.throw.y, 4, 0, Math.PI*2); this.ctx.fill();
         });
 
         // Draw Balls
         this.activeBalls.forEach(ball => {
-            // Ball lifecycle within its assigned slot:
-            // T_start = ball.startBeat
-            // T_end = ball.endBeat
-            // Duration in beats = patternVal
-            
             const durationBeats = ball.endBeat - ball.startBeat;
-            
-            // Time elapsed since throw (in beats)
             const tBeats = globalBeatTime - ball.startBeat; 
             
-            if (tBeats < 0) return; // Future ball (shouldn't happen with this logic but safe guard)
+            // Safety: if slight calc error puts tBeats < 0, clamp to 0
+            if (tBeats < 0) return; 
             
-            // Dwell logic: 
-            // The ball must arrive at the catch position 'dwellRatio' beats BEFORE T_end.
-            const flightDuration = durationBeats - this.dwellRatio;
+            const flightDuration = Math.max(0.1, durationBeats - this.dwellRatio);
             
             let pos = {x:0, y:0};
 
             if (tBeats <= flightDuration) {
-                // --- FLIGHT PHASE ---
-                // Normalized time 0..1
+                // --- FLIGHT ---
                 const t = tBeats / flightDuration;
                 
-                // Horizontal: Linear
+                // Horizontal Interpolation
                 pos.x = ball.throwPos.x + (ball.catchPos.x - ball.throwPos.x) * t;
                 
-                // Vertical: Physics (Parabola)
-                // Real time seconds
+                // Vertical Physics
                 const T_flight_sec = flightDuration * this.beatTime;
                 const t_sec = t * T_flight_sec;
                 
-                // h = vy*t - 0.5*g*t^2
-                // To land at y=0 at t=T, vy = 0.5*g*T
+                // vy = 0.5 * g * T
                 const vy = 0.5 * this.gravity * T_flight_sec;
-                
-                // Calculate height offset relative to hand
                 const dy = (vy * t_sec) - (0.5 * this.gravity * t_sec * t_sec);
                 
                 pos.y = ball.throwPos.y - dy;
 
-            } else if (tBeats < durationBeats) {
-                // --- DWELL PHASE ---
-                // Normalized time 0..1 inside the dwell window
-                const dwellProgress = (tBeats - flightDuration) / this.dwellRatio;
+            } else {
+                // --- DWELL / SCOOP ---
+                // Time spent in dwell so far
+                const dwellTime = tBeats - flightDuration;
+                const dwellTotal = durationBeats - flightDuration; // Should match this.dwellRatio roughly
                 
-                // Scoop path: Quadratic Bezier
-                // P0 = Catch Pos
-                // P2 = Next Throw Pos (Inner)
-                // P1 = Control point (Down and centered)
-                
+                let t = dwellTime / dwellTotal;
+                if(t > 1) t = 1; // Clamp end
+
+                // Quadratic Bezier from Catch -> Next Throw
                 const p0 = ball.catchPos;
                 const p2 = ball.nextThrowPos;
                 
-                // Control point dips down to make it look like a hand carrying weight
+                // Control point dips down
                 const cx = (p0.x + p2.x) / 2;
-                const cy = p0.y + 100; // Dip amount
+                const cy = p0.y + 100; 
                 
-                // Bezier formula: (1-t)^2 P0 + 2(1-t)t P1 + t^2 P2
-                const t = dwellProgress;
                 pos.x = (1-t)*(1-t)*p0.x + 2*(1-t)*t*cx + t*t*p2.x;
                 pos.y = (1-t)*(1-t)*p0.y + 2*(1-t)*t*cy + t*t*p2.y;
-                
-            } else {
-                // Ball is ready to be thrown next frame, conceptually at the throw position
-                pos = ball.nextThrowPos;
             }
 
-            // Draw
+            // Render
             this.ctx.fillStyle = this.getPropColor(ball.propId);
             this.ctx.beginPath();
             this.ctx.arc(pos.x, pos.y, 14, 0, Math.PI * 2);
@@ -288,9 +254,11 @@ class JugglingSimulation {
             this.ctx.lineWidth = 2;
             this.ctx.stroke();
             
-            // Debug text
-            // this.ctx.fillStyle = 'white';
-            // this.ctx.fillText(ball.propId, pos.x-3, pos.y+3);
+            // Optional: Draw Number
+            // this.ctx.fillStyle = '#000';
+            // this.ctx.font = '10px Arial';
+            // this.ctx.textAlign = 'center';
+            // this.ctx.fillText(ball.propId, pos.x, pos.y+4);
         });
     }
 
