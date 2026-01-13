@@ -37,7 +37,7 @@
         .throw-val.hand-right { transform: translateY(20px); border-bottom: 4px solid #444; }
         .throw-val.hand-left { transform: translateY(-20px); border-top: 4px solid #444; }
 
-        /* --- ACTIVE STATE (Blue - The throw happening NOW) --- */
+        /* --- ACTIVE STATE (Blue) --- */
         .throw-val.active {
             color: #fff;
             background: #007bff;
@@ -47,16 +47,15 @@
             transform: scale(1.15); 
         }
 
-        /* --- PREVIEW STATE (Red - The preparation/scoop) --- */
+        /* --- PREVIEW STATE (Red) --- */
         .throw-val.preview {
             color: #fff;
-            background: #3a3a3a; /* Dark background */
-            border-color: #e74c3c; /* Red Border */
-            box-shadow: 0 0 15px rgba(231, 76, 60, 0.5); /* Red Glow */
+            background: #3a3a3a; 
+            border-color: #e74c3c; 
+            box-shadow: 0 0 15px rgba(231, 76, 60, 0.5); 
             transform: scale(1.05);
         }
         
-        /* Maintain offsets when active/preview */
         .throw-val.hand-right.active { transform: translateY(20px) scale(1.15); }
         .throw-val.hand-left.active { transform: translateY(-20px) scale(1.15); }
         .throw-val.hand-right.preview { transform: translateY(20px) scale(1.05); }
@@ -78,7 +77,7 @@
 <body>
 
     <h2>JS Siteswap Simulator</h2>
-    <canvas id="juggleCanvas" width="800" height="900"></canvas>
+    <canvas id="juggleCanvas" width="800" height="1200"></canvas>
 
     <div id="patternDisplay"></div>
 
@@ -101,7 +100,7 @@
 
         <div class="control-group">
             <label>Gravity</label>
-            <input type="range" min="500" max="4000" step="100" value="2000" 
+            <input type="range" min="1" max="4000" step="1" value="2000" 
                    oninput="api.set_gravity(sim, parseFloat(this.value))">
         </div>
 
@@ -169,7 +168,6 @@ class JugglingSimulation {
         }
         this.unusedProps = [...this.props];
         
-        // Force highlight update immediately
         this.checkHighlight(true);
     }
 
@@ -211,20 +209,14 @@ class JugglingSimulation {
     checkHighlight(force) {
         if(!this.onBeatChange || this.siteswap.length === 0) return;
 
-        // Active Index: The ball that was JUST thrown (Blue)
-        // beatIndex is always pointing to the *upcoming* beat, so current is -1.
         let activeIdx = this.beatIndex > 0 ? this.beatIndex - 1 : 0;
-
-        // Preview Index: The ball being scooped (Red)
-        // Happens in the last portion of the beat determined by dwellRatio
         const dwellThreshold = this.beatTime * (1 - this.dwellRatio);
         let previewIdx = null;
 
         if (this.timeAccumulator >= dwellThreshold) {
-            previewIdx = this.beatIndex; // Prepare the upcoming throw
+            previewIdx = this.beatIndex; 
         }
 
-        // Optimization: only send if changed, unless forced
         if (force || activeIdx !== this._lastActive || previewIdx !== this._lastPreview) {
             this._lastActive = activeIdx;
             this._lastPreview = previewIdx;
@@ -293,11 +285,10 @@ class JugglingSimulation {
             
             const flightDuration = Math.max(0.1, durationBeats - this.dwellRatio);
             let pos = {x:0, y:0};
-            let isFlying = false;
-
+            // NOTE: removed isFlying boolean as we want text always
+            
             if (tBeats <= flightDuration) {
                 // Flight
-                isFlying = true;
                 const t = tBeats / flightDuration;
                 pos.x = ball.throwPos.x + (ball.catchPos.x - ball.throwPos.x) * t;
                 const T_flight_sec = flightDuration * this.beatTime;
@@ -327,7 +318,8 @@ class JugglingSimulation {
             this.ctx.lineWidth = 3;
             this.ctx.stroke();
 
-            if (this.showTime && isFlying) {
+            // Text Logic - MODIFIED: removed check for isFlying
+            if (this.showTime) {
                 const currentBeatInterval = Math.floor(globalBeatTime);
                 const displayNum = ball.endBeat - currentBeatInterval;
                 
@@ -377,7 +369,6 @@ const displayDiv = document.getElementById('patternDisplay');
 let isTimeOn = false;
 let isHandsOn = false; 
 
-// Callback now receives ActiveIdx (Blue) and PreviewIdx (Red)
 api.set_beat_callback(sim, (activeBeatIdx, previewBeatIdx, pattern) => {
     
     let displayPattern = pattern;
@@ -400,27 +391,21 @@ api.set_beat_callback(sim, (activeBeatIdx, previewBeatIdx, pattern) => {
     }
     
     const activeWrapped = activeBeatIdx % displayPattern.length;
-    
-    // Preview might be null (if not in dwell phase)
     let previewWrapped = -1;
     if (previewBeatIdx !== null) {
         previewWrapped = previewBeatIdx % displayPattern.length;
     }
 
     Array.from(displayDiv.children).forEach((child, i) => {
-        child.className = 'throw-val'; // Reset base class
-        
-        // Re-add hand classes
+        child.className = 'throw-val'; 
         if (isHandsOn) {
             if (i % 2 === 0) child.classList.add('hand-right');
             else child.classList.add('hand-left');
         }
 
-        // Add Active (Blue)
         if(i === activeWrapped) {
             child.classList.add('active');
         }
-        // Add Preview (Red)
         else if (i === previewWrapped) {
             child.classList.add('preview');
         }
