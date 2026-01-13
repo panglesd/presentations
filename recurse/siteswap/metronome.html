@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Integer Pitch Sequencer</title>
+    <style>
+        body { font-family: sans-serif; display: flex; justify-content: center; padding: 50px; background: #f0f2f5; }
+        .card { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
+        .group { margin-bottom: 1.5rem; }
+        label { display: block; margin-bottom: 0.5rem; font-weight: bold; color: #333; }
+        input[type="text"], input[type="range"] { width: 100%; box-sizing: border-box; }
+        input[type="text"] { padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 1.1rem; letter-spacing: 2px; }
+        .controls { display: flex; gap: 10px; }
+        button { flex: 1; padding: 10px; cursor: pointer; border: none; border-radius: 4px; font-weight: bold; transition: opacity 0.2s; }
+        .btn-gen { background: #007bff; color: white; }
+        .btn-play { background: #28a745; color: white; }
+        .btn-stop { background: #dc3545; color: white; }
+        .status { margin-top: 1rem; font-size: 0.9rem; color: #666; text-align: center; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>Audio Sequencer</h2>
+    
+    <div class="group">
+        <label for="sequence">Integer Sequence</label>
+        <input type="text" id="sequence" placeholder="e.g. 441333441" value="441333441">
+    </div>
+
+    <div class="group">
+        <label for="bpm">BPM: <span id="bpmVal">120</span></label>
+        <input type="range" id="bpm" min="60" max="300" value="120">
+    </div>
+
+    <div class="controls">
+        <button class="btn-play" onclick="startSequencer()">Play</button>
+        <button class="btn-stop" onclick="stopSequencer()">Stop</button>
+    </div>
+    
+    <div id="status" class="status">Ready</div>
+</div>
+
+<script>
+    let audioCtx = null;
+    let nextNoteTime = 0;
+    let currentStep = 0;
+    let timerId = null;
+    let sequence = [];
+
+    const bpmInput = document.getElementById('bpm');
+    const bpmDisplay = document.getElementById('bpmVal');
+    const sequenceInput = document.getElementById('sequence');
+    const statusDisplay = document.getElementById('status');
+
+    bpmInput.oninput = () => bpmDisplay.innerText = bpmInput.value;
+
+    function playTick(pitchValue, time) {
+        if (!audioCtx) return;
+        
+        const osc = audioCtx.createOscillator();
+        const envelope = audioCtx.createGain();
+
+        // Map integers to frequency: higher number = higher pitch
+        // Base freq 220Hz (A3), each increment adds a perfect fourth-ish jump
+        const freq = 220 + (pitchValue * 110);
+        
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, time);
+
+        // Create a "tick" envelope (fast attack, fast decay)
+        envelope.gain.setValueAtTime(0, time);
+        envelope.gain.linearRampToValueAtTime(0.3, time + 0.01);
+        envelope.gain.exponentialRampToValueAtTime(0.001, time + 0.1);
+
+        osc.connect(envelope);
+        envelope.connect(audioCtx.destination);
+
+        osc.start(time);
+        osc.stop(time + 0.1);
+    }
+
+    function scheduler() {
+        // Schedule notes while there is less than 0.1s of lookahead
+        while (nextNoteTime < audioCtx.currentTime + 0.1) {
+            const pitch = parseInt(sequence[currentStep]);
+            if (!isNaN(pitch)) {
+                playTick(pitch, nextNoteTime);
+            }
+            
+            // Advance time based on BPM
+            const secondsPerBeat = 60.0 / bpmInput.value;
+            nextNoteTime += secondsPerBeat;
+
+            // Loop the sequence
+            currentStep++;
+            if (currentStep >= sequence.length) {
+                currentStep = 0;
+            }
+        }
+        timerId = setTimeout(scheduler, 25);
+    }
+
+    function startSequencer() {
+        if (timerId) return; // Already playing
+
+        // Initialize AudioContext on user gesture
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+
+        sequence = sequenceInput.value.split('');
+        if (sequence.length === 0) return;
+
+        currentStep = 0;
+        nextNoteTime = audioCtx.currentTime + 0.05;
+        statusDisplay.innerText = "Playing...";
+        scheduler();
+    }
+
+    function stopSequencer() {
+        clearTimeout(timerId);
+        timerId = null;
+        statusDisplay.innerText = "Stopped";
+    }
+</script>
+
+</body>
+</html>
