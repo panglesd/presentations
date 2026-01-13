@@ -30,7 +30,7 @@
     </div>
 
     <div class="group">
-        <label for="bpm">BPM: <span id="bpmVal">120</span></label>
+        <label for="bpm">BPM: <span id="bpmVal">218</span></label>
         <input type="range" id="bpm" min="60" max="300" value="120">
     </div>
 
@@ -43,11 +43,12 @@
 </div>
 
 <script>
-    let audioCtx = null;
+let audioCtx = null;
     let nextNoteTime = 0;
     let currentStep = 0;
     let timerId = null;
     let sequence = [];
+    let panDirection = -1; // -1 is Left, 1 is Right
 
     const bpmInput = document.getElementById('bpm');
     const bpmDisplay = document.getElementById('bpmVal');
@@ -56,25 +57,29 @@
 
     bpmInput.oninput = () => bpmDisplay.innerText = bpmInput.value;
 
-    function playTick(pitchValue, time) {
+    function playTick(pitchValue, time, panValue) {
         if (!audioCtx) return;
         
         const osc = audioCtx.createOscillator();
         const envelope = audioCtx.createGain();
+        const panner = audioCtx.createStereoPanner();
 
-        // Map integers to frequency: higher number = higher pitch
-        // Base freq 220Hz (A3), each increment adds a perfect fourth-ish jump
+        // Frequency logic
         const freq = 220 + (pitchValue * 110);
-        
         osc.type = 'sine';
         osc.frequency.setValueAtTime(freq, time);
 
-        // Create a "tick" envelope (fast attack, fast decay)
+        // Set the Pan (Left or Right)
+        panner.pan.setValueAtTime(panValue, time);
+
+        // Tick envelope
         envelope.gain.setValueAtTime(0, time);
         envelope.gain.linearRampToValueAtTime(0.3, time + 0.01);
         envelope.gain.exponentialRampToValueAtTime(0.001, time + 0.1);
 
-        osc.connect(envelope);
+        // Routing: Oscillator -> Panner -> Envelope -> Destination
+        osc.connect(panner);
+        panner.connect(envelope);
         envelope.connect(audioCtx.destination);
 
         osc.start(time);
@@ -82,18 +87,19 @@
     }
 
     function scheduler() {
-        // Schedule notes while there is less than 0.1s of lookahead
         while (nextNoteTime < audioCtx.currentTime + 0.1) {
             const pitch = parseInt(sequence[currentStep]);
             if (!isNaN(pitch)) {
-                playTick(pitch, nextNoteTime);
+                // Play the tick with the current pan direction
+                playTick(pitch, nextNoteTime, panDirection);
+                
+                // Flip the direction for the next tick: -1 becomes 1, 1 becomes -1
+                panDirection *= -1;
             }
             
-            // Advance time based on BPM
             const secondsPerBeat = 60.0 / bpmInput.value;
             nextNoteTime += secondsPerBeat;
 
-            // Loop the sequence
             currentStep++;
             if (currentStep >= sequence.length) {
                 currentStep = 0;
@@ -103,9 +109,7 @@
     }
 
     function startSequencer() {
-        if (timerId) return; // Already playing
-
-        // Initialize AudioContext on user gesture
+        if (timerId) return;
         if (!audioCtx) {
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         }
@@ -114,8 +118,9 @@
         if (sequence.length === 0) return;
 
         currentStep = 0;
+        panDirection = -1; // Reset to start on the left speaker
         nextNoteTime = audioCtx.currentTime + 0.05;
-        statusDisplay.innerText = "Playing...";
+        statusDisplay.innerText = "Playing (Alternating Stereo)...";
         scheduler();
     }
 
@@ -123,8 +128,7 @@
         clearTimeout(timerId);
         timerId = null;
         statusDisplay.innerText = "Stopped";
-    }
-</script>
+    }</script>
 
 </body>
 </html>
