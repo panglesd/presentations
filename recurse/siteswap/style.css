@@ -1,0 +1,133 @@
+canvas {
+  background: #333;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+  margin-top: 20px;
+}
+
+/* The Siteswap Display Strip */
+#patternDisplay {
+  display: flex;
+  gap: 15px;
+  margin: 30px 0;
+  padding: 10px 20px;
+  min-height: 70px;
+  align-items: center;
+  justify-content: center;
+}
+
+.throw-val {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #666;
+  padding: 10px 20px;
+  border-radius: 8px;
+  background: #3a3a3a;
+  transition:
+    transform 0.1s,
+    color 0.1s,
+    background-color 0.1s,
+    box-shadow 0.1s;
+  position: relative;
+  min-width: 30px;
+  text-align: center;
+  border: 2px solid transparent;
+}
+
+/* Hand Differentiation */
+.throw-val.hand-right {
+  transform: translateY(20px);
+  border-bottom: 4px solid #444;
+}
+.throw-val.hand-left {
+  transform: translateY(-20px);
+  border-top: 4px solid #444;
+}
+
+/* Active State (Blue) */
+.throw-val.active {
+  color: #fff;
+  background: #007bff;
+  border-color: #5599ff;
+  z-index: 10;
+  box-shadow: 0 0 20px rgba(0, 123, 255, 0.6);
+  transform: scale(1.15);
+}
+
+/* Preview State (Red) */
+.throw-val.preview {
+  color: #fff;
+  background: #3a3a3a;
+  border-color: #e74c3c;
+  box-shadow: 0 0 15px rgba(231, 76, 60, 0.5);
+  transform: scale(1.05);
+}
+
+.throw-val.hand-right.active {
+  transform: translateY(20px) scale(1.15);
+}
+.throw-val.hand-left.active {
+  transform: translateY(-20px) scale(1.15);
+}
+.throw-val.hand-right.preview {
+  transform: translateY(20px) scale(1.05);
+}
+.throw-val.hand-left.preview {
+  transform: translateY(-20px) scale(1.05);
+}
+
+.controls {
+  gap: 15px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 900px;
+  padding-bottom: 40px;
+}
+.control-group {
+  background: #444;
+  padding: 10px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.control-group.audio-group {
+  background: #554444;
+  border: 1px solid #775555;
+}
+
+button,
+input {
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  border: none;
+  border-radius: 4px;
+}
+button {
+  background: #007bff;
+  color: white;
+  cursor: pointer;
+}
+button:hover {
+  background: #0056b3;
+}
+button.toggle-on {
+  background: #2ecc71;
+}
+button.toggle-mode {
+  background: #e67e22;
+}
+
+input[type="text"] {
+  width: 80px;
+  text-align: center;
+}
+label {
+  font-size: 0.8rem;
+  user-select: none;
+  color: #ccc;
+}
+input[type="range"] {
+  vertical-align: middle;
+}
