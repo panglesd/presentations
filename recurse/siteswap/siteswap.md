@@ -77,10 +77,14 @@ set_sound(slip, sim, true)
 set_show_time_on_balls(slip, sim, true)
 ```
 
+![](height.draw){#hdraw draw}
+
 {exec}
 ```slip-script
 set_siteswap(slip, sim, [4,4,1])
 ```
+
+{draw=hdraw}
 
 {exec}
 ```slip-script
@@ -108,6 +112,8 @@ slip.setStyle(document.getElementById('patternDisplay'), "opacity", "0")
 slip.setStyle(document.getElementById('patternDisplay'), "opacity", "1")
 ```
 
+{draw=hdraw}
+
 {exec}
 ```slip-script
 set_siteswap(slip, sim, [2])
@@ -118,6 +124,8 @@ slip.setStyle(document.getElementById('patternDisplay'), "opacity", "0")
 ```slip-script
 slip.setStyle(document.getElementById('patternDisplay'), "opacity", "1")
 ```
+
+{draw=hdraw}
 
 {exec}
 ```slip-script
@@ -152,7 +160,7 @@ slip.setStyle(document.getElementById('patternDisplay'), "opacity", "0")
 slip.setStyle(document.getElementById('patternDisplay'), "opacity", "1")
 ```
 
-{exec}
+{exec clear=hdraw}
 ```slip-script
 set_gravity(slip, sim, 1000);
 set_siteswap(slip, sim, [6])
