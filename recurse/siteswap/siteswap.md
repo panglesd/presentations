@@ -258,8 +258,27 @@ slip.setStyle(document.getElementById('patternDisplay'), "opacity", "0")
 slip.setStyle(document.getElementById('patternDisplay'), "opacity", "1")
 ```
 
-{exec}
+{exec pause}
 ```slip-script
+set_sound(slip, sim, false)
+```
+
+![](huitsix.mp4){#hsix}
+
+
+<style>
+#hsix {
+  position: absolute;
+  top: 343px;
+  left: 320px;
+}
+</style>
+
+{play-media=hsix}
+
+{exec unstatic=hsix}
+```slip-script
+set_sound(slip, sim, true)
 set_gravity(slip, sim, 250);
 set_siteswap(slip, sim, [11,8,10,7,11,9,7,0,0])
 slip.setStyle(document.getElementById('patternDisplay'), "opacity", "0")
@@ -270,15 +289,15 @@ slip.setStyle(document.getElementById('patternDisplay'), "opacity", "0")
 slip.setStyle(document.getElementById('patternDisplay'), "opacity", "1")
 ```
 
-{pause focus=ig}
+{pause}
 {exec}
 ```slip-script
 set_sound(slip, sim, false)
 ```
 
-{include #ig style=display:inline-block src=instagram.md}
+{include #ig style=display:inline-block;position:absolute;top:460px;left:720px src=instagram.md}
 
-{unfocus up}
+{up unstatic=ig}
 # And mathematics!
 
 {.theorem}
