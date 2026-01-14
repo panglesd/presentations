@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Siteswap Simulator</title>
+    <title>Audio Siteswap Simulator</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; background: #222; color: #eee; }
         
@@ -37,7 +37,7 @@
         .throw-val.hand-right { transform: translateY(20px); border-bottom: 4px solid #444; }
         .throw-val.hand-left { transform: translateY(-20px); border-top: 4px solid #444; }
 
-        /* --- ACTIVE STATE (Blue) --- */
+        /* Active State (Blue) */
         .throw-val.active {
             color: #fff;
             background: #007bff;
@@ -47,7 +47,7 @@
             transform: scale(1.15); 
         }
 
-        /* --- PREVIEW STATE (Red) --- */
+        /* Preview State (Red) */
         .throw-val.preview {
             color: #fff;
             background: #3a3a3a; 
@@ -63,11 +63,13 @@
 
         .controls { gap: 15px; display: flex; flex-wrap: wrap; justify-content: center; max-width: 900px; padding-bottom: 40px;}
         .control-group { background: #444; padding: 10px; border-radius: 8px; display: flex; align-items: center; gap: 10px; }
+        .control-group.audio-group { background: #554444; border: 1px solid #775555; }
         
         button, input { padding: 8px 12px; font-size: 0.9rem; border: none; border-radius: 4px; }
         button { background: #007bff; color: white; cursor: pointer; }
         button:hover { background: #0056b3; }
         button.toggle-on { background: #2ecc71; }
+        button.toggle-mode { background: #e67e22; }
         
         input[type="text"] { width: 80px; text-align: center; }
         label { font-size: 0.8rem; user-select: none; color: #ccc; }
@@ -77,7 +79,7 @@
 <body>
 
     <h2>JS Siteswap Simulator</h2>
-    <canvas id="juggleCanvas" width="800" height="900"></canvas>
+    <canvas id="juggleCanvas" width="800" height="1200"></canvas>
 
     <div id="patternDisplay"></div>
 
@@ -100,13 +102,18 @@
 
         <div class="control-group">
             <label>Gravity</label>
-            <input type="range" min="1" max="4000" step="1" value="2000" 
+            <input type="range" min="1" max="4000" step="1" value="1000" 
                    oninput="api.set_gravity(sim, parseFloat(this.value))">
         </div>
 
         <div class="control-group">
              <button id="btnTime" onclick="toggleTime()">Show Time: OFF</button>
              <button id="btnHands" onclick="toggleHands()">Split Hands: OFF</button>
+        </div>
+
+        <div class="control-group audio-group">
+             <button id="btnSound" onclick="toggleSound()">Sound: OFF</button>
+             <button id="btnSoundMode" onclick="toggleSoundMode()">Mode: THROW</button>
         </div>
     </div>
 
@@ -126,6 +133,11 @@ class JugglingSimulation {
         this.ballRadius = 26; 
         this.showTime = false;
         
+        // Audio State
+        this.audioEnabled = false;
+        this.audioMode = 'throw'; // 'throw' or 'catch'
+        this.audioCtx = null;
+        
         this.siteswap = [];   
         this.props = []; 
         this.activeBalls = []; 
@@ -141,15 +153,58 @@ class JugglingSimulation {
         this.palette = ['#e74c3c', '#2ecc71', '#3498db', '#9b59b6', '#f1c40f', '#e67e22', '#1abc9c'];
         
         const yPos = this.height * 0.85; 
-
-        // UPDATED COORDINATES
-        // Throw positions moved closer to center (0.46 and 0.54)
-        // Catch positions moved inward (0.31 and 0.69) to maintain distance
         this.hands = {
             left:  { catch: {x: this.width * 0.31, y: yPos}, throw: {x: this.width * 0.46, y: yPos} },
             right: { catch: {x: this.width * 0.69, y: yPos}, throw: {x: this.width * 0.54, y: yPos} }
         };
     }
+
+    // --- AUDIO METHODS ---
+    initAudio() {
+        if (!this.audioCtx) {
+            this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (this.audioCtx.state === 'suspended') {
+            this.audioCtx.resume();
+        }
+    }
+
+    setSoundEnabled(bool) {
+        this.audioEnabled = bool;
+        if(bool) this.initAudio();
+    }
+
+    setSoundMode(mode) {
+        this.audioMode = mode;
+    }
+
+    playTick(val) {
+        if (!this.audioEnabled || !this.audioCtx || val === 0) return;
+
+        // Simple pitch mapping: Base + (Val * Step)
+        // e.g. 1->400, 3->600, 5->800
+        const freq = 300 + (val * 100);
+
+        const osc = this.audioCtx.createOscillator();
+        const gain = this.audioCtx.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+
+        osc.connect(gain);
+        gain.connect(this.audioCtx.destination);
+
+        const now = this.audioCtx.currentTime;
+        
+        // Envelope for a "tick" sound
+        gain.gain.setValueAtTime(0, now);
+        gain.gain.linearRampToValueAtTime(0.15, now + 0.01);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+
+        osc.start(now);
+        osc.stop(now + 0.15);
+    }
+    // ---------------------
 
     setShowTime(bool) { this.showTime = bool; }
     setGravity(g) { this.gravity = g; }
@@ -171,7 +226,6 @@ class JugglingSimulation {
             });
         }
         this.unusedProps = [...this.props];
-        
         this.checkHighlight(true);
     }
 
@@ -184,6 +238,7 @@ class JugglingSimulation {
 
     start() {
         if (this.isRunning) return;
+        this.initAudio(); // Try to init if starting
         this.isRunning = true;
         this.lastFrameTime = performance.now();
         this.loop();
@@ -202,6 +257,33 @@ class JugglingSimulation {
         const simDt = dt * this.speedScale;
         this.timeAccumulator += simDt;
         
+        // --- CATCH SOUND CHECK (Done per frame) ---
+        // We check balls that are currently flying. 
+        // If they just passed the flight duration, we play the catch sound.
+        if (this.audioEnabled && this.audioMode === 'catch') {
+            const globalBeatTime = this.beatIndex + (this.timeAccumulator / this.beatTime) - 1;
+            
+            this.activeBalls.forEach(ball => {
+                if (ball.playedCatchSound) return;
+
+                const durationBeats = ball.endBeat - ball.startBeat;
+                const flightDuration = Math.max(0.1, durationBeats - this.dwellRatio);
+                const tBeats = globalBeatTime - ball.startBeat;
+
+                // If we passed the flight duration, play sound
+                if (tBeats >= flightDuration) {
+                    // To avoid playing sounds for old balls when switching modes, 
+                    // ensure we are reasonably close to the event (within 1 beat)
+                    if (tBeats < durationBeats + 1) {
+                         // Pitch is based on the throw value that resulted in this catch
+                         // We can derive the value from durationBeats
+                         this.playTick(durationBeats);
+                    }
+                    ball.playedCatchSound = true;
+                }
+            });
+        }
+
         while (this.timeAccumulator >= this.beatTime) {
             this.processBeat();
             this.timeAccumulator -= this.beatTime;
@@ -237,6 +319,11 @@ class JugglingSimulation {
         const patternIdx = currentBeat % this.siteswap.length;
         const patternVal = this.siteswap[patternIdx];
         
+        // --- THROW SOUND CHECK ---
+        if (this.audioEnabled && this.audioMode === 'throw' && patternVal !== 0) {
+            this.playTick(patternVal);
+        }
+        
         let propId = this.schedule[currentBeat];
         if (propId === undefined && this.unusedProps.length > 0) {
             propId = this.unusedProps.shift().id;
@@ -257,7 +344,8 @@ class JugglingSimulation {
                 endBeat: landBeat, 
                 throwPos: throwHand.throw,
                 catchPos: catchHand.catch,
-                nextThrowPos: catchHand.throw
+                nextThrowPos: catchHand.throw,
+                playedCatchSound: false // Flag for catch audio
             });
         }
 
@@ -321,11 +409,9 @@ class JugglingSimulation {
             this.ctx.lineWidth = 3;
             this.ctx.stroke();
 
-            // Text Logic
             if (this.showTime) {
                 const currentBeatInterval = Math.floor(globalBeatTime);
                 const displayNum = ball.endBeat - currentBeatInterval;
-                
                 if (displayNum > 0) {
                     this.ctx.strokeStyle = '#000';
                     this.ctx.lineWidth = 4;
@@ -363,7 +449,11 @@ const api = {
     set_gravity: (s, v) => s.setGravity(v),
     set_show_time_on_balls: (s, b) => s.setShowTime(b),
     set_beat_callback: (s, cb) => s.setBeatCallback(cb),
-    trigger_ui_update: (s) => s.triggerUIUpdate()
+    trigger_ui_update: (s) => s.triggerUIUpdate(),
+    
+    // Audio APIs
+    set_sound_enabled: (s, b) => s.setSoundEnabled(b),
+    set_sound_mode: (s, m) => s.setSoundMode(m)
 };
 
 const sim = api.init_simulation(document.getElementById('juggleCanvas'));
@@ -371,6 +461,8 @@ const displayDiv = document.getElementById('patternDisplay');
 
 let isTimeOn = false;
 let isHandsOn = false; 
+let isSoundOn = false;
+let soundMode = 'throw'; // 'throw' or 'catch'
 
 api.set_beat_callback(sim, (activeBeatIdx, previewBeatIdx, pattern) => {
     
@@ -443,6 +535,23 @@ function toggleHands() {
     const btn = document.getElementById('btnHands');
     btn.innerText = `Split Hands: ${isHandsOn ? 'ON' : 'OFF'}`;
     btn.className = isHandsOn ? 'toggle-on' : '';
+}
+
+function toggleSound() {
+    isSoundOn = !isSoundOn;
+    api.set_sound_enabled(sim, isSoundOn);
+    const btn = document.getElementById('btnSound');
+    btn.innerText = `Sound: ${isSoundOn ? 'ON' : 'OFF'}`;
+    btn.className = isSoundOn ? 'toggle-on' : '';
+}
+
+function toggleSoundMode() {
+    soundMode = (soundMode === 'throw') ? 'catch' : 'throw';
+    api.set_sound_mode(sim, soundMode);
+    const btn = document.getElementById('btnSoundMode');
+    btn.innerText = `Mode: ${soundMode.toUpperCase()}`;
+    // Change color based on mode
+    btn.className = (soundMode === 'catch') ? 'toggle-mode' : ''; 
 }
 
 </script>
