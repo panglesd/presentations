@@ -324,7 +324,7 @@ We can generate all siteswaps with a number of objects and maximum height
 {.theorem pause}
 > There are some classes of siteswaps
 >
-> $(2n+1)(2n-1)\cdots97531$
+> $(2n+1)\ (2n-1)\ \cdots\ 9\ 7\ 5\ 3\ 1$
 
 
 {pause up}

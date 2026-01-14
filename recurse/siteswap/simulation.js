@@ -57,40 +57,42 @@ class JugglingSimulation {
         this.audioMode = mode;
     }
 
-    playTick(val) {
-        // 1. Safety check: Ensure audio is ready and val is a valid number
+    playTick(val, pan) {
+        // Safety checks
         if (!this.audioEnabled || !this.audioCtx || typeof val !== 'number' || !isFinite(val) || val === 0) return;
-
-        // 2. Calculate Pitch: Base 300Hz + 100Hz per unit height
+        
+        // Calculate pitch
         let freq = 300 + (val * 100);
-
-        // 3. CAP THE PITCH: Clamp frequency to a safe range (e.g., max 6000Hz)
-        // This prevents the "non-finite" error and saves your ears on huge throws
-        if (freq > 6000) freq = 6000; 
-
-        // 4. Double check finite before assigning (redundant safety)
-        if (!Number.isFinite(freq)) return;
+        if (freq > 6000) freq = 6000; // Cap pitch to avoid crash
 
         const osc = this.audioCtx.createOscillator();
         const gain = this.audioCtx.createGain();
+        
+        // Create Stereo Panner
+        const panner = this.audioCtx.createStereoPanner();
 
         osc.type = 'sine';
         osc.frequency.value = freq;
+        
+        // Apply Pan (-1 to 1)
+        // Ensure pan is within bounds just in case
+        if (pan < -1) pan = -1;
+        if (pan > 1) pan = 1;
+        panner.pan.value = pan;
 
+        // Chain: Osc -> Gain -> Panner -> Destination
         osc.connect(gain);
-        gain.connect(this.audioCtx.destination);
+        gain.connect(panner);
+        panner.connect(this.audioCtx.destination);
 
         const now = this.audioCtx.currentTime;
-        
         gain.gain.setValueAtTime(0, now);
         gain.gain.linearRampToValueAtTime(0.15, now + 0.01);
         gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
-
+        
         osc.start(now);
         osc.stop(now + 0.15);
     }
-    // ---------------------
-
     setShowTime(bool) { this.showTime = bool; }
     setGravity(g) { this.gravity = g; }
     setSpeed(s) { this.speedScale = s; }
@@ -142,27 +144,20 @@ class JugglingSimulation {
         const simDt = dt * this.speedScale;
         this.timeAccumulator += simDt;
         
-        // --- CATCH SOUND CHECK (Done per frame) ---
-        // We check balls that are currently flying. 
-        // If they just passed the flight duration, we play the catch sound.
+        // CATCH SOUND LOGIC
         if (this.audioEnabled && this.audioMode === 'catch') {
             const globalBeatTime = this.beatIndex + (this.timeAccumulator / this.beatTime) - 1;
-            
             this.activeBalls.forEach(ball => {
                 if (ball.playedCatchSound) return;
-
+                
                 const durationBeats = ball.endBeat - ball.startBeat;
                 const flightDuration = Math.max(0.1, durationBeats - this.dwellRatio);
                 const tBeats = globalBeatTime - ball.startBeat;
 
-                // If we passed the flight duration, play sound
                 if (tBeats >= flightDuration) {
-                    // To avoid playing sounds for old balls when switching modes, 
-                    // ensure we are reasonably close to the event (within 1 beat)
                     if (tBeats < durationBeats + 1) {
-                        // Pitch is based on the throw value that resulted in this catch
-                        // We can derive the value from durationBeats
-                        this.playTick(durationBeats);
+                        // Play sound using the stored CATCH PAN
+                        this.playTick(durationBeats, ball.catchPan);
                     }
                     ball.playedCatchSound = true;
                 }
@@ -204,12 +199,18 @@ class JugglingSimulation {
         const patternIdx = currentBeat % this.siteswap.length;
         const patternVal = this.siteswap[patternIdx];
         
-        // --- THROW SOUND CHECK ---
+        // DETERMINE THROW HAND (Standard Juggling: Even=Right, Odd=Left)
+        // Right Hand Pan = 1.0, Left Hand Pan = -1.0
+        const isRightHandThrow = (currentBeat % 2 === 0);
+        const throwPan = isRightHandThrow ? 1.0 : -1.0;
+
+        // THROW SOUND
         if (this.audioEnabled && this.audioMode === 'throw' && patternVal !== 0) {
-            this.playTick(patternVal);
+            this.playTick(patternVal, throwPan);
         }
         
         let propId = this.schedule[currentBeat];
+        
         if (propId === undefined && patternVal !== 0 && this.unusedProps.length > 0) {
             propId = this.unusedProps.shift().id;
         }
@@ -218,10 +219,14 @@ class JugglingSimulation {
             const landBeat = currentBeat + patternVal;
             this.schedule[landBeat] = propId;
 
-            const isRightHand = (currentBeat % 2) === 0;
-            const throwHand = isRightHand ? this.hands.right : this.hands.left;
-            const landsInRight = (patternVal % 2 !== 0) ? !isRightHand : isRightHand;
+            const throwHand = isRightHandThrow ? this.hands.right : this.hands.left;
+            
+            // Where does it land?
+            const landsInRight = (patternVal % 2 !== 0) ? !isRightHandThrow : isRightHandThrow;
             const catchHand = landsInRight ? this.hands.right : this.hands.left;
+            
+            // Calculate Catch Pan for later
+            const catchPan = landsInRight ? 1.0 : -1.0;
 
             this.activeBalls.push({
                 propId: propId,
@@ -230,7 +235,8 @@ class JugglingSimulation {
                 throwPos: throwHand.throw,
                 catchPos: catchHand.catch,
                 nextThrowPos: catchHand.throw,
-                playedCatchSound: false // Flag for catch audio
+                playedCatchSound: false,
+                catchPan: catchPan // STORE CATCH PAN
             });
         }
 
