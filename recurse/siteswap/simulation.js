@@ -58,11 +58,18 @@ class JugglingSimulation {
     }
 
     playTick(val) {
-        if (!this.audioEnabled || !this.audioCtx || val === 0) return;
+        // 1. Safety check: Ensure audio is ready and val is a valid number
+        if (!this.audioEnabled || !this.audioCtx || typeof val !== 'number' || !isFinite(val) || val === 0) return;
 
-        // Simple pitch mapping: Base + (Val * Step)
-        // e.g. 1->400, 3->600, 5->800
-        const freq = 300 + (val * 100);
+        // 2. Calculate Pitch: Base 300Hz + 100Hz per unit height
+        let freq = 300 + (val * 100);
+
+        // 3. CAP THE PITCH: Clamp frequency to a safe range (e.g., max 6000Hz)
+        // This prevents the "non-finite" error and saves your ears on huge throws
+        if (freq > 6000) freq = 6000; 
+
+        // 4. Double check finite before assigning (redundant safety)
+        if (!Number.isFinite(freq)) return;
 
         const osc = this.audioCtx.createOscillator();
         const gain = this.audioCtx.createGain();
@@ -75,7 +82,6 @@ class JugglingSimulation {
 
         const now = this.audioCtx.currentTime;
         
-        // Envelope for a "tick" sound
         gain.gain.setValueAtTime(0, now);
         gain.gain.linearRampToValueAtTime(0.15, now + 0.01);
         gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
