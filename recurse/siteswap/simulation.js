@@ -112,7 +112,7 @@ class JugglingSimulation {
         this.activeBalls = [];
         this.schedule = {};
         this.beatIndex = 0;
-        this.timeAccumulator = 0;
+        this.timeAccumulator = this.beatTime;
     }
 
     start() {
@@ -204,7 +204,7 @@ class JugglingSimulation {
         }
         
         let propId = this.schedule[currentBeat];
-        if (propId === undefined && this.unusedProps.length > 0) {
+        if (propId === undefined && patternVal !== 0 && this.unusedProps.length > 0) {
             propId = this.unusedProps.shift().id;
         }
 

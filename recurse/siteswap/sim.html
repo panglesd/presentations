@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Audio Siteswap Simulator</title>
+    <title>Fixed Siteswap Simulator</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; background: #222; color: #eee; }
         
@@ -79,13 +79,13 @@
 <body>
 
     <h2>JS Siteswap Simulator</h2>
-    <canvas id="juggleCanvas" width="800" height="1200"></canvas>
+    <canvas id="juggleCanvas" width="800" height="900"></canvas>
 
     <div id="patternDisplay"></div>
 
     <div class="controls">
         <div class="control-group">
-            <input type="text" id="patternInput" value="5,3,1" placeholder="e.g. 5,3,1">
+            <input type="text" id="patternInput" value="6,0" placeholder="e.g. 5,3,1">
             <button onclick="updatePattern()">Set Siteswap</button>
         </div>
         
@@ -102,7 +102,7 @@
 
         <div class="control-group">
             <label>Gravity</label>
-            <input type="range" min="1" max="4000" step="1" value="1000" 
+            <input type="range" min="500" max="4000" step="100" value="2000" 
                    oninput="api.set_gravity(sim, parseFloat(this.value))">
         </div>
 
@@ -133,9 +133,8 @@ class JugglingSimulation {
         this.ballRadius = 26; 
         this.showTime = false;
         
-        // Audio State
         this.audioEnabled = false;
-        this.audioMode = 'throw'; // 'throw' or 'catch'
+        this.audioMode = 'throw'; 
         this.audioCtx = null;
         
         this.siteswap = [];   
@@ -159,7 +158,6 @@ class JugglingSimulation {
         };
     }
 
-    // --- AUDIO METHODS ---
     initAudio() {
         if (!this.audioCtx) {
             this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -180,31 +178,20 @@ class JugglingSimulation {
 
     playTick(val) {
         if (!this.audioEnabled || !this.audioCtx || val === 0) return;
-
-        // Simple pitch mapping: Base + (Val * Step)
-        // e.g. 1->400, 3->600, 5->800
         const freq = 300 + (val * 100);
-
         const osc = this.audioCtx.createOscillator();
         const gain = this.audioCtx.createGain();
-
         osc.type = 'sine';
         osc.frequency.value = freq;
-
         osc.connect(gain);
         gain.connect(this.audioCtx.destination);
-
         const now = this.audioCtx.currentTime;
-        
-        // Envelope for a "tick" sound
         gain.gain.setValueAtTime(0, now);
         gain.gain.linearRampToValueAtTime(0.15, now + 0.01);
         gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
-
         osc.start(now);
         osc.stop(now + 0.15);
     }
-    // ---------------------
 
     setShowTime(bool) { this.showTime = bool; }
     setGravity(g) { this.gravity = g; }
@@ -233,12 +220,12 @@ class JugglingSimulation {
         this.activeBalls = [];
         this.schedule = {};
         this.beatIndex = 0;
-        this.timeAccumulator = 0;
+        this.timeAccumulator = this.beatTime; // Instant start
     }
 
     start() {
         if (this.isRunning) return;
-        this.initAudio(); // Try to init if starting
+        this.initAudio(); 
         this.isRunning = true;
         this.lastFrameTime = performance.now();
         this.loop();
@@ -257,26 +244,17 @@ class JugglingSimulation {
         const simDt = dt * this.speedScale;
         this.timeAccumulator += simDt;
         
-        // --- CATCH SOUND CHECK (Done per frame) ---
-        // We check balls that are currently flying. 
-        // If they just passed the flight duration, we play the catch sound.
+        // CATCH SOUND
         if (this.audioEnabled && this.audioMode === 'catch') {
             const globalBeatTime = this.beatIndex + (this.timeAccumulator / this.beatTime) - 1;
-            
             this.activeBalls.forEach(ball => {
                 if (ball.playedCatchSound) return;
-
                 const durationBeats = ball.endBeat - ball.startBeat;
                 const flightDuration = Math.max(0.1, durationBeats - this.dwellRatio);
                 const tBeats = globalBeatTime - ball.startBeat;
 
-                // If we passed the flight duration, play sound
                 if (tBeats >= flightDuration) {
-                    // To avoid playing sounds for old balls when switching modes, 
-                    // ensure we are reasonably close to the event (within 1 beat)
                     if (tBeats < durationBeats + 1) {
-                         // Pitch is based on the throw value that resulted in this catch
-                         // We can derive the value from durationBeats
                          this.playTick(durationBeats);
                     }
                     ball.playedCatchSound = true;
@@ -319,13 +297,17 @@ class JugglingSimulation {
         const patternIdx = currentBeat % this.siteswap.length;
         const patternVal = this.siteswap[patternIdx];
         
-        // --- THROW SOUND CHECK ---
+        // THROW SOUND
         if (this.audioEnabled && this.audioMode === 'throw' && patternVal !== 0) {
             this.playTick(patternVal);
         }
         
         let propId = this.schedule[currentBeat];
-        if (propId === undefined && this.unusedProps.length > 0) {
+        
+        // --- FIX IS HERE ---
+        // Only consume an unused prop if we actually have to throw something (patternVal !== 0)
+        // Previous buggy code: if (propId === undefined && this.unusedProps.length > 0)
+        if (propId === undefined && patternVal !== 0 && this.unusedProps.length > 0) {
             propId = this.unusedProps.shift().id;
         }
 
@@ -345,7 +327,7 @@ class JugglingSimulation {
                 throwPos: throwHand.throw,
                 catchPos: catchHand.catch,
                 nextThrowPos: catchHand.throw,
-                playedCatchSound: false // Flag for catch audio
+                playedCatchSound: false 
             });
         }
 
@@ -451,7 +433,6 @@ const api = {
     set_beat_callback: (s, cb) => s.setBeatCallback(cb),
     trigger_ui_update: (s) => s.triggerUIUpdate(),
     
-    // Audio APIs
     set_sound_enabled: (s, b) => s.setSoundEnabled(b),
     set_sound_mode: (s, m) => s.setSoundMode(m)
 };
@@ -462,7 +443,7 @@ const displayDiv = document.getElementById('patternDisplay');
 let isTimeOn = false;
 let isHandsOn = false; 
 let isSoundOn = false;
-let soundMode = 'throw'; // 'throw' or 'catch'
+let soundMode = 'throw';
 
 api.set_beat_callback(sim, (activeBeatIdx, previewBeatIdx, pattern) => {
     
@@ -507,7 +488,8 @@ api.set_beat_callback(sim, (activeBeatIdx, previewBeatIdx, pattern) => {
     });
 });
 
-api.set_siteswap(sim, [5,3,1]);
+// Set 6,0 initially to demonstrate fix
+api.set_siteswap(sim, [6,0]);
 api.run(sim);
 
 function updatePattern() {
@@ -550,10 +532,4 @@ function toggleSoundMode() {
     api.set_sound_mode(sim, soundMode);
     const btn = document.getElementById('btnSoundMode');
     btn.innerText = `Mode: ${soundMode.toUpperCase()}`;
-    // Change color based on mode
-    btn.className = (soundMode === 'catch') ? 'toggle-mode' : ''; 
-}
-
-</script>
-</body>
-</html>
+    btn.className = (soundMode === 'catch')

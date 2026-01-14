@@ -92,10 +92,73 @@ isHandsOn = true
 ```slip-script
 slip.onUndo(() => { isHandsOn = false })
 isHandsOn = true
+set_show_time_on_balls(slip, sim, false)
 set_speed(slip, sim, 1.75)
 ```
 
 {exec}
 ```slip-script
+set_siteswap(slip, sim, [5,3,1])
 set_speed(slip, sim, 1)
+slip.setStyle(document.getElementById('patternDisplay'), "opacity", "0")
+```
+
+{exec}
+```slip-script
+slip.setStyle(document.getElementById('patternDisplay'), "opacity", "1")
+```
+
+{exec}
+```slip-script
+set_siteswap(slip, sim, [2])
+slip.setStyle(document.getElementById('patternDisplay'), "opacity", "0")
+```
+
+{exec}
+```slip-script
+slip.setStyle(document.getElementById('patternDisplay'), "opacity", "1")
+```
+
+{exec}
+```slip-script
+set_siteswap(slip, sim, [4,2,3])
+slip.setStyle(document.getElementById('patternDisplay'), "opacity", "0")
+```
+
+{exec}
+```slip-script
+slip.setStyle(document.getElementById('patternDisplay'), "opacity", "1")
+```
+
+{exec}
+```slip-script
+set_siteswap(slip, sim, [5,2,2])
+slip.setStyle(document.getElementById('patternDisplay'), "opacity", "0")
+```
+
+{exec}
+```slip-script
+slip.setStyle(document.getElementById('patternDisplay'), "opacity", "1")
+```
+
+{exec}
+```slip-script
+set_siteswap(slip, sim, [5,5,5, 0, 0])
+slip.setStyle(document.getElementById('patternDisplay'), "opacity", "0")
+```
+
+{exec}
+```slip-script
+slip.setStyle(document.getElementById('patternDisplay'), "opacity", "1")
+```
+
+{exec}
+```slip-script
+set_siteswap(slip, sim, [6, 0])
+slip.setStyle(document.getElementById('patternDisplay'), "opacity", "0")
+```
+
+{exec}
+```slip-script
+slip.setStyle(document.getElementById('patternDisplay'), "opacity", "1")
 ```
