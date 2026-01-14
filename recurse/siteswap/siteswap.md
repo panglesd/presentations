@@ -93,13 +93,13 @@ isHandsOn = true
 slip.onUndo(() => { isHandsOn = true })
 isHandsOn = false
 set_show_time_on_balls(slip, sim, false)
-set_speed(slip, sim, 1.75)
+set_speed(slip, sim, 1.65)
 ```
 
 {exec}
 ```slip-script
+set_speed(slip, sim, 1.70)
 set_siteswap(slip, sim, [5,3,1])
-set_speed(slip, sim, 1)
 slip.setStyle(document.getElementById('patternDisplay'), "opacity", "0")
 ```
 
@@ -284,11 +284,29 @@ set_sound(slip, sim, false)
 {.theorem}
 Some siteswap are invalids
 
-{.theorem pause}
+![](si1.draw){draw}
+
+{.theorem pause style=margin-top:220px}
 The average number of a valid siteswap is the number of objects
 
+![](s2.draw){draw}
+
+{.theorem #gene pause style=margin-top:300px}
+We can generate all siteswaps with a number of objects and maximum height
+
+{.theorem pause up=gene}
+> We can generate siteswap by modifying existing ones:
+>
+> - By adding $+1$ to every numbers.
+> - By swaping two landing times
+
+![](s3.draw){draw}
+
 {.theorem pause}
-There exists primes and composite siteswaps
+> There are some classes of siteswaps
+>
+> $(2n+1)(2n-1)\cdots97531$
+
 
 {pause up}
 # And more fun!
@@ -297,5 +315,5 @@ There exists primes and composite siteswaps
 
 - More siteswap [in real life](https://www.youtube.com/watch?v=51shXjTnA-8)
 
-- Juggling is [more](https://www.youtube.com/watch?v=ATqYARL2Im8) than [just numbers](https://www.youtube.com/watch?v=IvQkiB4-zC8 Wes peden https://www.youtube.com/watch?v=l0-MXdFfqMc)
+- Juggling is [more](https://www.youtube.com/watch?v=ATqYARL2Im8) than [just numbers](https://www.youtube.com/watch?v=l0-MXdFfqMc)
 
