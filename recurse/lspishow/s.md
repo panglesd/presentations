@@ -15,21 +15,50 @@ css: style.css
 
 {pause up=lsp}
 
+![](editors.draw){#editors}
+
+{draw=editors}
+
+{draw=editors}
+
+{draw=editors}
+
+{draw=editors}
+
+{draw=editors}
+
+{draw=editors}
+
+{draw=editors}
+
+{draw=editors}
+
+{draw=editors}
+
+{draw=editors}
+
+{draw=editors}
+
+{draw=editors}
+
 {#lsp}
 ## Support for languages in editors
 
-### The old way
-
 {style=height:1000px;}
 
-![](old_way.draw)
-
-### The new way
-
+{up pause}
 ## Slipshow and language support
 
 Well let's try it!
 
-## Extending the capabilities
+{pause up}
+## The live view
 
-### The live view
+![](live-view.draw){#lv}
+
+{draw=lv}
+
+{draw=lv}
+
+{draw=lv}
+
