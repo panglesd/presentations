@@ -40,9 +40,6 @@
 
 {draw=compiledraw}
 
-{draw=compiledraw}
-
 ![](compiling.draw){#compiledraw}
 
-{pause up=~margin:60}
-## The React approach
+{pause up}
