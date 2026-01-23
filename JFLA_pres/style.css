@@ -1,0 +1,18 @@
+#limitations {
+  margin-top:1500px;
+}
+#cmf-addons {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+.emphasized {
+  font-weight: bold;
+}
+#main-container {
+  display:flex;
+  margin-top:400px
+}
+#main-container h1 {
+  font-size: 3.5em;
+}
