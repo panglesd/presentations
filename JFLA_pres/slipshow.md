@@ -20,9 +20,29 @@
 >
 > {draw=compiledraw}
 >
+> {draw=compiledraw}
+>
+> {draw=compiledraw}
+>
+> {draw=compiledraw}
+>
+> {draw=compiledraw}
+>
+> {draw=compiledraw}
+>
 > {pause}
 >
 > {draw=compiledraw}
 >
 > Surprise!{emph}
 
+{draw=compiledraw}
+
+{draw=compiledraw}
+
+{draw=compiledraw}
+
+![](compiling.draw){#compiledraw}
+
+{pause up=~margin:60}
+## The React approach
