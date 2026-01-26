@@ -36,4 +36,6 @@ css: style.css
 >
 > {draw=looking-back}
 >
+> {up=main-container}
+>
 > {include src="undo-monad.md" slip}
