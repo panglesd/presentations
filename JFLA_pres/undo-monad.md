@@ -44,6 +44,7 @@ let bind x f =
 
 {draw=umed}
 
+{pause up}
 On ajoute aussi des primitives:
 
 ```
@@ -67,6 +68,9 @@ test.undo ();;
 !x ;;
 ```
 
+{draw=umed}
+
+{pause up}
 ## Et dans Slipshow?
 
 ```ocaml
@@ -107,3 +111,11 @@ let exit window to_elem =
   in
   exit ()
 ```
+
+# Aller plus loin
+
+- Les utilisateurs peuvent enregistrer leur undo custom quand les "fonctions de
+  base" proposées ne suffisent pas.
+
+- Dans la vrai vie, on utilise aussi une monade IO et (surtout) une monade
+  Promesse pour que les actions (et les undos) prennent du temps.
