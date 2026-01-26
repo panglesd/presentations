@@ -16,6 +16,10 @@ css: style.css
 {#main-container}
 > {include src="slipshow.md" slip pause=cmf-addons}
 >
-> {include src="monad.md" slip}
+> {step}
+>
+> {include src="monad.md" slip pause=questcequnc}
+>
+> {up=main-container}
 >
 > {include src="undo-monad.md" slip}

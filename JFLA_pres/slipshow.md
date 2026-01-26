@@ -97,3 +97,21 @@
 {draw=nextprevdraw}
 
 {draw=nextprevdraw}
+
+![](only-next.draw){#onlynextdraw}
+
+{draw=onlynextdraw}
+
+{draw=onlynextdraw}
+
+{draw=onlynextdraw}
+
+{draw=onlynextdraw}
+
+{draw=onlynextdraw}
+
+{draw=onlynextdraw}
+
+{draw=onlynextdraw}
+
+{draw=onlynextdraw}
