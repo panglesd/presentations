@@ -22,4 +22,18 @@ css: style.css
 >
 > {up=main-container}
 >
+> ![](looking-back.draw){#looking-back}
+>
+> {draw=looking-back}
+>
+> {draw=looking-back}
+>
+> {draw=looking-back}
+>
+> {draw=looking-back}
+>
+> {down=main-container}
+>
+> {draw=looking-back}
+>
 > {include src="undo-monad.md" slip}
