@@ -126,7 +126,7 @@ let rec syracuse =
 {.block title="Valeurs pures"}
 Les expressions pures sont les expressions ne contenant pas d'effet de bord. **L'ordre d'évaluation d'une expression pure ne change rien.**
 
-{.block title="Idée générale" style=height:300px}
+{.block #idee-generale title="Idée générale" style=height:300px}
 
 ![](idee-generale.draw){#igd}
 
@@ -136,18 +136,68 @@ Les expressions pures sont les expressions ne contenant pas d'effet de bord. **L
 
 {draw=igd}
 
-## L'API des monades
+{pause #reprg up=idee-generale}
+## Représentations fonctionelle d'un calcul: `'a io`
 
-- On réutilise les valeurs normales :
+{style=display:inline-block}
+```
+r1:= (
+    r2 := expr1;
+    return expr2
+  );
+r3 := return expr3;
+return expr4
+```
 
-  - Un type `'a t` pour calculer une valeur pure, avec des effets de bords.
+![](bind.draw){#bindraw}
 
-  - Une fonction `return` pour représenter un calcul sans effet de bord.
+{draw=bindraw}
 
-- On peut chainer les calculs,
+{draw=bindraw}
 
-  - comme une liste
+{draw=bindraw}
 
-  - Dont la suite du calcul de la liste dépend du résultat précédent
+{draw=bindraw}
 
-- On a une API pour les effets de bords "de base".
+{draw=bindraw}
+
+{draw=bindraw}
+
+{draw=bindraw}
+
+{draw=bindraw}
+
+{up=reprg}
+
+{draw=bindraw}
+
+{draw=bindraw}
+
+{draw=bindraw}
+
+{pause style=margin-top:600px up}
+## API d'une monade
+
+{.definition}
+> Une monade est un patron de conception pour définir un calcul. Une monade est:
+>
+> - Un type `'a t`,
+>
+> - Une fonction `return : 'a -> 'a t`, calcul sans effet de bord
+>
+> - Une fonction `bind : 'a t -> ('a -> 'b t) -> 'b t` pour chainer deux calculs.
+
+{pause}
+
+Il est souvent utile d'inclure:
+
+- `run : 'a t -> 'a` pour faire tourner un calcul
+
+- Des fonction supplémentaires dépendant de la monade.
+
+{.example title="Exemples de monades correspondant à des variations de calculs" pause}
+- Effets de bords
+
+- Calculs asynchrones
+
+- Exceptions
