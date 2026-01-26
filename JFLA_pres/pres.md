@@ -39,3 +39,7 @@ css: style.css
 > {up=main-container}
 >
 > {include src="undo-monad.md" slip}
+
+{step}
+
+![](merci.draw){draw}

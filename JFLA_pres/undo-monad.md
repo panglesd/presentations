@@ -112,6 +112,9 @@ let exit window to_elem =
   exit ()
 ```
 
+{draw=umed}
+
+{pause up}
 # Aller plus loin
 
 - Les utilisateurs peuvent enregistrer leur undo custom quand les "fonctions de
