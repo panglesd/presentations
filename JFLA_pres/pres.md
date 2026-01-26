@@ -38,7 +38,7 @@ css: style.css
 >
 > {up=main-container}
 >
-> {include src="undo-monad.md" slip}
+> {include src="undo-monad.md" slip pause=next2}
 
 {step}
 

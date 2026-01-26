@@ -1,6 +1,6 @@
 # La monade annulation dans Slipshow
 
-{.block}
+{.block #next2}
 La fonction `next` retourne une fonction pour annuler le reste des effets de bords.
 
 Utilisons le patron de conceptions des monades pour représenter un calcul que l'on peut annuler. Il nous faut définir un type, et comment chaîner deux calculs.
