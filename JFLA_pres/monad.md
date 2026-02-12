@@ -38,7 +38,7 @@ done:
 
 
 
-- Mais l'instruction suivante dépend de l'éxécution de la précédente. {draw=cdr} {draw=cdr} {pause}
+- Mais l'instruction suivante dépend de l'éxécution de la précédente. {draw=cdr} {pause}
 
 - "Expressions" très limitées {draw=cdr}
 

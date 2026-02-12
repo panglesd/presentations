@@ -5,9 +5,15 @@ css: style.css
 
 # La monade annulation dans Slipshow
 
+{pause}
+
 ![](toc.draw){#toc}
 
+![](nouveau.draw){#n}
+
 {draw=toc}
+
+{draw=n}
 
 {draw=toc}
 
@@ -43,3 +49,11 @@ css: style.css
 {step}
 
 ![](merci.draw){draw}
+
+<!-- TODO:
+      - Ajouter problème de différence aller-retour
+      - Refaire "Merci, avez-vous des questions"
+      - Ajouter des blagues
+      - Ajouter un exemple de AST monade simple
+      - Ajouter une note sur l'execution de scripts
+-->
