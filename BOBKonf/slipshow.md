@@ -153,6 +153,10 @@
 
 {up='~margin:"15" togoback' unstatic=pb2}
 
+
+{draw=nextprevdraw}
+
+
 {draw=reactdraw}
 
 {draw=reactdraw}
