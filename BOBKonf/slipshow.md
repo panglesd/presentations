@@ -114,6 +114,10 @@
 > >
 > > **Problem 4**: Different requirements for both directions
 > >
+>
+> **Problem 1**: Everything is duplicated
+>
+> **Problem 2**: Everything is duplicated
 
 {center=carouproblem change-page=carouproblem}
 
@@ -129,18 +133,6 @@
 
 {draw=nextprevdraw}
 
-{draw=reactdraw}
-
-{draw=reactdraw}
-
-{draw=reactdraw}
-
-{draw=reactdraw}
-
-{draw=reactdraw}
-
-{draw=reactdraw}
-
 {draw=nextprevdraw}
 
 {draw=nextprevdraw}
@@ -150,6 +142,28 @@
 {draw=nextprevdraw}
 
 {draw=nextprevdraw}
+
+{down pause .block style="margin-top:1050px;font-size:2em;text-align:center;background-color:darkolivegreen;color:white" children:style="margin:0px" carousel #pb2}
+>
+> **Problem 1**: Everything is duplicated
+>
+> **Problem 2**: Everything is duplicated
+
+{change-page=pb2}
+
+{up='~margin:"15" togoback' unstatic=pb2}
+
+{draw=reactdraw}
+
+{draw=reactdraw}
+
+{draw=reactdraw}
+
+{draw=reactdraw}
+
+{draw=reactdraw}
+
+{draw=reactdraw}
 
 ![](only-next.draw){#onlynextdraw}
 
