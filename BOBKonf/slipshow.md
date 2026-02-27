@@ -68,7 +68,7 @@
 
 {change-page=carousel1 draw=compiledraw}
 
-{pause up='~margin:"15"'}
+{pause #togoback up='~margin:"15"'}
 
 ![](react.draw){#reactdraw}
 
@@ -94,7 +94,31 @@
 
 {draw=reactdraw}
 
-{draw=reactdraw}
+{pause}
+
+{.block style="margin-top:900px;font-size:2em;text-align:center;background-color:darkolivegreen;color:white" children:style="margin:0px" carousel change-page='~n:"1-3"' #carouproblem}
+>
+> **Problem 1**: The state coexists with an implicit state
+>
+> **Problem 2**: Actions are defined as transitions
+>
+> **Problem 3**: State transitions may take time
+>
+> **Problem 4**: Different requirements for both directions
+>
+> > **Problem 1**: The state coexists with an implicit state
+> >
+> > **Problem 2**: Actions are defined as transitions
+> >
+> > **Problem 3**: State transitions may take time
+> >
+> > **Problem 4**: Different requirements for both directions
+> >
+
+{center=carouproblem change-page=carouproblem}
+
+{up='~margin:"15" togoback' unstatic=carouproblem}
+
 
 {draw=reactdraw}
 
@@ -107,6 +131,9 @@
 {draw=reactdraw}
 
 {draw=reactdraw}
+
+{draw=reactdraw}
+
 
 ![](next-prev.draw){#nextprevdraw}
 
