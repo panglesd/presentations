@@ -1,9 +1,110 @@
 # Monads
 
-{.block #questcequnc}
-Une monade représente un calcul. {pause} **Qu'est-ce qu'un calcul?**
+{.definition}
+Monads are a design-pattern to represent computations as expressions.
 
-{#grid-2 pause up=questcequnc}
+{pause style="margin-bottom:10px"}
+But first, let's see where they come from.
+
+{style=height:100px; .flex .just .bottom-border}
+> **Statement-based**
+>
+> **Expression-based**
+
+{style=height:100px;margin-top:-40px .flex .just .anchor-center}
+> {.arrow-left}
+>
+> {.arrow-middle}
+>
+> {.arrow-right}
+
+
+{.flex children:slip}
+-----
+# Assembler
+
+{.flex .anchor-center style="gap:30px"}
+---
+
+```x86asm
+loop:
+    cmp  eax, 1      ; Check if number is 1
+    je   done        ; If yes, stop
+    test al, 1       ; Check if odd
+    jz   even        ; If 0, jump to even case
+    imul eax, 3      ; n = n * 3
+    inc  eax         ; n = n + 1
+    jmp  loop        ; Restart loop
+
+even:
+    shr  eax, 1      ; Divide by 2
+    jmp  loop        ; Restart loop
+
+done:
+```
+
+> - AST is a list of instructions {pause}
+>
+> - **No expression:** `3n+1` cannot be easily expressed. {pause}
+>
+> - Order of execution is well defined, by step. {pause}
+>
+> - Next step depend on the previous one (eg in `je`).
+
+----
+# Imperative languages
+
+![](stmt-vs-expr.draw){#stmt-vs-expr}
+
+{.flex .anchor-center style="gap:30px"}
+---
+
+```
+while(x != 1) {
+  if (x mod 2 === 0)           
+    x = x / 2
+  else
+    x = 3 * x + 1
+}
+```
+
+- Statements{.red} versus expressions{.green}. {pause draw=stmt-vs-expr}
+
+    - Statements{.red} as lists (mostly). **Explicit execution order.** {pause draw=stmt-vs-expr} {draw=stmt-vs-expr}
+
+    - Expressions{.green} as trees. {pause} **Unclear evaluation order.** {pause}
+
+- Fortunately, expression don't have side-effects. {pause} **Do they???**
+
+{.flex .anchor-center style="gap:30px" pause}
+---
+
+```
+function with_log(x) {
+  console.log(x);
+  return x;
+}
+
+x1 = with_log(false) || with_log(true);
+```
+{pause}
+```
+function or (x,y) {
+  return x || y;
+}
+
+x2 = or (with_log(false), with_log(true));
+
+```
+
+
+
+----
+# OCaml
+
+-----
+
+{#grid-2 pause}
 -----
 
 {style="grid-column: span 2; text-align: center"}
