@@ -20,6 +20,14 @@ css: style.css
 >
 > {step}
 >
+> ![](thinking.draw){#tdra}
+>
+> {draw=tdra}
+>
+> {draw=tdra}
+>
+> {draw=tdra}
+>
 > {include src="monad.md" slip pause=questcequnc}
 >
 > {up=main-container}
