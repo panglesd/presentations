@@ -28,7 +28,7 @@ css: style.css
 >
 > {draw=tdra}
 >
-> {include src="monad.md" slip pause=questcequnc}
+> {include src="monad.md" slip pause=monadef}
 >
 > {up=main-container}
 >

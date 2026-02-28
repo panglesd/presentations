@@ -1,12 +1,12 @@
 # Monads
 
-{.definition}
+{.definition #monadef}
 Monads are a design-pattern to represent computations as expressions.
 
 {pause style="margin-bottom:10px"}
 But first, let's see where they come from.
 
-{style=height:100px; .flex .just .bottom-border}
+{style=height:100px; .flex .just .bottom-border #horiline}
 > **Statement-based**
 >
 > **Expression-based**
@@ -76,16 +76,17 @@ while(x != 1) {
 
 - Fortunately, expression don't have side-effects. {pause} **Do they???**
 
-{.flex .anchor-center style="gap:30px" pause}
+{.flex .anchor-center style="gap:30px" pause draw=stmt-vs-expr}
 ---
 
+{draw=stmt-vs-expr}
 ```
 function with_log(x) {
   console.log(x);
   return x;
 }
 
-x1 = with_log(false) || with_log(true);
+x1 = with_log(true) || with_log(false);
 ```
 {pause}
 ```
@@ -93,212 +94,187 @@ function or (x,y) {
   return x || y;
 }
 
-x2 = or (with_log(false), with_log(true));
+x2 = or (with_log(true), with_log(false));
 
 ```
 
-
-
-----
-# OCaml
-
------
-
-{#grid-2 pause}
------
-
-{style="grid-column: span 2; text-align: center"}
-----
-
-## Assembleur
+{draw=stmt-vs-expr}
 
 ----
+# Functional languages
 
-![](calcul.draw){#cdr}
-
-```
-loop:
-    cmp  eax, 1      ; Check if number is 1
-    je   done        ; If yes, stop
-    test al, 1       ; Check if odd
-    jz   even        ; If 0, jump to even case
-    imul eax, 3      ; n = n * 3
-    inc  eax         ; n = n + 1
-    jmp  loop        ; Restart loop
-
-even:
-    shr  eax, 1      ; Divide by 2
-    jmp  loop        ; Restart loop
-
-done:
-```
-
-----
-
-- Ressemble à une liste d'instructions à éxécuter, {draw=cdr} {pause}
-
-
-
-- Mais l'instruction suivante dépend de l'éxécution de la précédente. {draw=cdr} {pause}
-
-- "Expressions" très limitées {draw=cdr}
-
-{style="grid-column: span 2; text-align: center"}
-----
-
-{pause up}
-## Langage impératif
-
-----
-
-```
-while(x != 1) {
-  if (x mod 2 === 0)
-    x = x / 2
-  else
-    x = 3 * x + 1
-}
-```
-
-{#sepinstr}
-----
-
-{draw=cdr}
-
-{draw=cdr}
-
-{draw=cdr}
-
-Instructions{style=color:red} versus expression{style=color:green}.
-
-- Instructions sous forme de listes, separated with `;`. L'ordre d'évaluation est important (mais facile). 
-
-- Expressions sous forme arborescente. L'ordre d'évaluation n'est pas clair mais pas important.
-
-
-{pause down draw=cdr}
-----
-
-```
-function with_log(x) {
-  console.log(x);
-  return x;
-}
-
-x1 = with_log(false) || with_log(true);
-
-function or (x,y) {
-  return x || y;
-}
-
-x2 = or (with_log(false), with_log(true));
-
-```
-
-----
-
-En réalité: ordre d'éxécution moins trivial !
-
-- Quel sera l'output de ces programmes ?
-
-{style="grid-column: span 2; text-align: center" up}
-----
-## Langage fonctionnel
-----
+{.flex .anchor-center style="gap:30px"}
+---
 
 ```
 let rec syracuse =
   if x = 1 then ()
   else syracuse
-         (if x mod 2 then x / 2
+         (if x mod 2 then x / 2       
           else 3 * x + 1)
 ```
 
+- Only expressions{.green}!
 
-----
+- What about side-effects? Do we have the same problem?
 
-- Uniquement des expressions!
+{pause}
+---
 
-- En cas d'effets de bords: même problème d'ordre d'éxécution!
+{.block #hask}
+- **OCaml**: we define the evaluation order on some AST nodes. Leave it
+  undefined in others. {pause}
+
+- **Haskell**: we only have pure expressions. No more evaluation order problem.
+
+![](greet.draw){draw}
+
+{up=hask}
+
+{.block title="Idea" style="margin-top:275px"}
+>
+> 1. Have a way to *represent* computations as pure values.
+>
+> 2. Have a DSL (mini language) to manipulate computations.
+>
+> 3. The entry point (`main`) returns such a computation, which is executed.
+
+![](haskell.draw){#hkd}
+
+{draw=hkd}
+
+{draw=hkd}
+
+{draw=hkd}
 
 -----
 
-{pause}
-{.block title="Valeurs pures"}
-Les expressions pures sont les expressions ne contenant pas d'effet de bord. **L'ordre d'évaluation d'une expression pure ne change rien.**
+{down=conc1}
 
-{.block #idee-generale title="Idée générale" style=height:300px}
+{.definition #conc1 style="margin-top:80px"}
+- Functional programming has a **trick** to have **side-effects** in a **side-effect free language** {pause}
 
-![](idee-generale.draw){#igd}
+- The same trick can represent:
+  - **Exceptions** in a language **without exceptions**
 
-{draw=igd}
+  - **Asynchronous** programming in a **synchronous language**, ... {pause}
 
-{draw=igd}
+- All those "extensions" follow the same pattern: [**the "Monad" design pattern**]{.red}.
 
-{draw=igd}
 
-{pause #reprg up=idee-generale}
-## Représentations fonctionelle d'un calcul: `'a io`
+{pause up}
+## Monads: a design pattern to represent computations
 
-{style=display:inline-block}
+4 simple ingredients:
+
+{.flex .just children:pause-block}
+----
+{pause-block}
+> ### A type
+>
+> {pause}
+>
+> ```ocaml
+> type 'a computation
+> ```
+
+### Running computations
+
+{#also-run}
+```ocaml
+val run :
+  'a computation ->
+  'a
 ```
-r1:= (
-    r2 := expr1;
-    return expr2
-  );
-r3 := return expr3;
-return expr4
-```
 
-![](bind.draw){#bindraw}
-
-{draw=bindraw}
-
-{draw=bindraw}
-
-{draw=bindraw}
-
-{draw=bindraw}
-
-{draw=bindraw}
-
-{draw=bindraw}
-
-{draw=bindraw}
-
-{draw=bindraw}
-
-{up=reprg}
-
-{draw=bindraw}
-
-{draw=bindraw}
-
-{draw=bindraw}
-
-{pause style=margin-top:600px up}
-## API d'une monade
-
-{.definition}
-> Une monade est un patron de conception pour définir un calcul. Une monade est:
->
-> - Un type `'a t`,
->
-> - Une fonction `return : 'a -> 'a t`, calcul sans effet de bord
->
-> - Une fonction `bind : 'a t -> ('a -> 'b t) -> 'b t` pour chainer deux calculs.
+---
+### Creating atomic computations
 
 {pause}
 
-Il est souvent utile d'inclure:
+```ocaml
+val read_line :
+  unit -> string computation
 
-- `run : 'a t -> 'a` pour faire tourner un calcul
+val print_line :
+  string -> unit computation
+...
+```
 
-- Des fonction supplémentaires dépendant de la monade.
+{pause}
 
-{.example title="Exemples de monades correspondant à des variations de calculs" pause}
-- Effets de bords
+```ocaml
+val return : 'a -> 'a computation
+```
 
-- Calculs asynchrones
+---
+### Chaining computations
 
-- Exceptions
+{pause}
+
+```
+x <- comp1;
+comp2;
+```
+
+{pause}
+
+```ocaml
+val bind :
+  'a computation ->
+  ('a -> 'b computation) ->
+  'b computation
+```
+
+---
+
+{pause=also-run}
+
+----
+
+{.center pause down=exam1}
+## Example:
+
+{.flex style=justify-content:space-around #exam1}
+---
+> ### Computation to represent
+> ```
+> s <- read_line();
+> print_line (s ^ s)         
+> ```
+
+> {pause}
+> ### Representation in the monad
+> ```ocaml
+> bind
+>   (read_line ())
+>   (fun s ->
+>     print_line (s ^ s))    
+> ```
+
+---
+
+{pause up=exam1}
+## Syntactic support for monads
+
+{.flex style=justify-content:space-around #exam1}
+---
+> ```ocaml
+> bind x (fun s -> body)       
+> ```
+
+> {pause}
+> ```ocaml
+> let* s = x in              
+> body
+> ```
+
+---
+{pause}
+```ocaml
+let (let*) = bind
+
+let* s = read_line () in
+print_line (s ^ s)
+```
+
