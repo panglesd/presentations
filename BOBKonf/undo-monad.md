@@ -1,24 +1,72 @@
 # The Undo Monad in Slipshow
 
 {.block #next2}
-La fonction `next` retourne une fonction pour annuler le reste des effets de bords.
+The `next` function returns a way to undo all side-effects
 
-Utilisons le patron de conceptions des monades pour représenter un calcul que l'on peut annuler. Il nous faut définir un type, et comment chaîner deux calculs.
+We are going to use the "Monad" design pattern to represent "**computations that outputs an undo function**".
 
 {pause}
 
+We need:
+
+- A type
+
+- "Entry-point" computations
+
+- Chaining computations
+
+{pause #a-type}
+## A type
+
 ```ocaml
 type 'a t = {
-  value : 'a;
+  result : 'a;
   undo : unit -> unit
 }
 ```
 
-{pause}
+{pause up=a-type}
+
+## Entry-point computations
+
+**Example**: Setting whether a class is given to an element -- in an undoable way.
+
+{carousel change-page=~n:all}
+> ```ocaml
+> let set_class_u el b =
+>   let undo =
+>                                   
+>                                   
+>   in
+>   let result = set_class el b in
+>   {result ; undo}
+> ```
+> ```ocaml
+> let set_class_u el b =
+>   let undo =
+>                                  
+>               set_class el old_val
+>   in
+>   let result = set_class el b in
+>   {result ; undo}
+> ```
+> ```ocaml
+> let set_class_u el b =
+>   let undo =
+>     let old_val = get_class el in
+>     fun () -> set_class el old_val
+>   in
+>   let result = set_class el b in
+>   {result ; undo}
+> ```
+
+
+
+## Chaining computations
 
 ```
-r1 := calcul1 ;
-calcul2
+r1 := computation1 ;
+computation2
 ```
 
 ![](undo-monad-enfin.draw){#umed}
