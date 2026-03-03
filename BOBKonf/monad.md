@@ -212,9 +212,10 @@ val return : 'a -> 'a computation
 
 {pause}
 
-```
-x <- comp1;
-comp2;
+{.pseudo-code}
+```text
+x ← comp1 ;
+comp2
 ```
 
 {pause}
@@ -225,6 +226,8 @@ val bind :
   ('a -> 'b computation) ->
   'b computation
 ```
+
+![](bobnads.draw){draw}
 
 ---
 
@@ -238,9 +241,10 @@ val bind :
 {.flex style=justify-content:space-around #exam1}
 ---
 > ### Computation to represent
+> {.pseudo-code}
 > ```
 > s <- read_line();
-> print_line (s ^ s)         
+> print_line (s ^ s)          
 > ```
 
 > {pause}
@@ -249,15 +253,35 @@ val bind :
 > bind
 >   (read_line ())
 >   (fun s ->
->     print_line (s ^ s))    
+>     print_line (s ^ s))     
+
+{.flex style=justify-content:space-around down  #exam12}
+---
+> {.pseudo-code}
 > ```
+> s1 <- read_line();
+> s2 <- read_line();
+> print_line (s1 ^ s2)        
+> ```
+
+> {pause}
+> ```ocaml
+> bind
+>   (read_line ())
+>   (fun s1 ->
+>     bind
+>      (readline ())
+>      (fun s2 ->
+>       print_line (s1 ^ s2)))
+> ```
+
 
 ---
 
-{pause up=exam1}
+{pause up=exam12}
 ## Syntactic support for monads
 
-{.flex style=justify-content:space-around #exam1}
+{.flex style=justify-content:space-around}
 ---
 > ```ocaml
 > bind x (fun s -> body)       
@@ -274,7 +298,8 @@ val bind :
 ```ocaml
 let (let*) = bind
 
-let* s = read_line () in
-print_line (s ^ s)
+let* s1 = read_line () in
+let* s2 = read_line () in
+print_line (s1 ^ s2)
 ```
 

@@ -19,7 +19,7 @@ We need:
 ## A type
 
 ```ocaml
-type 'a t = {
+type 'a computation = {
   result : 'a;
   undo : unit -> unit
 }
@@ -33,79 +33,65 @@ type 'a t = {
 
 {carousel change-page=~n:all}
 > ```ocaml
-> let set_class_u el b =
+> let set_ref x new_val =
 >   let undo =
 >                                   
 >                                   
 >   in
->   let result = set_class el b in
+>   let result = x := new_val in
 >   {result ; undo}
 > ```
 > ```ocaml
-> let set_class_u el b =
+> let set_ref x new_val =
 >   let undo =
 >                                  
->               set_class el old_val
+>               x := old_val
 >   in
->   let result = set_class el b in
+>   let result = x := new_val in
 >   {result ; undo}
 > ```
 > ```ocaml
-> let set_class_u el b =
+> let set_ref x new_val =
 >   let undo =
->     let old_val = get_class el in
->     fun () -> set_class el old_val
+>     let old_val = !x in
+>     fun () -> x := old_val
 >   in
->   let result = set_class el b in
+>   let result = x := new_val in
 >   {result ; undo}
 > ```
 
 
-
+{pause up}
 ## Chaining computations
 
+{.pseudo-code}
 ```
 r1 := computation1 ;
 computation2
 ```
 
-![](undo-monad-enfin.draw){#umed}
+<!-- ![](undo-monad-enfin.draw){#umed} -->
 
-{draw=umed}
+<!-- {draw=umed} -->
 
-{draw=umed}
+<!-- {draw=umed} -->
 
-{draw=umed}
+<!-- {draw=umed} -->
 
 {pause down}
 ```ocaml
-
-let return ?(undo = fun () -> ()) value = {value ; undo}
-
 let bind x f =
-  let undo1 = x.undo1 in
   let c = f x.value in
-  let undo2 = c.undo in
-  let undo () = undo2 (); undo1 () in
-  return ~undo c.value
+  let undo () = c.undo (); x.undo () in
+  {value = c.value; undo = undo}
 ```
 
 {draw=umed}
 
 {pause up}
-On ajoute aussi des primitives:
-
-```
-let set_ref (x : 'a ref) (v : 'a) : 'a ref -> 'a -> unit t =
-  let old_value = !x in
-  let undo () = x := old_value in
-  return ~undo (x := v)
-```
-
-Et voila!
-
 ```ocaml
 let x = ref 0
+
 let test =
   let* () = set_ref x (!x + 1) in
   let* () = set_ref x (!x + 1) in
@@ -116,11 +102,10 @@ test.undo ();;
 !x ;;
 ```
 
-{draw=umed}
+{pause focus="ss1ex ss2ex tex" #tex}
+## The Undo monad in Slipshow?
 
-{pause up}
-## Et dans Slipshow?
-
+{#ss1ex}
 ```ocaml
 let next window () =
   find_next_pause_or_step () |>
@@ -130,6 +115,7 @@ let next window () =
   Undoable.return ()
 ```
 
+{#ss2ex}
 ```ocaml
 let exit window to_elem =
   let rec exit () =
@@ -160,13 +146,63 @@ let exit window to_elem =
   exit ()
 ```
 
-{draw=umed}
+{unfocus pause up}
+# Going further
+
+In real life, the type is more complex!
+
+{carousel .carousel-fixed-size change-page="~n:all"}
+----
+
+```ocaml
+type 'a computation = {
+  result : 'a;
+  undo : unit -> unit
+}
+```
+
+```ocaml
+type 'a result = {
+  result : 'a;
+  undo : unit -> unit
+}
+
+type 'a computation = 'a result io
+```
+
+```ocaml
+type 'a result = {
+  result : 'a;
+  undo : unit -> unit
+}
+
+type 'a computation = 'a result promise io
+```
+
+----
 
 {pause up}
-# Aller plus loin
 
-- Les utilisateurs peuvent enregistrer leur undo custom quand les "fonctions de
-  base" proposées ne suffisent pas.
+This way of solving the problem works well with custom scripts.
 
-- Dans la vrai vie, on utilise aussi une monade IO et (surtout) une monade
-  Promesse pour que les actions (et les undos) prennent du temps.
+````markdown
+{exec}
+```slip-script
+document
+ .querySelectorAll
+  (".c")
+ .forEach(
+    slip.reveal
+ )
+```
+````
+
+{pause}
+
+````markdown
+{exec}
+```slip-script
+ThreeJS.startAnimation()
+slip.onUndo(() => { ThreeJS.rewindAnimation() })
+```
+````
