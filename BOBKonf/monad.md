@@ -149,9 +149,7 @@ let rec syracuse =
 
 -----
 
-{down=conc1}
-
-{.definition #conc1 style="margin-top:80px"}
+{.theorem #conc1 style="margin-top:80px" down=conc1}
 - Functional programming has a **trick** to have **side-effects** in a **side-effect free language** {pause}
 
 - The same trick can represent:
@@ -161,11 +159,21 @@ let rec syracuse =
 
 - All those "extensions" follow the same pattern: [**the "Monad" design pattern**]{.red}.
 
+<style>
+.theorem:before {
+  content: "Recap";
+}
+.theorem {
+  font-style: normal;
+}
+</style>
 
 {pause up}
 ## Monads: a design pattern to represent computations
 
 4 simple ingredients:
+
+![](bobnads.draw){#bobnads draw}
 
 {.flex .just children:pause-block}
 ----
@@ -218,6 +226,8 @@ x ← comp1 ;
 comp2
 ```
 
+{draw=bobnads}
+
 {pause}
 
 ```ocaml
@@ -227,11 +237,22 @@ val bind :
   'b computation
 ```
 
-![](bobnads.draw){draw}
+{draw=bobnads}
+
+{draw=bobnads}
+
+{draw=bobnads}
+
+{draw=bobnads}
+
+{draw=bobnads}
+
 
 ---
 
 {pause=also-run}
+
+{draw=bobnads}
 
 ----
 
@@ -247,13 +268,16 @@ val bind :
 > print_line (s ^ s)          
 > ```
 
-> {pause}
 > ### Representation in the monad
 > ```ocaml
 > bind
 >   (read_line ())
 >   (fun s ->
 >     print_line (s ^ s))     
+> ```
+> {draw=bobnads}
+
+
 
 {.flex style=justify-content:space-around down  #exam12}
 ---
@@ -292,14 +316,18 @@ val bind :
 > let* s = x in              
 > body
 > ```
+> {draw=bobnads}
+
+
 
 ---
-{pause}
+{pause down}
 ```ocaml
 let (let*) = bind
 
-let* s1 = read_line () in
-let* s2 = read_line () in
-print_line (s1 ^ s2)
+let comp : unit computation =
+  let* s1 = read_line () in
+  let* s2 = read_line () in
+  print_line (s1 ^ s2)
 ```
 

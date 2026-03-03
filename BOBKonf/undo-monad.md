@@ -1,9 +1,9 @@
 # The Undo Monad in Slipshow
 
 {.block #next2}
-The `next` function returns a way to undo all side-effects
+Objective: The `next` function returns a way to undo all side-effects
 
-We are going to use the "Monad" design pattern to represent "**computations that outputs an undo function**".
+We are going to use the **"Monad" design pattern** to represent "**computations that outputs an undo function**".
 
 {pause}
 
@@ -25,13 +25,23 @@ type 'a computation = {
 }
 ```
 
+![](undo-bobnad.draw){draw #ubn}
+
 {pause up=a-type}
 
 ## Entry-point computations
 
 **Example**: Setting whether a class is given to an element -- in an undoable way.
 
-{carousel change-page=~n:all}
+{draw=ubn}
+
+{draw=ubn}
+
+{change-page=carousetref}
+
+{change-page=carousetref}
+
+{carousel #carousetref}
 > ```ocaml
 > let set_ref x new_val =
 >   let undo =
@@ -61,14 +71,18 @@ type 'a computation = {
 > ```
 
 
-{pause up}
+{pause up=carousetref}
 ## Chaining computations
 
 {.pseudo-code}
 ```
-r1 := computation1 ;
-computation2
+x := comp1 ;
+comp2
 ```
+
+{draw=ubn}
+
+{draw=ubn}
 
 <!-- ![](undo-monad-enfin.draw){#umed} -->
 
@@ -78,17 +92,35 @@ computation2
 
 <!-- {draw=umed} -->
 
-{pause down}
+{pause carousel #caroubind}
+----
 ```ocaml
-let bind x f =
-  let c = f x.value in
-  let undo () = c.undo (); x.undo () in
-  {value = c.value; undo = undo}
+let bind comp1 f_comp2 =
+                                        
+                                               
+  {result =             ; undo =     }
 ```
+```ocaml
+let bind comp1 f_comp2 =
+  let comp2 = f_comp2 comp1.result in
+                                               
+  {result = comp2.result; undo =     }
+```
+```ocaml
+let bind comp1 f_comp2 =
+  let comp2 = f_comp2 comp1.result in
+  let undo () = comp2.undo (); comp1.undo () in
+  {result = comp2.result; undo = undo}
+```
+----
 
-{draw=umed}
+{change-page=caroubind}
 
-{pause up}
+{draw=ubn}
+
+{change-page=caroubind}
+
+{pause down}
 ```ocaml
 let x = ref 0
 
@@ -101,6 +133,12 @@ let test =
 test.undo ();;
 !x ;;
 ```
+
+{draw=ubn}
+
+{draw=ubn}
+
+{draw=ubn}
 
 {pause focus="ss1ex ss2ex tex" #tex}
 ## The Undo monad in Slipshow?
@@ -145,6 +183,12 @@ let exit window to_elem =
   in
   exit ()
 ```
+
+{draw=ubn}
+
+{draw=ubn}
+
+{draw=ubn}
 
 {unfocus pause up}
 # Going further

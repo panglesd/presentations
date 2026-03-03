@@ -42,11 +42,7 @@ css: style.css
 >
 > {draw=looking-back}
 >
-> {down=main-container}
->
 > {draw=looking-back}
->
-> {up=main-container}
 >
 > {include src="undo-monad.md" slip pause=next2}
 

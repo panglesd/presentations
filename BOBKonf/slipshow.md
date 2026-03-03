@@ -159,16 +159,6 @@
 
 {draw=reactdraw}
 
-{draw=reactdraw}
-
-{draw=reactdraw}
-
-{draw=reactdraw}
-
-{draw=reactdraw}
-
-{draw=reactdraw}
-
 ![](only-next.draw){#onlynextdraw}
 
 {draw=onlynextdraw}
