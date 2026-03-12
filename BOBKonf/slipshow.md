@@ -8,6 +8,9 @@
 
 {draw=compiledraw}
 
+{draw=compiledraw}
+
+{draw=compiledraw}
 
 
 {pause draw=compiledraw}

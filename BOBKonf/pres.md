@@ -32,6 +32,15 @@ css: style.css
 >
 > {up=main-container}
 >
+> {exec}
+> ```slip-script
+> document.body.style.display = "none";
+> ```
+> {exec}
+> ```slip-script
+> document.body.style.display = "block";
+> ```
+>
 > ![](looking-back.draw){#looking-back}
 >
 > {draw=looking-back}
