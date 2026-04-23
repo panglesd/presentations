@@ -175,3 +175,24 @@ What should I present about odoc?
 
 {draw=driving}
 
+
+{up pause}
+# Going further
+
+What do you want to talk about?
+
+- Render source code
+
+- Odoc theme
+
+- Hierarchy
+
+- Global sidebar
+
+- Cross-package references
+
+- Example: Support for new versions
+
+- Example: adding admonitions
+
+- Driving odoc
