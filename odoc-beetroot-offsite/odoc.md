@@ -70,7 +70,7 @@ module Map : module type of Map.Make (Int)
 
 ----
 
-{pause #howdoes up="~duration:0"}
+{pause #howdoes up}
 # How `odoc` does
 
 ![](model.draw){#model}
