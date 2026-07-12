@@ -2,7 +2,7 @@
 
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage[english]{babel}   % or english
+\usepackage[english]{babel}
 \usepackage{hyperref}
 
 \usepackage{minted}
@@ -20,67 +20,58 @@
 
 \section{Introduction}
 
-Slipshow is a tool to make presentation. It tries to innovate from the
-traditional ``deck of slides'' that rules the current presentations. For instance, it introduces the concept of slips, that are slides without a bottom limit, on
-  which you scroll to display the content. Another feature that is unique to Slipshow, as far as I know, is the ability to record a drawing, edit it, and replay it during the
-  presentation.
-% \item A mix between the WYSIWYG and WYSIWYM model, where the latter one is used
-%   for most style and layout, and the former one for anything that has to be
-%   placed absolutely.
+Slipshow is a presentation tool designed to innovate beyond the traditional
+``deck of slides'' paradigm. For instance, it introduces ``slips'': bottomless
+slides that you scroll through to reveal content. Another unique feature is the
+ability to record hand drawings, edit them, and replay them live during a
+presentation.
 
 \section{Growing the project}
 
-Slipshow started as a single file containing some JavaScript, that could be
-included in an HTML page written in a specific way, to turn it into a
-presentation.  However, this very quickly became unmaintainable. Basic features
-were buggy and endlessly fixed, breaking other part of the program.
+Slipshow began as a single JavaScript file, embeddable in specific HTML pages to
+turn them into presentations. This file quickly became unmaintainable; basic
+features were buggy, and fixes repeatedly broke other parts of the codebase.
 
-It is now a relatively big project, that features a runtime, a compiler, an LSP
-server with a preview window, a record-and-replay for hand drawings with a
-specialized user interface to edit them. How did we go from a simpler thing
-being unmaintainable, to the current version?
+Today, it is a substantial project featuring a runtime, a compiler, an LSP
+server with a live preview window, and a dedicated timeline editor for hand
+drawings. How did the project scale so successfully from its unmaintainable
+origins?
 
 \subsection{Chill-coding}
 
-Today, the answer for such question is very often ``vibe-coding''. Vibe-coding
-is the practice of relying entirely on AI for generating the code, without even
-reading it. Freed from the friction of interacting with the code, considered too
-low-level, the cognitive load is lowered. You can start building with your vibe.
+Today, the common cause for enlarged personal projects is ``vibe-coding'':
+relying entirely on AI to generate code without reading it. Freed from the
+friction of interacting with the code, the cognitive load is lowered.
 
-At first, from the name ``vibe-code'' and the good vibes that I get while
-coding, I thought I was practicing it. The first issue is that I am not using AI
-to generate any code. The second issue is that vibe-coding implies losing the
-knowledge of the internals of your software, which can make it hard to really
-trust enough to distribute it, at least not without really extensive testing.
+Given the name and the good vibes I get while programming, I initially thought I
+was vibe-coding. However, two issues arose: first, I do not use AI to generate
+code. Second, vibe-coding means losing touch with your software's internals,
+making it difficult to trust or safely distribute without exhaustive testing.
 
-I like to know the internals of my softwares, and more than vibes, I feel
-\emph{chill} while coding. Chill when doing big refactors. Chill when adding new
-features. Chill for feeling safe from introducing bugs or complexity to the
-codebase. Which is why I introduce the term \emph{chill-coding}, for the act of
-coding without fear.
+More than vibes, I feel \emph{chill} while coding: chill during massive
+refactors, chill when adding features, and chill for feeling safe from
+introducing bugs or accidental complexity. This is \emph{chill-coding}: the act
+of programming without fear.
 
-\emph{Chill-coding} requires either exceptional skills, or support from powerful
-tools. I fall into the second category.  After being stuck for years with the
-JavaScript prototype, I moved to OCaml as the primary language for
-Slipshow. Relying on the excellent compiler errors, state-of-the-art editor
-support, exceptional library ecosystem and over-the-top community, I was able to
-\emph{chill-code} all the way.
+Chill-coding requires either exceptional skill or support from exceptionally
+powerful tools. I'm in the latter category. After years of friction with the
+JavaScript prototype, move to OCaml for every part of Slipshow. Backed by
+intelligent compiler errors, excellent editor tooling, a robust library
+ecosystem, and a helpful community, I have been able to chill-code ever since.
 
 \section{An experience report}
 
-I have been very happy with the experience of writing in OCaml since the
-beginning. As mentioned above, it feels safe and lets your creativity wander,
-without friction. My hope is to share a bit of this excitement for the language,
-the compiler and the tools around, as well as the OCaml ecosystem and community,
-through a selected (git) history of Slipshow.
+Writing OCaml has been a joy from the start. It feels safe and lets your
+creativity wander, without friction. Through snippets of Slipshow's Git history,
+I want to share this excitement for the language, its tooling, and its
+ecosystem.
 
 \subsection{A runtime in JavaScript}
 
-As mentioned, Slipshow started as a presentation engine written in
-JavaScript. Here is an excerpt of commits all focused on fixing the same basic
-feature: going back in the presentation:
+Slipshow began as a presentation engine written in JavaScript. Here is a
+snapshot of historical commits all attempting to fix a single basic feature:
+navigating backward.
 
-\commit{3af56a3} --- \texttt{corrected horribug previous}\\
 \commit{436bb65} --- \texttt{implemented engine.previousSlip ← the feature is born}\\
 \commit{d0cfc69} --- \texttt{corrected "not coming beginning on previous" bug}\\
 \commit{61e6cb7} --- \texttt{fix "future slip, delay not 0 again when previousing"}\\
@@ -89,23 +80,22 @@ feature: going back in the presentation:
 \commit{28372cd} --- \texttt{two bugs in previous and annotations}\\
 \commit{2437301} --- \texttt{correcting bug with "previous" and "resizeObserver"}
 
-% The single-JS-file era: a bug swamp.
-
 \subsection{OCaml for the compiler}
 
-In \commit{0fa489e}, the first line of OCaml is introduced in the project. It is
-the commit introducing the compiler, that takes a markdown file and outputs a
-standalone HTML file.
+Commit \commit{0fa489e} introduced the first lines of OCaml to the project,
+adding a compiler that translates Markdown files into standalone HTML
+presentations.
 
-OCaml is known to be very good for compiler implementation. It is no exception
-in this case, especially when relying on \texttt{cmdliner} for the command line,
-\texttt{grace} for error reporting, and \texttt{cmarkit} for Markdown parsing.
+OCaml is known to excel at compiler implementation, making the core of the
+compilation fairly straightforward. But through its ecosystem, it also excels at
+all the surrounding tasks, such as CLIs with \texttt{cmdliner}, error reporting
+with \texttt{grace}, and Markdown parsing with \texttt{cmarkit}.
 
-One relatively exotic feature from OCaml that I am benefiting from are
-extensible variants. \texttt{cmarkit} defines its AST using extensible variants,
-allowing the user of the library to extend it. Note however that with extensible
-variants, one loses some kind chill points, as exhaustiveness checks cannot be
-made for extensible variants. In commit \commit{5713489} could get the chill back with:
+One exotic feature I benefit from is extensible variants. \texttt{cmarkit}
+models its AST this way, allowing users to extend it with custom
+blocks. However, extensible variants cost some ``chill points'' because the
+compiler cannot perform exhaustiveness checks on them. Commit \commit{5713489}
+restored the chill by wrapping them in a standard variant:
 
 \begin{minted}{ocaml}
 type s_block =
@@ -118,48 +108,54 @@ type Cmarkit.Block.t += S_block of s_block
 
 \commit{5713489} --- \texttt{Make it more suitable for match exhaustiveness check}.
 
-% OCaml enters: Markdown $\to$ slip show.
-
 \subsection{The runtime, rewritten in OCaml}
 
-For some time, the JavaScript code for the presentation engine, and the OCaml code for the compiler, co-existed. However, I still had the issues mentioned above on maintainability, and making the two communicate was challenging. So it was time to rewrite it all in OCaml.
+For a while, the JavaScript runtime and the OCaml compiler coexisted. Because
+cross-language communication and the runtime itself were fragile, I decided to
+rewrite the runtime entirely in OCaml.
 
-The best way to summarize the rewriting is the following commit:
+The effect is only positive, as expressed by this commit which solved the
+backward navigation bugs that plagued the JavaScript era:
 
 \commit{32d0917} --- \emph{``BOOOOOOOOOOOOOOOMM!'' (Undo monad, they work)}
 
-This commit is about the same feature that the commits mentioned in section~3.1 were trying to fix. But I've already spoke about the Undo monad enough, so in this section, I'll focus on how \texttt{dune}, \texttt{js\_of\_ocaml} and
-\texttt{ppx\_blob} made it absolutely trivial to drive the build of Slipshow,
-which is more complex than usual: The Slipshow runtime is compiled to bytecode,
-then to JavaScript, and finally embedded in the source of the Slipshow compiler.
+Beyond the undo monad, tools like \texttt{dune}, \texttt{js\_of\_ocaml}, and
+\texttt{ppx\_blob} made managing Slipshow's non-trivial build process seamless:
+the runtime is compiled to bytecode, translated to JavaScript, and directly
+embedded into the compiler binary.
 
 \begin{minted}{lisp}
-  (executable
-    (name engine)
-    (modes js))
+(executable
+  (name engine)
+  (modes js))
 
-  (executable
-    (name compiler)
-    (preprocess (pps ppx_blob))  ; Use with [%blob "engine.bc.js"]
-    (preprocessor_deps engine.bc.js))
+(executable
+  (name compiler)
+  (preprocess (pps ppx_blob))  ; Use with [%blob "engine.bc.js"]
+  (preprocessor_deps engine.bc.js))
 \end{minted}
-
 
 \subsection{Record and replay drawings}
 
-One recent and game-changing addition to Slipshow is the ability to record
-drawings, edit them and replay the result during the presentation.
+A recent game-changing addition is the ability to record, edit, and replay hand
+drawings during presentations.
 
-The UI to edit records, make very much like a video editor, despite the expected challenge to craft, proved to be a joy to
-make. This joy can be summed up with the following commit:
+Building the timeline editor, inspired by video editors, was surprisingly joyful
+despite the inherent UI challenges. This feeling is captured perfectly in a
+commit:
 
 \commit{3ac99e3} --- \emph{``Wo so cool lwd''}
 
-Again, the joy comes from high quality libraries from the ecosystem. Lwd is a library for reactive programming. It allows to define the UI from reactive values, and have the UI update as the reactive values change. Here, we shorten path to what was written at \texttt{elpased\_time}:
+The joy stems from using high-quality libraries from the ecosystem that make a
+hard task easy. \texttt{Lwd} is a reactive programming library that
+automatically updates the UI when underlying data changes. It is a powerful
+technique perfectly suited to my use-case. For instance, filtering drawing
+coordinates based on the \texttt{elapsed\_time} becomes incredibly clean and
+declarative using custom binding operators:
 
 \begin{minted}{ocaml}
 let filter_path elapsed_time path =
-  let$* path = path in  (* the two inputs are reactive values *)
+  let$* path = path in     (* Both inputs are reactive values *)
   let$ elapsed_time = elapsed_time in
   List.filter (fun (_, t) -> t < elapsed_time) path
 \end{minted}
@@ -174,6 +170,6 @@ let filter_path elapsed_time path =
 
 \section{Conclusion}
 
-If Slipshow was able to grow, if I am able to chill-code it and have fun all days, this is thanks to an incredible language, compiler, ecosystem and community. I hope to be able to send this message and share my excitement.
+Slipshow's growth and the fun of chill-coding it are entirely due to OCaml's exceptional language design, compiler, ecosystem, and community. I hope this glimpse into its development history inspires others to experience this style of programming.
 
 \end{document}
