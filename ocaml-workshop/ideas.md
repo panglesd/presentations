@@ -170,13 +170,9 @@ x linol
   │ 7e8ca4d       │ unexpectedly fast introduction of atrament                     │ Pleasant-surprise energy.                                                       │
   └───────────────┴────────────────────────────────────────────────────────────────┴─────────────────────────────────────────────────────────────────────────────────┘
 
-  Plus the ones the grep already had
-
   32d0917 BOOOOOOOOOOOOOOOMM! · f86f4fb Don't look at the git history, it's the worst! · 156f57d I'm on the right track (pun) · 3af56a3 corrected horribug previous ·
   07020eb Push the joke to the donation button · d90331a tree-ToC qui marche trop bien !!! · 3ac99e3 Wo so cool lwd · cacb776 Bouquet final for pauses in recordings
 
-
-  🎉 Excitement / triumph
 
   ┌─────────┬─────────────────────────────────────────────────────────┐
   │ Commit  │                         Message                         │
@@ -193,8 +189,6 @@ x linol
   ├─────────┼─────────────────────────────────────────────────────────┤
   │ f37226f │ Finally understood the pull model                       │
   └─────────┴─────────────────────────────────────────────────────────┘
-
-  😅 Self-deprecating / confessional
 
   ┌───────────────────┬───────────────────────────────────────────────────────────────┐
   │      Commit       │                            Message                            │
@@ -214,8 +208,6 @@ x linol
   │ a78a533           │ Woops · 744469b oops I forgot babel conf file                 │
   └───────────────────┴───────────────────────────────────────────────────────────────┘
 
-  😄 Wordplay / jokes
-
   ┌─────────┬─────────────────────────────────────────────────────────────────┐
   │ Commit  │                             Message                             │
   ├─────────┼─────────────────────────────────────────────────────────────────┤
@@ -234,15 +226,8 @@ x linol
   │ 6fa2cff │ Found 0 vulnerabilities!                                        │
   └─────────┴─────────────────────────────────────────────────────────────────┘
 
-  🏆 The standouts
-
-  If you want just the crème de la crème for the talk:
-
   1. 32d0917 — "BOOOOOOOOOOOOOOOMM!" — the most explosive, pure joy.
   2. f86f4fb — "Don't look at the git history, it's the worst!" — the funniest confession; perfect meta-joke for a talk that literally shows the git history.
   3. 156f57d — "I'm on the right track (pun)" — best deliberate wordplay.
   4. 3af56a3 — "corrected horribug previous" — best accidental coinage.
   5. 07020eb — "Push the joke to the donation button" — intriguing; makes people want to know what the joke was.
-
-  f86f4fb is especially delicious given your premise — a slide built from the git history, showing a commit that begs the audience not to look at the git history. Want me
-  to check what 07020eb ("the joke on the donation button") actually was? It might be a great easter-egg moment for the talk.
