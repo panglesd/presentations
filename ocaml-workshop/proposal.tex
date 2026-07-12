@@ -8,8 +8,9 @@
 \usepackage{minted}
 \usepackage{xcolor}
 
-% Nice inline code / commit hashes
+\usepackage{array}
 \newcommand{\commit}[1]{\texttt{\textcolor{gray}{#1}}}
+\newcommand{\gitquote}[2]{\medskip\texttt{\textcolor{gray}{#1}}\quad\emph{``#2''}\medskip}
 
 \title{Slipshow: chill-coding with OCaml}
 \author{Paul-Elliot}
@@ -55,7 +56,7 @@ of programming without fear.
 
 Chill-coding requires either exceptional skill or support from exceptionally
 powerful tools. I'm in the latter category. After years of friction with the
-JavaScript prototype, move to OCaml for every part of Slipshow. Backed by
+JavaScript prototype, I moved to OCaml for every part of Slipshow. Backed by
 intelligent compiler errors, excellent editor tooling, a robust library
 ecosystem, and a helpful community, I have been able to chill-code ever since.
 
@@ -72,13 +73,16 @@ Slipshow began as a presentation engine written in JavaScript. Here is a
 snapshot of historical commits all attempting to fix a single basic feature:
 navigating backward.
 
-\commit{436bb65} --- \texttt{implemented engine.previousSlip ← the feature is born}\\
-\commit{d0cfc69} --- \texttt{corrected "not coming beginning on previous" bug}\\
-\commit{61e6cb7} --- \texttt{fix "future slip, delay not 0 again when previousing"}\\
-\commit{3af56a3} --- \texttt{corrected horribug previous}\\
-\commit{bcd8323} --- \texttt{better previous: use delay from previous state}\\
-\commit{28372cd} --- \texttt{two bugs in previous and annotations}\\
-\commit{2437301} --- \texttt{correcting bug with "previous" and "resizeObserver"}
+\medskip
+\begin{tabular}{@{}>{\ttfamily\color{gray}}l @{\quad} >{\ttfamily}l@{}}
+436bb65 & implemented engine.previousSlip \\
+d0cfc69 & corrected "not coming beginning on previous" bug \\
+61e6cb7 & fix "future slip, delay not 0 again when previousing" \\
+3af56a3 & corrected horribug previous \\
+bcd8323 & better previous: use delay from previous state \\
+28372cd & two bugs in previous and annotations \\
+2437301 & correcting bug with "previous" and "resizeObserver" \\
+\end{tabular}
 
 \subsection{OCaml for the compiler}
 
@@ -106,7 +110,8 @@ type s_block =
 type Cmarkit.Block.t += S_block of s_block
 \end{minted}
 
-\commit{5713489} --- \texttt{Make it more suitable for match exhaustiveness check}.
+\gitquote{5713489}{Make it more suitable for match exhaustiveness check}
+% \commit{5713489} --- \texttt{Make it more suitable for match exhaustiveness check}.
 
 \subsection{The runtime, rewritten in OCaml}
 
@@ -117,7 +122,8 @@ rewrite the runtime entirely in OCaml.
 The effect is only positive, as expressed by this commit which solved the
 backward navigation bugs that plagued the JavaScript era:
 
-\commit{32d0917} --- \emph{``BOOOOOOOOOOOOOOOMM!'' (Undo monad, they work)}
+%\commit{32d0917} --- \emph{``BOOOOOOOOOOOOOOOMM!'' (Undo monad, they work)}
+\gitquote{32d0917}{BOOOOOOOOOOOOOOOMM! (Undo monad, they work)}
 
 Beyond the undo monad, tools like \texttt{dune}, \texttt{js\_of\_ocaml}, and
 \texttt{ppx\_blob} made managing Slipshow's non-trivial build process seamless:
@@ -144,7 +150,8 @@ Building the timeline editor, inspired by video editors, was surprisingly joyful
 despite the inherent UI challenges. This feeling is captured perfectly in a
 commit:
 
-\commit{3ac99e3} --- \emph{``Wo so cool lwd''}
+% \commit{3ac99e3} --- \emph{``Wo so cool lwd''}
+\gitquote{3ac99e3}{Wo so cool lwd}
 
 The joy stems from using high-quality libraries from the ecosystem that make a
 hard task easy. \texttt{Lwd} is a reactive programming library that
