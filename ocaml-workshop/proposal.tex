@@ -95,13 +95,14 @@ compilation fairly straightforward. But through its ecosystem, it also excels at
 all the surrounding tasks, such as CLIs with \texttt{cmdliner}, error reporting
 with \texttt{grace}, and Markdown parsing with \texttt{cmarkit}.
 
-OCaml supports both normal and extensible variants. \texttt{cmarkit}'s AST
-using the latter, I was able to only implement my new custom blocks, and rely on \texttt{cmarkit}'s high-quality operators for the core of the AST.
+OCaml supports both normal and extensible variants. As \texttt{cmarkit} is using
+the latter for its AST, I was able to focus on my custom nodes, and rely on
+\texttt{cmarkit}'s high-quality operators for the core of the AST.
 
-Note that extensible variants used plainly make you lose match exhaustiveness
-checks. As an example of my quest to being protected by compiler errors, commit
+Note that extensible variants make you lose match exhaustiveness checks. As an
+example of my quest to being protected by compiler errors, commit
 \commit{5713489} restored the chill by wrapping extensions in a standard
-variant:
+variant, recovering exhaustiveness checks for my custom extensions:
 
 \begin{minted}{ocaml}
 type s_block =
