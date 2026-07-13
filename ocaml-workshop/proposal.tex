@@ -35,8 +35,8 @@ features were buggy, and fixes repeatedly broke other parts of the codebase.
 
 Today, it is a substantial project featuring a runtime, a compiler, an LSP
 server with a live preview window, and a dedicated timeline editor for hand
-drawings. How did the project finally scale from its unmaintainable
-origins?
+drawings, backed by an NLNet grant. How did the project finally scale from its
+unmaintainable origins?
 
 \subsection{Chill-coding}
 
@@ -95,11 +95,13 @@ compilation fairly straightforward. But through its ecosystem, it also excels at
 all the surrounding tasks, such as CLIs with \texttt{cmdliner}, error reporting
 with \texttt{grace}, and Markdown parsing with \texttt{cmarkit}.
 
-One exotic feature I benefit from is extensible variants. \texttt{cmarkit}
-models its AST this way, allowing users to extend it with custom
-blocks. However, extensible variants cost some ``chill points'' because the
-compiler cannot perform exhaustiveness checks on them. Commit \commit{5713489}
-restored the chill by wrapping them in a standard variant:
+OCaml supports both normal and extensible variants. \texttt{cmarkit}'s AST
+using the latter, I was able to only implement my new custom blocks, and rely on \texttt{cmarkit}'s high-quality operators for the core of the AST.
+
+Note that extensible variants used plainly make you lose match exhaustiveness
+checks. As an example of my quest to being protected by compiler errors, commit
+\commit{5713489} restored the chill by wrapping extensions in a standard
+variant:
 
 \begin{minted}{ocaml}
 type s_block =
@@ -117,7 +119,7 @@ type Cmarkit.Block.t += S_block of s_block
 
 For a while, the JavaScript runtime and the OCaml compiler coexisted. Because
 cross-language communication and the runtime itself were fragile, I decided to
-rewrite the runtime entirely in OCaml.
+rewrite the runtime entirely in OCaml, making the project OCaml only.
 
 The effect is only positive, as expressed by this commit which solved the
 backward navigation bugs that plagued the JavaScript era:
