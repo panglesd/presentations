@@ -98,30 +98,10 @@ toplevel-attributes: slip focus="~duration:0 libreoffice"
 
 {pause}
 
+![](chill-coding-def.draw)
+
 ## Chill-coding vs vibe-coding
 
-## Slipshow's presentation
-
-### Two parts: An engine
-
-- A presentation engine
-
-  - Canvas browsing with zoom
-  - Action scheduler
-  - Drawing
-  - Drawing editor
-  - Speaker notes
-
-### Two parts: A compiler
-
-- A compiler from an extension of markdown
-- With static analysis and diagnostics
-- And a preview server
-- Which means a previewer
-
-### Two parts: Editor support
-
-## From Javascript to OCaml
 
 ## Javascript
 
