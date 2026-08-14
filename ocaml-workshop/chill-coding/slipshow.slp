@@ -108,7 +108,7 @@ toplevel-attributes: slip focus="~duration:0 libreoffice"
 ---
 # 2. What is Chill-coding
 
-{gui="~x:582 ~y:1055 ~w:490 ~h:292" up}
+{gui="~x:562 ~y:-25 ~w:490 ~h:292" up}
 
 ![](chill-coding-def.draw){#recreation}
 
@@ -122,7 +122,8 @@ toplevel-attributes: slip focus="~duration:0 libreoffice"
 
 {draw=recreation}
 
-{up=preview-server}
+{step}
+---
 
 {slip}
 ---
