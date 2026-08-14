@@ -98,7 +98,21 @@ toplevel-attributes: slip focus="~duration:0 libreoffice"
 
 {pause}
 
-![](chill-coding-def.draw)
+{gui="~x:582 ~y:1055 ~w:490 ~h:292" up}
+
+![](chill-coding-def.draw){#recreation}
+
+{draw=recreation}
+
+{draw=recreation}
+
+{draw=recreation}
+
+{draw=recreation}
+
+{draw=recreation}
+
+{pause}
 
 ## Chill-coding vs vibe-coding
 
