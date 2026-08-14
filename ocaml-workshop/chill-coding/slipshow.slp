@@ -32,16 +32,24 @@ toplevel-attributes: slip focus="~duration:0 libreoffice"
 
 {pause}
 
-{up}
-# 1. What is Slipshow
+{style="display:flex"}
+----
 
-{gui="~x:990 ~y:81 ~scale:0.851111" .block title="Runtime" focus}
+{slip}
+---
+
+{up #what-is}
+# 1. What is Slipshow (this)
+
+{pause}
+
+![](browser-native-split.draw){draw}
+
+{gui="~x:990 ~y:81 ~scale:0.851111" .block title="Presentation Runtime (in the browser)" focus="~margin:100" pause-block}
 > {pause}
-> - Code that is executed in the browser {pause}
+> - Handles camera movement and zooming
 >
-> - Movement and zooming in a canvas {pause}
->
-> - Action scheduler {pause draw=dadraw}
+> - Handles action scheduling {pause draw=dadraw}
 >
 > - ![](drawing-app.draw){#dadraw} {pause draw=dadraw}
 >
@@ -49,7 +57,7 @@ toplevel-attributes: slip focus="~duration:0 libreoffice"
 
 {unfocus}
 
-{gui="~x:34 ~y:85 ~scale:0.851111 ~w:638 ~h:304" .block title="Compiler" focus}
+{gui="~x:34 ~y:85 ~scale:0.851111 ~w:638 ~h:304" .block title="Presentation Compiler" focus="~margin:100"}
 > {pause}
 > - Compiles from an extension of markdown to standalone HTML
 >
@@ -60,25 +68,23 @@ toplevel-attributes: slip focus="~duration:0 libreoffice"
 
 {unfocus}
 
+{pause}
+
 {gui="~w:615 ~h:465" .block title="Preview server" style="z-index:-1" #preview-server}
 > {gui="~x:10 ~y:358"}
 > - Watches file system and sends changes
-
-{unfocus}
 
 {gui="~x:853 ~y:-4 ~w:872 ~h:584" .block title="Preview client" style="z-index:-1;overflow:hidden"}
 >
 > {gui="~x:205 ~y:424" }
 > - Receives changes and refreshes on changes
 >
-> {gui="~x:682 ~y:8 ~scale:0.800037 ~w:258 ~h:388" .block title="Runtime 2"}
+> {gui="~x:682 ~y:8 ~scale:0.800037 ~w:258 ~h:388" .block title="Hidden Runtime"}
 > - Starts up in the background
 >
 > - Send when is ready
 >
 > - Becomes the main one then.
-
-![](browser-native-split.draw)
 
 ![](whatisslip.draw){draw}
 
@@ -98,6 +104,10 @@ toplevel-attributes: slip focus="~duration:0 libreoffice"
 
 {pause}
 
+{slip}
+---
+# 2. What is Chill-coding
+
 {gui="~x:582 ~y:1055 ~w:490 ~h:292" up}
 
 ![](chill-coding-def.draw){#recreation}
@@ -112,10 +122,13 @@ toplevel-attributes: slip focus="~duration:0 libreoffice"
 
 {draw=recreation}
 
+{up=preview-server}
+
+{slip}
+---
+# 3. The OCaml part
+
 {pause}
-
-## Chill-coding vs vibe-coding
-
 
 ## Javascript
 
@@ -129,8 +142,27 @@ Show original code:
 
 Error-oriented programming
 - Adding a new message
+- Local reasonning
+- Example of artificial mapping
 
-It originated
+- Project-wide occurrences
+- Exhaustiveness pattern-matching
 
 ## A celebration of the OCaml ecosystem
 
+Ideas for examples of changes:
+- Save coordinates of screen
+- Activating actions moves the cursor
+- Sending new coordinates
+- custom lsp command
+- New node, when clicked, sends a notification to the editor
+
+What celebration of the OCaml ecosystem?
+- Linol
+- Dune
+- `Js_of_ocaml`
+- Grace
+- Cmdliner
+- Lwdw
+
+# Conclude with comparison with javascript
