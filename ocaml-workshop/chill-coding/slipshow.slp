@@ -1,0 +1,142 @@
+---
+dimension:16:9
+toplevel-attributes: slip focus="~duration:0 libreoffice"
+---
+
+<style>
+.slipshow-scale-container { will-change: unset; }
+</style>
+
+![](libreoffice2.png){#libreoffice gui="~x:978 ~y:186 ~scale:0.264720"}
+
+{gui="~x:1256 ~y:199 ~w:8 ~h:8" title="Start presentation from current slide"}
+
+{gui="~x:1061 ~y:191 ~w:23 ~h:8" title="Menu is disabled for maintenance"}
+
+{unfocus}
+
+{gui="~x:-70 ~y:-55 ~scale:0.560887"}
+# (Experience report)
+# Slipshow: Chill-coding with OCaml
+
+![](plan.draw){#plandraw}
+
+{.block title="Plan" style="font-size:1.4em"}
+1. What is Slipshow,
+
+2. What is Chill-coding,
+
+3. What is OCaml. {pause}
+
+4. What is "Chill-coding with OCaml on Slipshow".
+
+{pause}
+
+{up}
+# 1. What is Slipshow
+
+{gui="~x:990 ~y:81 ~scale:0.851111" .block title="Runtime" focus}
+> {pause}
+> - Code that is executed in the browser {pause}
+>
+> - Movement and zooming in a canvas {pause}
+>
+> - Action scheduler {pause draw=dadraw}
+>
+> - ![](drawing-app.draw){#dadraw} {pause draw=dadraw}
+>
+> -
+
+{unfocus}
+
+{gui="~x:34 ~y:85 ~scale:0.851111 ~w:638 ~h:304" .block title="Compiler" focus}
+> {pause}
+> - Compiles from an extension of markdown to standalone HTML
+>
+> - With a very professional looking CLI.
+>
+> - With static analysis and very professional looking diagnostics. <!-- TODO: mention Grace -->
+
+
+{unfocus}
+
+{gui="~w:615 ~h:465" .block title="Preview server" style="z-index:-1" #preview-server}
+> {gui="~x:10 ~y:358"}
+> - Watches file system and sends changes
+
+{unfocus}
+
+{gui="~x:853 ~y:-4 ~w:872 ~h:584" .block title="Preview client" style="z-index:-1;overflow:hidden"}
+>
+> {gui="~x:205 ~y:424" }
+> - Receives changes and refreshes on changes
+>
+> {gui="~x:682 ~y:8 ~scale:0.800037 ~w:258 ~h:388" .block title="Runtime 2"}
+> - Starts up in the background
+>
+> - Send when is ready
+>
+> - Becomes the main one then.
+
+![](browser-native-split.draw)
+
+![](whatisslip.draw){draw}
+
+{up=preview-server}
+
+{gui="~x:6 ~y:639 ~w:624 ~h:300" .block title="LSP server"}
+> - Starts the preview server
+>
+> - Show diagnostics
+>
+> - Provides completion
+>
+> - And more!
+
+{gui="~x:869 ~y:762 ~w:434 ~h:95" .block title="Editor"}
+> Whatever LSP-speaking editor.
+
+{pause}
+
+## Chill-coding vs vibe-coding
+
+## Slipshow's presentation
+
+### Two parts: An engine
+
+- A presentation engine
+
+  - Canvas browsing with zoom
+  - Action scheduler
+  - Drawing
+  - Drawing editor
+  - Speaker notes
+
+### Two parts: A compiler
+
+- A compiler from an extension of markdown
+- With static analysis and diagnostics
+- And a preview server
+- Which means a previewer
+
+### Two parts: Editor support
+
+## From Javascript to OCaml
+
+## Javascript
+
+Show original code:
+
+- The whole code
+- Focus on:
+  - 
+
+## OCaml
+
+Error-oriented programming
+- Adding a new message
+
+It originated
+
+## A celebration of the OCaml ecosystem
+
