@@ -136,8 +136,36 @@ Slips are slides with no bound on the height. {pause}
 
 ---
 # Drawing recorder
+
+![](drawing-tuto.draw){#dwt}
+
+{draw=dwt}
+
+{draw=dwt}
+
+{pause=wysiwym}
 ---
-# WYSIWYM
+# WYSIWYW
+
+{#wysiwym}
+
+> ### What You See Is What You Mean
+>
+> The rendering is automatic from a semantic description.
+
+{pause}
+
+> ### What You See Is What You Get
+>
+> The rendering is done by hand.
+
+{pause}
+
+> ### What You See Is What You Want
+>
+> You can choose between both.
+
+
 ----
 
 {step}
