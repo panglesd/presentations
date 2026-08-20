@@ -1,0 +1,15 @@
+.center {
+  text-align: center;
+}
+.grid {
+    padding-left:10%;
+    padding-right:10%;
+    display: grid;
+    grid: 1fr 1fr / 1fr 1fr;
+    grid-gap: 30px;
+}
+
+.with-border {
+    border:3px solid black;
+    padding:40px;
+}

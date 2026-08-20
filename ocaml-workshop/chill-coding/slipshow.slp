@@ -1,6 +1,7 @@
 ---
 dimension:16:9
 toplevel-attributes: slip focus="~duration:0 libreoffice"
+css: style.css
 ---
 
 <style>
@@ -33,79 +34,118 @@ toplevel-attributes: slip focus="~duration:0 libreoffice"
 {pause}
 
 {style="display:flex"}
+------
+
+{slip}
+-----
+
+# 1. What is Slipshow
+
+{pause}
+
+{.block .center}
+Slipshow is a new presentation software
+
+{.grid children:slide}
+----
+{pause=list1}
+---
+# Infinite canvas
+
+{#list1}
+- You can place slides in the canvas (like this one) {pause}
+
+- You can place slips in the canvas:
+
+{.definition}
+Slips are slides with no bound on the height. {pause}
+
+- You can move and zoom on the canvas during the presentation. {pause}
+
+{.block}
+- You can visually represent the structure of your presentation.
+
+- You can scroll by "half of a screen".
+
+- It changes quite dramatically the way you prepare presentations.
+
+{pause=aosl}
+---
+# Action-oriented syntax language
+
+{#aosl gui="~x:-25 ~y:-424 ~w:717" carousel change-page=~n:all}
+> ```markdown
+> # Actions
+>
+> ![](ocaml.mp4)
+>
+> 
+>
+> 
+> Actions are executed
+> in reading order
+>
+> 
+> ```
+> ```markdown
+> # Actions
+>
+> ![](ocaml.mp4){#vid-id}
+>
+> 
+>
+> {.block}
+> Actions are executed
+> in reading order
+>
+> 
+> ```
+> ```markdown
+> # Actions
+>
+> ![](ocaml.mp4){#vid-id}
+>
+> {pause}
+>
+> {.block}
+> Actions are executed
+> in reading order
+>
+> {play-media=vid-id}
+> ```
+
+{pause}
+
+→{gui="~x:684 ~y:-138 ~scale:4.371083"}
+
+{gui="~x:863 ~y:-276 ~scale:0.749567 ~w:1135 ~h:576" .with-border}
+> # Actions
+>
+> {.center}
+> ![](learnocaml.mp4){#vid-id width=15%}
+>
+> {pause}
+>
+> {.block}
+> Actions are executed
+> in reading order
+>
+> {play-media=vid-id}
+
+
+
+---
+# Drawing recorder
+---
+# WYSIWYM
 ----
 
-{slip}
----
-
-{up #what-is}
-# 1. What is Slipshow (this)
-
-{pause}
-
-![](browser-native-split.draw){draw}
-
-{gui="~x:990 ~y:81 ~scale:0.851111" .block title="Presentation Runtime (in the browser)" focus="~margin:100" pause-block}
-> {pause}
-> - Handles camera movement and zooming
->
-> - Handles action scheduling {pause draw=dadraw}
->
-> - ![](drawing-app.draw){#dadraw} {pause draw=dadraw}
->
-> -
-
-{unfocus}
-
-{gui="~x:34 ~y:85 ~scale:0.851111 ~w:638 ~h:304" .block title="Presentation Compiler" focus="~margin:100"}
-> {pause}
-> - Compiles from an extension of markdown to standalone HTML
->
-> - With a very professional looking CLI.
->
-> - With static analysis and very professional looking diagnostics. <!-- TODO: mention Grace -->
+{step}
 
 
-{unfocus}
-
-{pause}
-
-{gui="~w:615 ~h:465" .block title="Preview server" style="z-index:-1" #preview-server}
-> {gui="~x:10 ~y:358"}
-> - Watches file system and sends changes
-
-{gui="~x:853 ~y:-4 ~w:872 ~h:584" .block title="Preview client" style="z-index:-1;overflow:hidden"}
->
-> {gui="~x:205 ~y:424" }
-> - Receives changes and refreshes on changes
->
-> {gui="~x:682 ~y:8 ~scale:0.800037 ~w:258 ~h:388" .block title="Hidden Runtime"}
-> - Starts up in the background
->
-> - Send when is ready
->
-> - Becomes the main one then.
-
-![](whatisslip.draw){draw}
-
-{up=preview-server}
-
-{gui="~x:6 ~y:639 ~w:624 ~h:300" .block title="LSP server"}
-> - Starts the preview server
->
-> - Show diagnostics
->
-> - Provides completion
->
-> - And more!
-
-{gui="~x:869 ~y:762 ~w:434 ~h:95" .block title="Editor"}
-> Whatever LSP-speaking editor.
-
-{pause}
 
 {slip}
----
+-----
 # 2. What is Chill-coding
 
 {gui="~x:562 ~y:-25 ~w:490 ~h:292" up}
@@ -123,10 +163,10 @@ toplevel-attributes: slip focus="~duration:0 libreoffice"
 {draw=recreation}
 
 {step}
----
+-----
 
 {slip}
----
+-----
 # 3. The OCaml part
 
 {pause}
