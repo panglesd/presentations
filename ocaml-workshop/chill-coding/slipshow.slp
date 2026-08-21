@@ -170,6 +170,124 @@ Slips are slides with no bound on the height. {pause}
 
 {step}
 
+{pause up}
+# Slipshow's map
+
+![](slipshow-map.draw){#slipshow-map-draw}
+
+{.block gui="~x:36 ~y:180 ~w:473 ~h:380" #lsp-server .not-block}
+### LSP server
+
+{.block gui="~x:121 ~y:745" #lsp-client .not-block}
+### LSP client (editor)
+
+{.block gui="~x:818 ~y:-2 ~w:877 ~h:774" #preview-client .not-block}
+### Preview client
+
+{.block gui="~x:121 ~y:279 ~w:292 ~h:205" #preview-server  .not-block}
+### Preview server
+
+{.block gui="~x:864 ~y:106 ~w:789 ~h:614" #previewer .not-block}
+>
+> {.no-top-margin}
+> ### Previewer
+>
+> {.block gui="~x:80 ~y:247 ~w:563 ~h:194" #synchro-background .not-block}
+> > {.no-top-margin}
+> > ### Synchronizer (background)
+> >
+> > {.block gui="~x:228 ~y:-24 ~w:254 ~h:42"}
+> > ### Speaker view
+> >
+> > {.block gui="~x:13 ~y:-24 ~w:128 ~h:42"}
+> > ### Engine
+>
+> {.block gui="~x:77 ~y:-38 ~w:563 ~h:194" #synchronizer .not-block}
+> > {.no-top-margin}
+> > ### Synchronizer
+> >
+> > {.block gui="~x:228 ~y:-24 ~w:254 ~h:42" #speaker-view .not-block}
+> > > {.no-top-margin}
+> > > ### Speaker view
+> >
+> > {.block gui="~x:13 ~y:-24 ~w:128 ~h:42" #engine .not-block}
+> > > {.no-top-margin}
+> > > ### Engine
+
+{.block gui="~x:185 ~y:383" #compiler .not-block}
+### Compiler
+
+![](learnocaml.mp4){#vid-gui gui="~x:187 ~y:407 ~scale:0.525222" .unrevealed}
+
+![](learnocaml.mp4){#vid-gui2 gui="~x:1159 ~y:383 ~scale:0.475669" .unrevealed}
+
+{exec}
+```slip-script
+slip.setClass(document.querySelector("#engine"), "not-block", false)
+```
+
+{reveal=js-file}
+
+{unreveal=js-file}
+
+{exec}
+```slip-script
+slip.setClass(document.querySelector("#compiler"), "not-block", false)
+```
+{reveal="vid-gui"}
+
+{draw=slipshow-map-draw}
+
+{draw=slipshow-map-draw}
+
+{reveal="vid-gui2"}
+
+{exec}
+```slip-script
+slip.setClass(document.querySelector("#speaker-view"), "not-block", false)
+```
+{exec}
+```slip-script
+slip.setClass(document.querySelector("#synchronizer"), "not-block", false)
+```
+{draw=slipshow-map-draw}
+
+{exec}
+```slip-script
+slip.setClass(document.querySelector("#preview-server"), "not-block", false)
+```
+{exec}
+```slip-script
+slip.setClass(document.querySelector("#preview-client"), "not-block", false)
+```
+{draw=slipshow-map-draw}
+
+{exec}
+```slip-script
+slip.setClass(document.querySelector("#synchro-background"), "not-block", false)
+```
+{draw=slipshow-map-draw}
+
+{exec}
+```slip-script
+slip.setClass(document.querySelector("#previewer"), "not-block", false)
+```
+{exec}
+```slip-script
+slip.setClass(document.querySelector("#lsp-client"), "not-block", false)
+```
+{exec}
+```slip-script
+slip.setClass(document.querySelector("#lsp-server"), "not-block", false)
+```
+{draw=slipshow-map-draw}
+
+{gui="~x:-82 ~y:-51 ~scale:0.550784 ~w:1790 ~h:1769" include src=js-file.slp #js-file .unrevealed}
+
+-----
+
+{step}
+
 
 
 {slip}

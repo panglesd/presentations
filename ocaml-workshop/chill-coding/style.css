@@ -13,3 +13,20 @@
     border:3px solid black;
     padding:40px;
 }
+.no-top-margin {
+    margin-top:0
+}
+
+.not-block {
+    box-shadow:none;
+}
+.not-block > h3, h3.not-block {
+    opacity:0;
+}
+
+#js-file * {
+    white-space: pre-wrap;
+}
+#js-file {
+    overflow-y: scroll;
+}
