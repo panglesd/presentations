@@ -170,6 +170,37 @@ Slips are slides with no bound on the height. {pause}
 
 {step}
 
+-----
+
+{step}
+
+
+
+{slip}
+-----
+# 2. What is Chill-coding
+
+{gui="~x:562 ~y:-25 ~w:490 ~h:292" up}
+
+![](chill-coding-def.draw){#recreation}
+
+{draw=recreation}
+
+{draw=recreation}
+
+{draw=recreation}
+
+{draw=recreation}
+
+{draw=recreation}
+
+{step}
+-----
+
+{slip}
+-----
+# 3. The OCaml part
+
 {pause up}
 # Slipshow's map
 
@@ -284,39 +315,9 @@ slip.setClass(document.querySelector("#lsp-server"), "not-block", false)
 
 {gui="~x:-82 ~y:-51 ~scale:0.550784 ~w:1790 ~h:1769" include src=js-file.slp #js-file .unrevealed}
 
------
+{style="margin-top:calc(var(--page-height))" pause}
 
-{step}
-
-
-
-{slip}
------
-# 2. What is Chill-coding
-
-{gui="~x:562 ~y:-25 ~w:490 ~h:292" up}
-
-![](chill-coding-def.draw){#recreation}
-
-{draw=recreation}
-
-{draw=recreation}
-
-{draw=recreation}
-
-{draw=recreation}
-
-{draw=recreation}
-
-{step}
------
-
-{slip}
------
-# 3. The OCaml part
-
-{pause}
-
+{up}
 ## Javascript
 
 Show original code:
