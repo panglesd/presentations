@@ -201,7 +201,7 @@ Slips are slides with no bound on the height. {pause}
 -----
 # 3. The OCaml part
 
-{pause up}
+{pause up #smap}
 # Slipshow's map
 
 ![](slipshow-map.draw){#slipshow-map-draw}
@@ -252,6 +252,24 @@ Slips are slides with no bound on the height. {pause}
 
 ![](learnocaml.mp4){#vid-gui2 gui="~x:1159 ~y:383 ~scale:0.475669" .unrevealed}
 
+![](learnocaml.mp4){#vid-gui3 gui="~x:1492 ~y:377 ~scale:0.475669" .unrevealed}
+
+![](learnocaml.mp4){#vid-gui4 gui="~x:1162 ~y:668 ~scale:0.475669" .unrevealed}
+
+![](learnocaml.mp4){#vid-gui5 gui="~x:1498 ~y:665 ~scale:0.475669" .unrevealed}
+
+![](learnocaml.mp4){#vid-gui6 gui="~x:1541 ~y:224 ~scale:0.475669" .unrevealed}
+
+![](learnocaml.mp4){#vid-gui7 gui="~x:1658 ~y:147 ~scale:0.475669" .unrevealed}
+
+![](learnocaml.mp4){#vid-gui8 gui="~x:1702 ~y:29 ~scale:0.475669" .unrevealed}
+
+![](learnocaml.mp4){#vid-gui9 gui="~x:516 ~y:217 ~scale:0.475669" .unrevealed}
+
+![](learnocaml.mp4){#vid-gui10 gui="~x:422 ~y:317 ~scale:0.475669" .unrevealed}
+
+![](learnocaml.mp4){#vid-gui11 gui="~x:1541 ~y:224 ~scale:0.475669" .unrevealed}
+
 {exec}
 ```slip-script
 slip.setClass(document.querySelector("#engine"), "not-block", false)
@@ -271,7 +289,7 @@ slip.setClass(document.querySelector("#compiler"), "not-block", false)
 
 {draw=slipshow-map-draw}
 
-{reveal="vid-gui2"}
+{reveal="vid-gui2" unreveal=js-log}
 
 {exec}
 ```slip-script
@@ -315,42 +333,319 @@ slip.setClass(document.querySelector("#lsp-server"), "not-block", false)
 
 {gui="~x:-82 ~y:-51 ~scale:0.550784 ~w:1790 ~h:1769" include src=js-file.slp #js-file .unrevealed}
 
-{style="margin-top:calc(var(--page-height))" pause}
+{reveal="vid-gui3 vid-gui4 vid-gui5 vid-gui6 vid-gui7 vid-gui8 vid-gui9 vid-gui10 vid-gui11"}
 
-{up}
-## Javascript
+![](js-logo.png){gui="~x:1162 ~y:321 ~scale:0.030773" #js-log}
 
-Show original code:
+{gui="~x:108 ~y:-106 ~scale:6.291132" pause}
+😱{#horro} 😎{pause unstatic=horro}
 
-- The whole code
-- Focus on:
-  - 
 
-## OCaml
 
-Error-oriented programming
-- Adding a new message
-- Local reasonning
-- Example of artificial mapping
+{style="margin-top:calc(var(--page-height))"}
 
-- Project-wide occurrences
-- Exhaustiveness pattern-matching
+{up pause}
+# How to keep chilling when your codebase is big
 
-## A celebration of the OCaml ecosystem
+## 1. Do EDD (Error Driven Development)
 
-Ideas for examples of changes:
-- Save coordinates of screen
-- Activating actions moves the cursor
-- Sending new coordinates
-- custom lsp command
-- New node, when clicked, sends a notification to the editor
+{pause}
+- Navigate the codebase with errors.
 
-What celebration of the OCaml ecosystem?
-- Linol
-- Dune
-- `Js_of_ocaml`
-- Grace
-- Cmdliner
-- Lwdw
+{.example #codingclick}
+> Coding the "click-to-source" feature.
+>
+> - **Plan mode?** The engine has to send a message to the editor with the
+>   location. This message has to go through the preview server I think and hmm the previewer and what on earth is a synchronizer? **High cognitive load!** {pause}
+>
+>  {#exmode}
+> - **Execution mode**:
+>
+>   - Me:
+>     ```diff
+>     type preview_communication =
+>       | Ready
+>       | Go_forward
+>     + | Goto_location of loc
+>     ```
+>     {pause up=exmode}
+>   - The compiler:
+>     ```
+>     File "slipshow/src/engine/runtime/controller.ml", lines 230-272, characters 6-12:
+>     File "slipshow/src/engine/previewer/previewer.ml", lines 142-175, characters 10-16:
+>     Error (warning 8 [partial-match]): this pattern-matching is not exhaustive.
+>     ```
+>     {pause}
+>   - Me:
+>     ```diff
+>     - let create_previewer = function
+>     + let create_previewer ~goto_loc = function
+>     +| Goto_location loc -> goto_loc loc
+>     ```
+>     {pause down=nextone}
+>   - The compiler:
+>
+>     {#nextone}
+>     ```
+>     File "slipshow/src/server/client/client.ml", line 146, characters 27-37:
+>     Error: The value previewer has type loc -> blabla
+>       but an expression was expected of type Previewer.previewer
+>     ```
+>     {pause down=nextnextone}
+>   - Me:
+>
+>     {#nextnextone}
+>     ```diff
+>     type lsp_communication =
+>       | Ready
+>     + | Goto_loc of loc
+>
+>     - let previewer = create_previewer ev in
+>     + let goto_loc = send Goto_loc
+>     + let previewer = create_previewer ~goto_loc ev in
+>     + let create_previewer ~callback_goto_loc = function
+>     +   | Goto_location loc -> goto_loc loc
+>     ```
+>     {pause down=nextnextnextone}
+>   - The compiler:
+>
+>     {#nextnextnextone}
+>     ```
+>     File "slipshow/src/server/server.ml", lines 176-205, characters 10-54:
+>     Error (warning 8 [partial-match]): this pattern-matching is not exhaustive.
+>     ```
+>   - ... {pause down=codingclick } Until the feature is implemented
 
-# Conclude with comparison with javascript
+{up=smap}
+
+{pause up}
+- Introduce errors wherever possible.
+
+{.example}
+> {carousel change-page=~n:all}
+> ------
+> {.flex}
+> ----
+> ```ocaml
+> (* parsing.ml.
+>    Shared between
+>    compiler and engine *)
+>
+>                           
+>
+> module type S = sig
+> 
+>   ...
+> end
+>
+> module Action1 : S = ...
+>
+> module Action2 : S = ...
+>
+> module Action3 : S = ...
+> ```
+> ---
+> ```ocaml
+> (* execution.ml
+>
+>    Engine only. *)
+>
+>                                            
+>
+> module type S = sig
+> 
+>   ...
+> end
+>
+> module Action1 : S = ...
+>
+> module Action2 : S = ...
+>
+> module Action3 : S = ...
+> ```
+> -----
+> {.flex}
+> ----
+> ```ocaml
+> (* parsing.ml.
+>    Shared between
+>    compiler and engine *)
+>
+> type t = Action1 | Action2
+>
+> module type S = sig
+>   val repr : t
+>   ...
+> end
+>
+> module Action1 : S = ...
+>
+> module Action2 : S = ...
+>
+> module Action3 : S = ...
+> ```
+> ---
+> ```ocaml
+> (* execution.ml
+>
+>    Engine only. *)
+>
+> type t = Parsing.action = Action1 | Action2
+>
+> module type S = sig
+>   val repr : t
+>   ...
+> end
+>
+> module Action1 : S = ...
+>
+> module Action2 : S = ...
+>
+> module Action3 : S = ...
+> ```
+
+{pause center}
+- Leave artificial errors for your future self.
+
+{.example}
+> {.flex}
+> ----
+> ![](wip.png){width=100%}
+> ---
+> ```
+> File "slipshow/src/server/server.ml",
+> lines 176-205, characters 10-54:
+> Error: Unbound value implement_me
+> ```
+
+{pause up}
+## 2. Celebrate the extensive set of OCaml features
+
+- **GADTs for a nice action parsing API**
+
+```ocaml
+type 'a argument =
+  string * (string -> 'a)
+
+type _ input =
+  | [] : unit input
+  | ( :: ) : 'a argument * 'b input -> ('a * 'b) input
+
+type _ output =
+  | [] : unit output
+  | ( :: ) : 'a option * 'b output -> ('a * 'b) output
+
+val parse : action_name:string -> 'named input -> string -> 'named output
+```
+
+{pause down="~margin:50 sblock"}
+- **Extensible variants for extending `cmarkit`'s AST**
+
+{#sblock}
+```ocaml
+type s_block =
+  | Slide of slide attributed node
+  | Slip of Block.t attributed node
+  | SlipScript of Block.Code_block.t attributed node
+
+type Block.t += S_block of s_block
+
+```
+
+{pause down="~margin:50 all_actions"}
+- **First-class modules for putting action modules in a list**
+
+{#all_actions}
+```ocaml
+let all_actions =
+  [
+    (module Enter : S);
+    (module Clear_draw : S);
+    (module Draw : S);
+    (module Pause : S);
+    [...];
+    (module Play_media : S);
+  ]
+```
+
+{pause down="~margin:50 objects"}
+- **Objects for extending a base LSP server**
+
+{#objects}
+```ocaml
+    method! config_completion =
+      Some (CompletionOptions.create ~triggerCharacters:[ "#" ] ())
+```
+
+{pause down="~margin:50 operators"}
+- **Operators for satisfying eDSL design**
+
+{#operators}
+```ocaml
+val ( ||| ) :
+    Slipshow.file_reader -> Slipshow.file_reader -> Slipshow.file_reader
+
+let read_file =
+  Read_file.with_ file source
+  ||| read_from_buffer parent
+  ||| Fs.read_file in
+```
+
+{pause down="~margin:50 letops"}
+- **Let-operators for improving the readability**
+
+{#letops}
+```ocaml
+let (let*) x f =
+  let open Fut.Syntax in
+  let* x, undo1 = x in
+  let* y, undo2 = f x in
+  let undo () =
+    let* () = undo2 () in
+    undo1 ()
+  in
+  Fut.return (y, undo)
+```
+
+{pause down="~margin:50 interopoint"}
+- **Effects and multicore although I don't use them yet... one day...**
+
+{#interopoint}
+```ocaml
+????
+```
+
+{pause up}
+## Use the excellent ecosystem of OCaml libraries
+
+Thanks!!!
+
+- **LSP:**
+
+  - `linol` for being an LSP IKEA 🤗
+
+- **Build:**
+
+  - `dune` for handling the complex build of slipshow easily 🙏
+
+- **Compiler:**
+
+  - `cmdliner` for making top-class CLI easy
+
+  - `cmarkit` for allowing me to extend its AST 🤗
+
+  - `grace` for making top-class error reporting easy 🙏
+
+  - `dream` for being a simple server 🙏
+
+- **Engine:**
+
+  - `js_of_ocaml` for bringing OCaml everywhere
+
+  - `brr` for bringing OCaml everywhere 🤗
+
+  - `lwd` for unlocking UI programming 🤗
+
+-----
+
+{step}
